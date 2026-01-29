@@ -1,8 +1,6 @@
 <?php
-// 1. PRIMISSIMA RIGA: Accendi la memoria!
 session_start();
 if (!isset($_SESSION['ruolo']) || $_SESSION['ruolo'] != 'manager') {
-    // ...allora vai via.
     header("Location: ../index.php");
     exit;
 }
