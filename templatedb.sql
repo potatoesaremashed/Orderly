@@ -71,11 +71,11 @@ INSERT INTO manager (username, password) VALUES ('admin', 'admin');
 INSERT INTO menu (nome_menu, id_manager) VALUES ('Menu Test', 1);
 
 INSERT INTO categorie (nome_categoria, id_menu) VALUES 
-('categoriatest', 1),
+('categoriatest', 1);
 
 
 INSERT INTO alimenti (nome_piatto, prezzo, id_categoria) VALUES 
-('alimentotest', 12.00, 1),      
+('alimentotest', 12.00, 1);     
    
 INSERT INTO tavoli (nome_tavolo, password, id_menu) VALUES ('tavolotest', 'test', 1);
 INSERT INTO cuochi (username, password) VALUES ('cheftest', 'test'); 
