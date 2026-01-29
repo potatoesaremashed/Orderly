@@ -42,6 +42,9 @@ CREATE TABLE alimenti (
     id_alimento INT AUTO_INCREMENT PRIMARY KEY,
     nome_piatto VARCHAR(100) NOT NULL,
     prezzo DECIMAL(10,2) NOT NULL,
+    descrizione TEXT,
+    lista_allergeni TEXT, 
+    immagine VARCHAR(255) DEFAULT 'default.jpg',
     id_categoria INT,
     FOREIGN KEY (id_categoria) REFERENCES categorie(id_categoria)
 );
@@ -74,8 +77,8 @@ INSERT INTO categorie (nome_categoria, id_menu) VALUES
 ('categoriatest', 1);
 
 
-INSERT INTO alimenti (nome_piatto, prezzo, id_categoria) VALUES 
-('alimentotest', 12.00, 1);     
+INSERT INTO alimenti (nome_piatto, prezzo, lista_allergeni, id_categoria) 
+VALUES ('Carbonara', 12.50, 'glutine,uova,lattosio', 1); 
    
 INSERT INTO tavoli (nome_tavolo, password, id_menu) VALUES ('tavolotest', 'test', 1);
 INSERT INTO cuochi (username, password) VALUES ('cheftest', 'test'); 

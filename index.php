@@ -40,7 +40,7 @@ include "include/header.php";
 ?>
 
 <div class="container" style="max-width: 400px; margin-top: 50px; text-align: center;">
-    <img src="img/ordnobg.png" style="width: 120px; margin-bottom: 15px;">
+    <img src="imgs/ordnobg.png" style="width: 120px; margin-bottom: 15px;">
     <h3>Login</h3>
 
     <form method="post">
