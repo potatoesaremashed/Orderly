@@ -1,82 +1,91 @@
 <?php
+/**
+ * API: Aggiungi Piatto (Manager) + Ottimizzazione Immagini
+ * --------------------------------------------------------
+ * Script per l'inserimento di nuovi prodotti nel menu.
+ * INCLUDE LOGICA DI RESIZE:
+ * Prima di salvare l'immagine, lo script la ridimensiona a max 800px di larghezza
+ * e la converte in JPG compresso per evitare rallentamenti nell'app mobile.
+ */
+session_start();
+include "../include/conn.php";
+// ... resto del codice ...
 session_start();
 include "../include/conn.php";
 
-// 1. SICUREZZA: Verifica che l'utente sia loggato come Manager
+// Verifica permessi Manager
 if (!isset($_SESSION['ruolo']) || $_SESSION['ruolo'] != 'manager') {
     header("Location: ../index.php");
     exit;
 }
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+$nome = $conn->real_escape_string($_POST['nome_piatto']);
+$desc = $conn->real_escape_string($_POST['descrizione']);
+$prezzo = floatval($_POST['prezzo']);
+$categoria = $conn->real_escape_string($_POST['categoria']);
 
-    // --- RICEZIONE E PULIZIA DATI ---
-    $nome = $conn->real_escape_string($_POST['nome_piatto']);
-    $prezzo = floatval($_POST['prezzo']);
-    $desc = $conn->real_escape_string($_POST['descrizione']);
-    $cat = intval($_POST['id_categoria']);
+// Gestione Immagine Ottimizzata
+$target_dir = "../imgs/prodotti/";
+$nuovo_nome_img = "piatto_" . uniqid() . ".jpg"; // Convertiamo tutto in JPG
+$target_file = $target_dir . $nuovo_nome_img;
+$uploadOk = 1;
 
-    // --- NUOVA GESTIONE ALLERGENI (CHECKBOX) ---
-    // Verifichiamo se sono stati selezionati allergeni
-    if (isset($_POST['allergeni']) && is_array($_POST['allergeni'])) {
-        // Uniamo l'array in una stringa separata da virgole (es: "Glutine,Uova,Latte")
-        $stringa_allergeni = implode(',', $_POST['allergeni']);
-        $allergeni = $conn->real_escape_string($stringa_allergeni);
-    } else {
-        $allergeni = ""; // Nessun allergene selezionato
-    }
-
-    // --- GESTIONE UPLOAD IMMAGINE ---
-    $target_dir = "../imgs/prodotti/";
+if(isset($_FILES["immagine"]) && $_FILES["immagine"]["error"] == 0) {
     
-    if (!file_exists($target_dir)) {
-        mkdir($target_dir, 0777, true);
-    }
-
-    $imageFileType = strtolower(pathinfo($_FILES["immagine"]["name"], PATHINFO_EXTENSION));
-    $new_file_name = "piatto_" . uniqid() . "." . $imageFileType;
-    $target_file = $target_dir . $new_file_name;
+    $source_path = $_FILES["immagine"]["tmp_name"];
+    list($width, $height, $type) = getimagesize($source_path);
     
-    $uploadOk = 1;
-    $erroreMsg = "";
-
-    // Controlli immagine
-    $check = getimagesize($_FILES["immagine"]["tmp_name"]);
-    if($check === false) {
-        $erroreMsg = "Il file non è un'immagine.";
-        $uploadOk = 0;
+    // Crea risorsa immagine in base al tipo originale
+    $src_image = null;
+    switch ($type) {
+        case IMAGETYPE_JPEG: $src_image = imagecreatefromjpeg($source_path); break;
+        case IMAGETYPE_PNG:  $src_image = imagecreatefrompng($source_path); break;
+        case IMAGETYPE_GIF:  $src_image = imagecreatefromgif($source_path); break;
     }
 
-    if($imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg" && $imageFileType != "webp" ) {
-        $erroreMsg = "Solo file JPG, JPEG, PNG e WEBP sono ammessi.";
-        $uploadOk = 0;
-    }
-
-    // --- ESECUZIONE ---
-    if ($uploadOk == 0) {
-        header("Location: ../dashboards/manager.php?msg=error&info=" . urlencode($erroreMsg));
-        exit;
-    } else {
-        if (move_uploaded_file($_FILES["immagine"]["tmp_name"], $target_file)) {
-            
-            // Query di inserimento
-            $sql = "INSERT INTO alimenti (nome_piatto, prezzo, descrizione, lista_allergeni, immagine, id_categoria) 
-                    VALUES ('$nome', $prezzo, '$desc', '$allergeni', '$new_file_name', $cat)";
-
-            if ($conn->query($sql) === TRUE) {
-                header("Location: ../dashboards/manager.php?msg=success");
-                exit;
-            } else {
-                echo "Errore Database: " . $conn->error;
-            }
-
+    if ($src_image) {
+        // Calcola nuove dimensioni (Max larghezza 800px)
+        $max_width = 800;
+        if ($width > $max_width) {
+            $new_width = $max_width;
+            $new_height = ($height / $width) * $new_width;
         } else {
-            echo "Errore tecnico nel caricamento del file.";
+            $new_width = $width;
+            $new_height = $height;
         }
-    }
 
+        // Crea nuova immagine vuota
+        $dst_image = imagecreatetruecolor($new_width, $new_height);
+        
+        // Mantieni trasparenza per PNG (convertendo in bianco se passa a JPG) o sfondo bianco
+        $white = imagecolorallocate($dst_image, 255, 255, 255);
+        imagefill($dst_image, 0, 0, $white);
+
+        // Copia e ridimensiona
+        imagecopyresampled($dst_image, $src_image, 0, 0, 0, 0, $new_width, $new_height, $width, $height);
+
+        // Salva come JPG compresso (Qualità 75/100) -> Questo riduce drasticamente il peso!
+        if(imagejpeg($dst_image, $target_file, 75)) {
+            $uploadOk = 1;
+        } else {
+            $uploadOk = 0;
+        }
+
+        // Libera memoria
+        imagedestroy($src_image);
+        imagedestroy($dst_image);
+    } else {
+        $uploadOk = 0; // Formato non supportato
+    }
 } else {
-    header("Location: ../dashboards/manager.php");
-    exit;
+    $nuovo_nome_img = "default.png"; // Immagine se non caricata
 }
+
+if ($uploadOk) {
+    $sql = "INSERT INTO alimenti (nome_piatto, descrizione, prezzo, categoria, immagine, disponibile) 
+            VALUES ('$nome', '$desc', $prezzo, '$categoria', '$nuovo_nome_img', 1)";
+    $conn->query($sql);
+}
+
+header("Location: ../dashboards/manager.php");
 ?>

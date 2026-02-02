@@ -170,7 +170,7 @@ $prodotti = $conn->query("SELECT * FROM alimenti");
       </div>
       <div class="modal-footer d-flex justify-content-between">
         <h4>Totale: <span id="totale-modale">0.00</span>€</h4>
-        <button type="button" class="btn btn-success fw-bold px-4">CONFERMA E INVIA</button>
+        <button type="button" id="btn-invia-ordine" class="btn btn-success fw-bold px-4">CONFERMA E INVIA</button>
       </div>
     </div>
   </div>
