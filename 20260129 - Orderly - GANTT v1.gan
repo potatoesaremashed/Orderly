@@ -1,14 +1,15 @@
-<?xml version="1.0" encoding="UTF-8"?><project name="Untitled Gantt Project" company="" webLink="http://" view-date="2026-01-25" view-index="0" gantt-divider-location="348" resource-divider-location="300" version="3.3.3322" locale="en_US">
+<?xml version="1.0" encoding="UTF-8"?><project name="Untitled Gantt Project" company="" webLink="http://" view-date="2026-01-25" view-index="0" gantt-divider-location="335" resource-divider-location="300" version="3.3.3322" locale="en_US">
     <description/>
     <view zooming-state="default:4" id="gantt-chart">
-        <field id="tpd3" name="Name" width="164" order="0"/>
-        <field id="tpd4" name="Begin date" width="116" order="1"/>
-        <field id="tpd5" name="End date" width="53" order="2"/>
+        <field id="tpd3" name="Name" width="157" order="0"/>
+        <field id="tpd4" name="Begin date" width="111" order="1"/>
+        <field id="tpd5" name="End date" width="51" order="2"/>
         <field id="tpd15" name="Notes" width="20" order="3"/>
         <option id="filter.completedTasks" value="false"/>
         <option id="filter.dueTodayTasks" value="false"/>
         <option id="filter.overdueTasks" value="false"/>
         <option id="filter.inProgressTodayTasks" value="false"/>
+        <timeline><![CDATA[7]]></timeline>
     </view>
     <view id="resource-table">
         <field id="0" name="Name" width="206" order="0"/>
@@ -44,31 +45,48 @@
             <task id="3" uid="274cc1cae6864f94bb6436a1986852ea" name="Analisi Requisiti" meeting="false" start="2026-01-22" duration="1" complete="100" expand="true"/>
             <task id="4" uid="28d12f5bfa984b6f89e94b9ef9fd4af9" name="Modellazione concettuale" meeting="false" start="2026-01-22" duration="1" complete="100" expand="true"/>
             <task id="5" uid="ce991bef71cd4ea8be21ffbb4bd70679" name="Modellazione logica" meeting="false" start="2026-01-22" duration="1" complete="100" expand="true"/>
-            <task id="6" uid="bee77c3868b44951a0e27f0b54439fe5" name="Data Dictionary" meeting="false" start="2026-01-22" duration="1" complete="100" expand="true"/>
-            <task id="7" uid="8fabc3fd417a4507a823e6d53fdec2aa" name="Script Inizializzazione" meeting="false" start="2026-01-22" duration="6" complete="100" expand="true"/>
+            <task id="7" uid="8fabc3fd417a4507a823e6d53fdec2aa" name="Script Inizializzazione" meeting="false" start="2026-01-22" duration="6" complete="100" webLink="https%3A%2F%2Fgithub.com%2Fpotatoesaremashed%2FOrderly%2Fblob%2Fmain%2Ftemplatedb.sql" expand="true"/>
         </task>
-        <task id="9" uid="57a06306da504a8ca8252294059963f5" name="Backend" meeting="false" start="2026-01-29" duration="16" complete="21" thirdDate="2026-01-29" thirdDate-constraint="1" expand="true">
+        <task id="9" uid="57a06306da504a8ca8252294059963f5" name="Backend" meeting="false" start="2026-01-29" duration="16" complete="47" thirdDate="2026-01-29" thirdDate-constraint="1" expand="true">
             <depend id="46" type="2" difference="0" hardness="Strong"/>
-            <task id="11" uid="25270217086f4f2e849be8cfc73203a2" name="Funzioni Cliente" meeting="false" start="2026-01-29" duration="4" complete="80" expand="true">
-                <task id="10" uid="8243d36dcc1d4b1f88b548cffc8253c0" name="Pagina Login" meeting="false" start="2026-01-29" duration="1" complete="100" expand="true"/>
-                <task id="27" uid="c838f5e04fb84a6fba29b7654b0a9f17" name="Connessione client-server" meeting="false" start="2026-01-29" duration="1" complete="100" expand="true"/>
-                <task id="14" uid="c09fc8d4aae142afb04408b631b731cd" name="Gestione Carrello" meeting="false" start="2026-01-30" duration="3" complete="66" thirdDate="2026-01-30" thirdDate-constraint="1" expand="true">
-                    <task id="16" uid="1e422e356acc4e66b2be350ad2fee619" name="Aggiungi domanda" meeting="false" start="2026-01-30" duration="1" complete="100" expand="true">
+            <task id="11" uid="25270217086f4f2e849be8cfc73203a2" name="Funzioni Cliente" meeting="false" start="2026-01-29" duration="4" complete="100" expand="true">
+                <task id="10" uid="8243d36dcc1d4b1f88b548cffc8253c0" name="Pagina Login" meeting="false" start="2026-01-29" duration="1" complete="100" webLink="https%3A%2F%2Fgithub.com%2Fpotatoesaremashed%2FOrderly%2Fblob%2Fmain%2Findex.php" expand="true">
+                    <notes><![CDATA[logica:1-30
+interfaccia:31-fine]]></notes>
+                </task>
+                <task id="27" uid="c838f5e04fb84a6fba29b7654b0a9f17" name="Connessione client-server" meeting="false" start="2026-01-29" duration="1" complete="100" webLink="https%3A%2F%2Fgithub.com%2Fpotatoesaremashed%2FOrderly%2Ftree%2Fmain%2Finclude" expand="true"/>
+                <task id="14" uid="c09fc8d4aae142afb04408b631b731cd" name="Gestione Carrello" meeting="false" start="2026-01-30" duration="3" complete="100" thirdDate="2026-01-30" thirdDate-constraint="1" expand="true">
+                    <task id="16" uid="1e422e356acc4e66b2be350ad2fee619" name="Aggiungi domanda" meeting="false" start="2026-01-30" duration="1" complete="100" webLink="https%3A%2F%2Fgithub.com%2Fpotatoesaremashed%2FOrderly%2Fblob%2Fmain%2Fapi%2Faggiungi_al_carrello.php" expand="true">
+                        <notes><![CDATA[js/gestioneCarrello.js: Funzione gestisciCarrello() che esegue la chiamata fetch asincrona.]]></notes>
                         <depend id="15" type="2" difference="0" hardness="Strong"/>
                     </task>
-                    <task id="15" uid="d81139003eff4fbbb0937da86e867821" name="Rimuovi domanda" meeting="false" start="2026-02-02" duration="1" complete="100" expand="true">
+                    <task id="15" uid="d81139003eff4fbbb0937da86e867821" name="Rimuovi domanda" meeting="false" start="2026-02-02" duration="1" complete="100" webLink="https%3A%2F%2Fgithub.com%2Fpotatoesaremashed%2FOrderly%2Fblob%2Fmain%2Fapi%2Frimuovi_dal_carrello.php" expand="true">
+                        <notes><![CDATA[js/gestioneCarrello.js: Logica client-side per gestire decrementi e feedback visivo.]]></notes>
                         <depend id="17" type="2" difference="0" hardness="Strong"/>
                     </task>
-                    <task id="17" uid="0e451faaebab4a139ca2c9ea09e945ac" name="Visualizza Carrello" meeting="false" start="2026-02-03" duration="1" complete="0" expand="true"/>
+                    <task id="17" uid="0e451faaebab4a139ca2c9ea09e945ac" name="Visualizza Carrello" meeting="false" start="2026-02-03" duration="1" complete="100" webLink="https%3A%2F%2Fgithub.com%2Fpotatoesaremashed%2FOrderly%2Fblob%2Fmain%2Fapi%2Fget_carrello.php" expand="true">
+                        <notes><![CDATA[api/get_carrello.php: API che esegue SELECT con JOIN tra ordini, dettaglio_ordini e alimenti per recuperare i dati persistenti.
+
+dashboards/tavolo.php: Struttura HTML della Modale.
+
+js/gestioneCarrello.js: Funzione aggiornaInterfacciaCarrello() che renderizza il JSON ricevuto.
+
+api/invia_ordine.php: Gestione del cambio stato da 'in_attesa' a 'in_coda'.]]></notes>
+                    </task>
                 </task>
             </task>
-            <task id="18" uid="4143919271144ff2b92ce7043a710ac6" name="Funzioni Cucina" meeting="false" start="2026-02-04" duration="4" complete="0" thirdDate="2026-01-30" thirdDate-constraint="1" expand="true">
-                <task id="19" uid="d290f6807eb44d0b82a94e7fa4239695" name="Ricevi notifica" meeting="false" start="2026-02-04" duration="2" complete="0" expand="true"/>
-                <task id="20" uid="bb6be8c77c404e8d9124d2832031f762" name="Controllo stato ordini" meeting="false" start="2026-02-06" duration="2" complete="0" expand="true"/>
+            <task id="18" uid="4143919271144ff2b92ce7043a710ac6" name="Funzioni Cucina" meeting="false" start="2026-02-04" duration="4" complete="100" thirdDate="2026-01-30" thirdDate-constraint="1" expand="true">
+                <task id="19" uid="d290f6807eb44d0b82a94e7fa4239695" name="Ricevi notifica" meeting="false" start="2026-02-04" duration="2" complete="100" webLink="https%3A%2F%2Fgithub.com%2Fpotatoesaremashed%2FOrderly%2Fblob%2Fmain%2Fapi%2Fleggi_ordini_cucina.php" expand="true">
+                    <notes><![CDATA[dashboards/cucina.php: Script JS setInterval per aggiornamento automatico della vista senza ricaricare la pagina.]]></notes>
+                </task>
+                <task id="20" uid="bb6be8c77c404e8d9124d2832031f762" name="Controllo stato ordini" meeting="false" start="2026-02-06" duration="2" complete="100" webLink="https%3A%2F%2Fgithub.com%2Fpotatoesaremashed%2FOrderly%2Fblob%2Fmain%2Fapi%2Fcambia_stato_ordine.php" expand="true">
+                    <notes><![CDATA[dashboards/cucina.php: Bottoni dinamici collegati all'API.]]></notes>
+                </task>
             </task>
             <task id="13" uid="b073989bfba44a73afe5fd4014908457" name="Funzioni Manager" meeting="false" start="2026-02-10" duration="8" complete="0" thirdDate="2026-01-30" thirdDate-constraint="1" expand="true">
                 <task id="21" uid="c26b97b6de174bbea2e7dd8ca77dc8fa" name="Editor Menu" meeting="false" start="2026-02-10" duration="4" complete="0" thirdDate="2026-01-30" thirdDate-constraint="1" expand="true">
-                    <task id="22" uid="bd1a7ecacdc2403e8e6164da9911ca9a" name="Aggiungi piatto" meeting="false" start="2026-02-10" duration="1" complete="0" expand="true">
+                    <task id="22" uid="bd1a7ecacdc2403e8e6164da9911ca9a" name="Aggiungi piatto" meeting="false" start="2026-02-10" duration="1" complete="0" webLink="https%3A%2F%2Fgithub.com%2Fpotatoesaremashed%2FOrderly%2Fblob%2Fmain%2Fapi%2Faggiungi_piatto.php" expand="true">
+                        <notes><![CDATA[dashboards/manager.php: Form HTML Multipart per invio dati e file.]]></notes>
                         <depend id="24" type="2" difference="0" hardness="Strong"/>
                     </task>
                     <task id="24" uid="a3461db8281c4a0a96efe24f68d89167" name="Aggiungi categoria" meeting="false" start="2026-02-11" duration="1" complete="0" expand="true">
@@ -85,10 +103,10 @@
                 <task id="31" uid="3cd26f7ce1324f37ae6d16637cb18bc1" name="Autenticazione / Autorizzazione" meeting="false" start="2026-02-17" duration="3" complete="0" expand="true"/>
             </task>
         </task>
-        <task id="32" uid="7b5f5dbd09fd4e6b84b4502baa774cb6" name="Frontend" meeting="false" start="2026-02-12" duration="12" complete="7" thirdDate="2026-02-12" thirdDate-constraint="1" expand="true">
+        <task id="32" uid="7b5f5dbd09fd4e6b84b4502baa774cb6" name="Frontend" meeting="false" start="2026-02-12" duration="12" complete="23" thirdDate="2026-02-12" thirdDate-constraint="1" expand="true">
             <depend id="46" type="2" difference="0" hardness="Strong"/>
-            <task id="33" uid="064c2e65533d4ea3ac613d4d2b8e7a4e" name="Interfaccia cliente" meeting="false" start="2026-02-12" duration="8" complete="12" expand="true">
-                <task id="34" uid="a249eac7c7dd4730be1fea7990f2c47c" name="Menu digitale" meeting="false" start="2026-02-12" duration="2" complete="0" expand="true">
+            <task id="33" uid="064c2e65533d4ea3ac613d4d2b8e7a4e" name="Interfaccia cliente" meeting="false" start="2026-02-12" duration="8" complete="37" expand="true">
+                <task id="34" uid="a249eac7c7dd4730be1fea7990f2c47c" name="Menu digitale" meeting="false" start="2026-02-12" duration="2" complete="100" webLink="https%3A%2F%2Fgithub.com%2Fpotatoesaremashed%2FOrderly%2Fblob%2Fmain%2Fdashboards%2Ftavolo.php" expand="true">
                     <depend id="35" type="2" difference="0" hardness="Strong"/>
                 </task>
                 <task id="35" uid="c7e4303cb5144c85afcc1a0a5b839f5b" name="Interfaccia carrello" meeting="false" start="2026-02-16" duration="2" complete="0" expand="true"/>
@@ -140,18 +158,21 @@
         <allocation task-id="7" resource-id="0" function="Default:0" responsible="true" load="100.0"/>
         <allocation task-id="24" resource-id="0" function="Default:0" responsible="true" load="100.0"/>
         <allocation task-id="34" resource-id="0" function="Default:0" responsible="true" load="100.0"/>
+        <allocation task-id="0" resource-id="0" function="Default:0" responsible="false" load="20.0"/>
+        <allocation task-id="1" resource-id="0" function="Default:0" responsible="true" load="20.0"/>
+        <allocation task-id="10" resource-id="0" function="Default:0" responsible="true" load="100.0"/>
         <allocation task-id="4" resource-id="1" function="Default:0" responsible="true" load="100.0"/>
         <allocation task-id="27" resource-id="1" function="Default:0" responsible="true" load="100.0"/>
-        <allocation task-id="20" resource-id="1" function="Default:0" responsible="true" load="100.0"/>
-        <allocation task-id="19" resource-id="1" function="Default:0" responsible="true" load="100.0"/>
         <allocation task-id="35" resource-id="1" function="Default:0" responsible="true" load="100.0"/>
         <allocation task-id="53" resource-id="1" function="Default:0" responsible="true" load="100.0"/>
-        <allocation task-id="1" resource-id="2" function="Default:0" responsible="true" load="100.0"/>
+        <allocation task-id="0" resource-id="1" function="Default:0" responsible="false" load="15.0"/>
+        <allocation task-id="1" resource-id="1" function="Default:0" responsible="false" load="10.0"/>
+        <allocation task-id="1" resource-id="2" function="Default:0" responsible="false" load="15.0"/>
         <allocation task-id="23" resource-id="2" function="Default:0" responsible="true" load="100.0"/>
         <allocation task-id="36" resource-id="2" function="Default:0" responsible="true" load="100.0"/>
         <allocation task-id="45" resource-id="2" function="Default:0" responsible="true" load="100.0"/>
         <allocation task-id="58" resource-id="2" function="Default:0" responsible="true" load="100.0"/>
-        <allocation task-id="6" resource-id="3" function="Default:0" responsible="true" load="100.0"/>
+        <allocation task-id="0" resource-id="2" function="Default:0" responsible="false" load="15.0"/>
         <allocation task-id="16" resource-id="3" function="Default:0" responsible="true" load="100.0"/>
         <allocation task-id="48" resource-id="3" function="Default:0" responsible="true" load="100.0"/>
         <allocation task-id="49" resource-id="3" function="Default:0" responsible="true" load="100.0"/>
@@ -160,21 +181,29 @@
         <allocation task-id="55" resource-id="3" function="Default:0" responsible="true" load="100.0"/>
         <allocation task-id="15" resource-id="3" function="Default:0" responsible="false" load="100.0"/>
         <allocation task-id="37" resource-id="3" function="Default:0" responsible="true" load="100.0"/>
-        <allocation task-id="0" resource-id="4" function="Default:0" responsible="false" load="100.0"/>
-        <allocation task-id="17" resource-id="4" function="Default:0" responsible="true" load="100.0"/>
-        <allocation task-id="10" resource-id="4" function="Default:0" responsible="true" load="100.0"/>
+        <allocation task-id="17" resource-id="3" function="Default:0" responsible="true" load="100.0"/>
+        <allocation task-id="19" resource-id="3" function="Default:0" responsible="true" load="100.0"/>
+        <allocation task-id="20" resource-id="3" function="Default:0" responsible="true" load="100.0"/>
+        <allocation task-id="0" resource-id="3" function="Default:0" responsible="false" load="10.0"/>
+        <allocation task-id="1" resource-id="3" function="Default:0" responsible="false" load="20.0"/>
         <allocation task-id="40" resource-id="4" function="Default:0" responsible="true" load="100.0"/>
         <allocation task-id="41" resource-id="4" function="Default:0" responsible="true" load="100.0"/>
         <allocation task-id="43" resource-id="4" function="Default:0" responsible="true" load="100.0"/>
         <allocation task-id="44" resource-id="4" function="Default:0" responsible="true" load="100.0"/>
+        <allocation task-id="0" resource-id="4" function="Default:0" responsible="true" load="20.0"/>
+        <allocation task-id="1" resource-id="4" function="Default:0" responsible="false" load="15.0"/>
         <allocation task-id="5" resource-id="5" function="Default:0" responsible="true" load="100.0"/>
         <allocation task-id="29" resource-id="5" function="Default:0" responsible="true" load="100.0"/>
         <allocation task-id="38" resource-id="5" function="Default:0" responsible="true" load="100.0"/>
         <allocation task-id="56" resource-id="5" function="Default:0" responsible="true" load="100.0"/>
+        <allocation task-id="0" resource-id="5" function="Default:0" responsible="false" load="10.0"/>
+        <allocation task-id="1" resource-id="5" function="Default:0" responsible="false" load="10.0"/>
         <allocation task-id="3" resource-id="6" function="Default:0" responsible="true" load="100.0"/>
         <allocation task-id="31" resource-id="6" function="Default:0" responsible="true" load="100.0"/>
         <allocation task-id="57" resource-id="6" function="Default:0" responsible="true" load="100.0"/>
         <allocation task-id="25" resource-id="6" function="Default:0" responsible="true" load="100.0"/>
+        <allocation task-id="0" resource-id="6" function="Default:0" responsible="false" load="10.0"/>
+        <allocation task-id="1" resource-id="6" function="Default:0" responsible="false" load="10.0"/>
     </allocations>
     <vacations/>
     <previous/>
