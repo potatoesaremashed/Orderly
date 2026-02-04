@@ -416,35 +416,35 @@ function apriZoom(card) {
     new bootstrap.Modal(document.getElementById('modalZoom')).show();
 }
 
-document.getElementById('btn-invia-ordine').addEventListener('click', function() {
+document.getElementById('btn-invia-ordine').onclick = function() {
     const btn = this;
-    const datiOrdine = Object.values(carrello).map(item => ({ id_alimento: item.id, quantita: item.qta }));
+    if(!confirm("Vuoi inviare l'ordine in cucina?")) return;
+
     btn.disabled = true;
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Invio in corso...';
-    fetch('../api/invia_ordine.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ carrello: datiOrdine })
-    })
-    .then(response => response.json())
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Invio...';
+
+    // Chiamata all'API che sposta l'ordine da 'in_attesa' a 'in_coda'
+    fetch('../api/invia_ordine.php', { method: 'POST' })
+    .then(res => res.json())
     .then(data => {
-        if (data.success) {
+        if(data.success) {
+            // Nascondi il carrello
             bootstrap.Modal.getInstance(document.getElementById('modalCarrello')).hide();
+            // Mostra il modale di successo (il cerchio verde che hai nel codice)
             new bootstrap.Modal(document.getElementById('modalSuccesso')).show();
-            setTimeout(() => { location.reload(); }, 2000);
+            
+            // Dopo 2 secondi ricarica per svuotare i contatori visivi
+            setTimeout(() => location.reload(), 2000);
         } else {
             alert("Errore: " + data.message);
             btn.disabled = false;
             btn.innerHTML = 'INVIA ORDINE <i class="fas fa-paper-plane ms-2"></i>';
         }
-    })
-    .catch(error => {
-        console.error('Error:', error);
+    }).catch(err => {
         alert("Errore di connessione!");
         btn.disabled = false;
-        btn.innerHTML = 'INVIA ORDINE <i class="fas fa-paper-plane ms-2"></i>';
     });
-});
+};
 </script>
 
 <?php include "../include/footer.php"; ?>

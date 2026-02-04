@@ -3,33 +3,27 @@ session_start();
 include "../include/conn.php";
 header('Content-Type: application/json');
 
-// Leggi input JSON
-$input = json_decode(file_get_contents('php://input'), true);
+// Identifichiamo il tavolo
+$id_tavolo = $_SESSION['id_tavolo'] ?? $_SESSION['id_utente'] ?? null;
 
-if (!isset($_SESSION['id_tavolo'])) {
-    echo json_encode(['success' => false, 'message' => 'Sessione scaduta']);
+if (!$id_tavolo) {
+    echo json_encode(['success' => false, 'message' => 'Sessione scaduta o tavolo non identificato.']);
     exit;
 }
 
-if (!isset($input['carrello']) || empty($input['carrello'])) {
-    echo json_encode(['success' => false, 'message' => 'Carrello vuoto']);
-    exit;
-}
+// 1. Cerchiamo l'ordine 'in_attesa' per questo tavolo e lo attiviamo per la cucina ('in_coda')
+$sql = "UPDATE ordini 
+        SET stato = 'in_coda', data_ora = NOW() 
+        WHERE id_tavolo = $id_tavolo AND stato = 'in_attesa'";
 
-$id_tavolo = $_SESSION['id_tavolo'];
-
-// 1. Crea nuovo ordine
-$conn->query("INSERT INTO ordini (id_tavolo, data_ora, stato) VALUES ($id_tavolo, NOW(), 'in_coda')");
-$id_ordine = $conn->insert_id;
-
-// 2. Inserisci dettagli
-foreach ($input['carrello'] as $item) {
-    $id_alim = intval($item['id_alimento']);
-    $qta = intval($item['quantita']);
-    if($qta > 0) {
-        $conn->query("INSERT INTO dettaglio_ordini (id_ordine, id_alimento, quantita) VALUES ($id_ordine, $id_alim, $qta)");
+if ($conn->query($sql)) {
+    if ($conn->affected_rows > 0) {
+        // Successo: l'ordine è ora visibile a leggi_ordini_cucina.php
+        echo json_encode(['success' => true]);
+    } else {
+        echo json_encode(['success' => false, 'message' => 'Nessun piatto nel carrello da inviare.']);
     }
+} else {
+    echo json_encode(['success' => false, 'message' => 'Errore nel database: ' . $conn->error]);
 }
-
-echo json_encode(['success' => true]);
 ?>

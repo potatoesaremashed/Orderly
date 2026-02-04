@@ -1,36 +1,35 @@
 <?php
-/**
- * API: Avanzamento Stato Ordine
- * -----------------------------
- * Gestisce il flusso di lavoro della cucina.
- * Permette di passare un ordine da 'in_coda' -> 'in_preparazione' -> 'pronto'.
- */
 session_start();
 include "../include/conn.php";
 header('Content-Type: application/json');
 
-$data = json_decode(file_get_contents("php://input"), true);
-
-if (!isset($data['id_ordine']) || !isset($data['nuovo_stato'])) {
-    echo json_encode(['success' => false, 'message' => 'Dati mancanti']);
+// Verifica che sia un cuoco
+if (!isset($_SESSION['ruolo']) || $_SESSION['ruolo'] != 'cucina') {
+    echo json_encode(['success' => false, 'message' => 'Accesso negato']);
     exit;
 }
 
-$id_ordine = intval($data['id_ordine']);
-$nuovo_stato = $conn->real_escape_string($data['nuovo_stato']);
+$input = json_decode(file_get_contents('php://input'), true);
+$id_ordine = $input['id_ordine'] ?? null;
+$nuovo_stato = $input['stato'] ?? null;
 
-// Lista stati validi per sicurezza
-$stati_validi = ['in_preparazione', 'pronto', 'completato'];
+// Valida lo stato
+$stati_validi = ['in_attesa', 'in_preparazione', 'pronto'];
 if (!in_array($nuovo_stato, $stati_validi)) {
     echo json_encode(['success' => false, 'message' => 'Stato non valido']);
     exit;
 }
 
-$sql = "UPDATE ordini SET stato = '$nuovo_stato' WHERE id_ordine = $id_ordine";
+$sql = "UPDATE ordini SET stato = ? WHERE id_ordine = ?";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("si", $nuovo_stato, $id_ordine);
 
-if ($conn->query($sql)) {
+if ($stmt->execute()) {
     echo json_encode(['success' => true]);
 } else {
-    echo json_encode(['success' => false, 'message' => $conn->error]);
+    echo json_encode(['success' => false, 'message' => 'Errore aggiornamento']);
 }
+
+$stmt->close();
+$conn->close();
 ?>
