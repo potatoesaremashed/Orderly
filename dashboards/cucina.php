@@ -1,12 +1,21 @@
 <?php
+/**
+ * CUCINA
+ * -------------------------------------------------------------------------
+ * Gestisce l'interfaccia visuale per il personale di cucina.
+ *
+ * Ruoli autorizzati: Cuoco, Admin/Manager.
+ */
+
 session_start();
 include '../include/conn.php';
 
-
+// Reindirizza al login se la sessione non è valida o il ruolo è insufficiente.
 if (!isset($_SESSION['ruolo']) || ($_SESSION['ruolo'] != 'cuoco' && $_SESSION['ruolo'] != 'admin')) {
     header("Location: ../index.php");
     exit;
 }
+
 include '../include/header.php';
 ?>
 
@@ -14,8 +23,8 @@ include '../include/header.php';
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 <style>
-    /* --- STESSE VARIABILI DEL TAVOLO --- */
     :root {
+        /* Palette Globale */
         --primary: #ff9f43;
         --dark: #2d3436;
         --bg-color: #f8f9fa;
@@ -26,13 +35,14 @@ include '../include/header.php';
         --card-radius: 20px;
         --shadow-color: rgba(0,0,0,0.05);
         
-        /* Colori Specifici Cucina (Pastello/Moderni) */
-        --new-order-bg: #fff0f0;
-        --new-order-text: #ff6b6b;
-        --prep-order-bg: #f0f8ff;
-        --prep-order-text: #00a8ff;
+        /* Palette Cucina (Stati Ordine) */
+        --new-order-bg: #fff0f0;    /* Sfondo rosso chiaro per 'In Arrivo' */
+        --new-order-text: #ff6b6b;  /* Testo rosso per urgenza */
+        --prep-order-bg: #f0f8ff;   /* Sfondo blu chiaro per 'In Preparazione' */
+        --prep-order-text: #00a8ff; /* Testo blu per processo */
     }
 
+    /* Override per Dark Mode */
     [data-theme="dark"] {
         --bg-color: #1e1e1e;
         --surface-color: #2d2d2d;
@@ -52,8 +62,6 @@ include '../include/header.php';
         height: 100vh;
         transition: background 0.3s, color 0.3s;
     }
-
-    /* --- HEADER (Uguale al tavolo) --- */
     .sticky-header {
         background: var(--surface-color);
         padding: 1rem 2rem;
@@ -65,17 +73,16 @@ include '../include/header.php';
     .brand-title { font-weight: 700; font-size: 1.5rem; color: var(--text-main); }
     .brand-subtitle { font-size: 0.85rem; color: var(--text-muted); font-weight: 400; }
 
-    /* --- KANBAN LAYOUT --- */
     .kanban-board {
         display: flex;
-        height: calc(100vh - 80px);
+        height: calc(100vh - 80px); 
         padding: 1.5rem;
         gap: 2rem;
     }
 
     .k-column {
         flex: 1;
-        background: rgba(0,0,0,0.02); /* Leggerissimo sfondo colonna */
+        background: rgba(0,0,0,0.02);
         border-radius: 30px;
         display: flex; flex-direction: column;
         overflow: hidden;
@@ -96,10 +103,9 @@ include '../include/header.php';
     }
 
     .k-body {
-        flex: 1; overflow-y: auto; padding: 1.5rem;
+        flex: 1; overflow-y: auto; padding: 1.5rem; 
     }
 
-    /* --- CARD ORDINE (Stile Tavolo "Galleggiante") --- */
     .order-card {
         background: var(--surface-color);
         border-radius: var(--card-radius);
@@ -114,7 +120,6 @@ include '../include/header.php';
     
     .order-card:hover { transform: translateY(-5px); }
 
-    /* Header Card */
     .card-top { 
         display: flex; justify-content: space-between; align-items: center; 
         margin-bottom: 1rem; padding-bottom: 1rem;
@@ -130,7 +135,7 @@ include '../include/header.php';
 
     .time-badge { color: var(--text-muted); font-size: 0.9rem; font-weight: 600; display: flex; align-items: center; gap: 5px; }
 
-    /* Lista Piatti */
+    /* Lista items */
     .dish-row {
         display: flex; align-items: flex-start;
         margin-bottom: 12px; font-size: 1rem; color: var(--text-main);
@@ -146,7 +151,7 @@ include '../include/header.php';
         border: 1px solid var(--border-color);
     }
 
-    /* Bottoni Azione (Pillole grandi) */
+    /* Action Buttons */
     .btn-action {
         width: 100%; border: none; padding: 12px;
         border-radius: 50px; font-weight: 700; font-size: 0.9rem;
@@ -154,14 +159,13 @@ include '../include/header.php';
         transition: 0.2s; display: flex; justify-content: center; align-items: center; gap: 8px;
     }
 
-    /* Varianti Bottoni */
     .btn-start { background: var(--new-order-bg); color: var(--new-order-text); }
     .btn-start:hover { background: var(--new-order-text); color: white; }
 
     .btn-done { background: var(--prep-order-bg); color: var(--prep-order-text); }
     .btn-done:hover { background: var(--prep-order-text); color: white; }
 
-    /* Utility */
+    /* UI Utilities & Controls */
     .theme-toggle {
         cursor: pointer; width: 40px; height: 40px;
         border-radius: 50%; background: var(--bg-color);
@@ -170,8 +174,6 @@ include '../include/header.php';
     }
     
     @keyframes popIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-    
-    /* Scrollbar */
     .k-body::-webkit-scrollbar { width: 6px; }
     .k-body::-webkit-scrollbar-thumb { background-color: var(--border-color); border-radius: 10px; }
 </style>
@@ -218,61 +220,59 @@ include '../include/header.php';
             <span class="badge-count" id="count-prep">0</span>
         </div>
         <div class="k-body" id="col-prep">
-            </div>
+             </div>
     </div>
 
 </div>
 
 <script>
-// --- GESTIONE TEMA ---
 function toggleTheme() {
     const body = document.body;
     const icon = document.getElementById('theme-icon');
+    const isDark = body.getAttribute('data-theme') === 'dark';
     
-    if (body.getAttribute('data-theme') === 'dark') {
-        body.setAttribute('data-theme', 'light');
-        icon.classList.replace('fa-sun', 'fa-moon');
-        localStorage.setItem('theme', 'light');
-    } else {
-        body.setAttribute('data-theme', 'dark');
-        icon.classList.replace('fa-moon', 'fa-sun');
-        localStorage.setItem('theme', 'dark');
-    }
-}
-if (localStorage.getItem('theme') === 'dark') {
-    document.body.setAttribute('data-theme', 'dark');
-    document.getElementById('theme-icon').classList.replace('fa-moon', 'fa-sun');
+    body.setAttribute('data-theme', isDark ? 'light' : 'dark');
+    icon.classList.replace(isDark ? 'fa-sun' : 'fa-moon', isDark ? 'fa-moon' : 'fa-sun');
+    localStorage.setItem('theme', isDark ? 'light' : 'dark');
 }
 
-// --- GESTIONE AUDIO ---
+if (localStorage.getItem('theme') === 'dark') {
+    document.body.setAttribute('data-theme', 'dark');
+    document.getElementById('theme-icon')?.classList.replace('fa-moon', 'fa-sun');
+}
+
 let audioActive = false;
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
 function playSound() {
     if(!audioActive) return;
+    if(audioCtx.state === 'suspended') audioCtx.resume();
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
+    
     osc.connect(gain);
     gain.connect(audioCtx.destination);
+    
     osc.type = "sine";
     osc.frequency.setValueAtTime(500, audioCtx.currentTime); 
     osc.frequency.exponentialRampToValueAtTime(1000, audioCtx.currentTime + 0.1);
+    
     gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
     gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+    
     osc.start();
     osc.stop(audioCtx.currentTime + 0.3);
 }
 
 function toggleAudio() {
     audioActive = !audioActive;
-    const icon = document.querySelector('#btn-audio i');
     const btn = document.getElementById('btn-audio');
+    const icon = btn.querySelector('i');
     
     if(audioActive) {
         icon.className = 'fas fa-volume-up';
         btn.style.borderColor = 'var(--primary)';
         btn.style.color = 'var(--primary)';
-        if(audioCtx.state === 'suspended') audioCtx.resume();
         playSound();
     } else {
         icon.className = 'fas fa-volume-mute';
@@ -281,18 +281,30 @@ function toggleAudio() {
     }
 }
 
-// --- LOGICA ORDINI ---
+
+
+
+
 document.addEventListener("DOMContentLoaded", () => {
     caricaOrdini();
-    setInterval(caricaOrdini, 5000);
+    setInterval(caricaOrdini, 3000); 
 });
 
-let lastCount = 0;
+let lastJsonData = ""; 
+let lastCount = 0;    
 
+/**
+ * Fetch degli ordini dall'API e aggiornamento interfaccia
+ */
 function caricaOrdini() {
     fetch('../api/leggi_ordini_cucina.php')
     .then(res => res.json())
     .then(data => {
+        const currentJsonString = JSON.stringify(data);
+        if (currentJsonString === lastJsonData) return; 
+        
+        lastJsonData = currentJsonString; // Aggiorna cache
+
         const colNew = document.getElementById('col-new');
         const colPrep = document.getElementById('col-prep');
         
@@ -302,28 +314,49 @@ function caricaOrdini() {
         let cPrep = 0;
 
         data.forEach(ordine => {
-            // Lista Piatti
+            // CALCOLO TEMPO TRASCORSO (Timer)
+            // Converte l'orario server in oggetto Date locale per calcolare il delta
+            const oraOrdine = new Date(); 
+            const [h, m] = ordine.ora.split(':');
+            oraOrdine.setHours(h, m, 0); 
+            
+            // Calcolo differenza in minuti
+            const diffMs = new Date() - oraOrdine;
+            let diffMin = Math.floor(diffMs / 60000);
+            if(diffMin < 0) diffMin = 0; // Fallback per disallineamenti orari client/server
+            
+            // Logica visuale: Rosso se attesa > 15 minuti
+            let timerColor = diffMin > 15 ? '#ff6b6b' : 'var(--text-muted)';
+            
+            // Generazione HTML lista piatti
             let piattiHtml = '';
             ordine.piatti.forEach(p => {
                 piattiHtml += `
                     <div class="dish-row">
                         <div class="qty-capsule">${p.qta}</div>
-                        <div style="padding-top:5px;">${p.nome}</div>
+                        <div style="padding-top:5px;">
+                            ${p.nome}
+                            ${p.note ? `<br><small class="text-danger"><i class="fas fa-exclamation-circle"></i> ${p.note}</small>` : ''}
+                        </div>
                     </div>`;
             });
 
-            // Card HTML (Stile Tavolo)
+            // Generazione HTML Card Ordine
             const card = `
-                <div class="order-card">
+                <div class="order-card animate__animated animate__fadeIn">
                     <div class="card-top">
-                        <div class="table-badge">Tavolo ${ordine.tavolo}</div>
-                        <div class="time-badge"><i class="far fa-clock"></i> ${ordine.ora}</div>
+                        <div class="table-badge">${ordine.tavolo}</div>
+                        <div class="time-badge" style="color:${timerColor}">
+                            <i class="far fa-clock"></i> ${ordine.ora} 
+                            <small class="ms-1">(${diffMin} min)</small>
+                        </div>
                     </div>
-                    <div>${piattiHtml}</div>
+                    <div class="mb-3">${piattiHtml}</div>
                     ${getButton(ordine.id_ordine, ordine.stato)}
                 </div>`;
 
-            if(ordine.stato === 'in_coda') {
+            // Smistamento nelle colonne corrette
+            if(ordine.stato === 'in_attesa') {
                 htmlNew += card;
                 cNew++;
             } else if (ordine.stato === 'in_preparazione') {
@@ -332,39 +365,52 @@ function caricaOrdini() {
             }
         });
 
-        // Audio Notifica
+        // Trigger Audio
         if (cNew > lastCount) playSound();
         lastCount = cNew;
 
-        // Empty States belli
+        // Template per stato vuoto (Empty State)
         const emptyState = (icon, text) => `
-            <div class="text-center py-5" style="opacity:0.3;">
-                <i class="fas ${icon} fa-3x mb-3" style="color:var(--text-muted)"></i>
-                <h5 style="color:var(--text-muted)">${text}</h5>
+            <div class="text-center py-5 mt-5" style="opacity:0.4;">
+                <i class="fas ${icon} fa-3x mb-3"></i>
+                <h5>${text}</h5>
             </div>`;
+        colNew.innerHTML = cNew > 0 ? htmlNew : emptyState('fa-utensils', 'Tutto tranquillo');
+        colPrep.innerHTML = cPrep > 0 ? htmlPrep : emptyState('fa-fire-alt', 'Nessun ordine in cottura');
 
-        colNew.innerHTML = cNew > 0 ? htmlNew : emptyState('fa-bell-slash', 'Nessun nuovo ordine..');
-        colPrep.innerHTML = cPrep > 0 ? htmlPrep : emptyState('fa-fire-alt', 'Nessun ordine in preparazione..');
-
+        // Aggiornamento contatori header
         document.getElementById('count-new').innerText = cNew;
         document.getElementById('count-prep').innerText = cPrep;
     })
-    .catch(err => console.error("Error:", err));
+    .catch(err => console.error("Errore fetch ordini:", err));
 }
 
+/**
+ * Restituisce il pulsante d'azione corretto in base allo stato attuale dell'ordine.
+ * @param {number} id - ID dell'ordine
+ * @param {string} stato - Stato attuale ('in_attesa' | 'in_preparazione')
+ */
 function getButton(id, stato) {
-    if(stato === 'in_coda') {
+    if(stato === 'in_attesa') {
         return `<button class="btn-action btn-start" onclick="cambiaStato(${id}, 'in_preparazione')">
-                    INIZIA COTTURA <i class="fas fa-arrow-right"></i>
+                    INIZIA COTTURA <i class="fas fa-arrow-right ms-2"></i>
                 </button>`;
     } else {
         return `<button class="btn-action btn-done" onclick="cambiaStato(${id}, 'pronto')">
-                    <i class="fas fa-check"></i> ORDINE PRONTO
+                    <i class="fas fa-check me-2"></i> ORDINE PRONTO
                 </button>`;
     }
 }
 
+/**
+ * Invia richiesta API per avanzamento di stato dell'ordine.
+ * @param {number} id - ID dell'ordine da aggiornare
+ * @param {string} nuovoStato - Il nuovo stato target
+ */
 function cambiaStato(id, nuovoStato) {
+    // Reset cache per forzare il refresh immediato della UI alla prossima chiamata
+    lastJsonData = ""; 
+    
     fetch('../api/cambia_stato_ordine.php', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
@@ -372,9 +418,13 @@ function cambiaStato(id, nuovoStato) {
     })
     .then(res => res.json())
     .then(data => {
-        if(data.success) caricaOrdini();
-        else alert("Errore: " + data.message);
-    });
+        if(data.success) {
+            caricaOrdini(); // Ricarica immediata dati
+        } else {
+            alert("Errore API: " + data.message);
+        }
+    })
+    .catch(err => alert("Errore di connessione al server"));
 }
 </script>
 
