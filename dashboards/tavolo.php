@@ -2,12 +2,14 @@
 session_start();
 include "../include/conn.php";
 
+// Controllo accesso
 if (!isset($_SESSION['ruolo']) || $_SESSION['ruolo'] != 'tavolo') {
     header("Location: ../index.php");
     exit;
 }
 include "../include/header.php";
 
+// Recupero dati
 $categorie = $conn->query("SELECT * FROM categorie");
 $prodotti = $conn->query("SELECT * FROM alimenti");
 ?>
@@ -16,27 +18,27 @@ $prodotti = $conn->query("SELECT * FROM alimenti");
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 <style>
-    /* --- VARIABILI COLORI (THEMING) --- */
+    /* --- VARIABILI COLORI --- */
     :root {
         --primary: #ff9f43;
         --dark: #2d3436;
         --bg-color: #f8f9fa;
         --surface-color: #ffffff;
         --text-main: #2d3436;
-        --text-muted: #636e72;
+        --text-muted: #636e72; 
         --border-color: rgba(0,0,0,0.05);
         --card-radius: 20px;
-        --price-color: #00a8ff;
+        --price-color: #00a8ff; /* BLU */
         --shadow-color: rgba(0,0,0,0.05);
         --capsule-bg: #f1f2f6;
     }
 
-    /* --- DARK MODE CONFIG --- */
+    /* --- DARK MODE CONFIG (Aggiornata per contrasto alto) --- */
     [data-theme="dark"] {
         --bg-color: #121212;
         --surface-color: #1e1e1e;
-        --text-main: #ffffff;
-        --text-muted: #d1d8e0;
+        --text-main: #ffffff !important; /* Forza il bianco */
+        --text-muted: #e0e0e0 !important; /* Grigio chiarissimo quasi bianco */
         --border-color: rgba(255,255,255,0.1);
         --shadow-color: rgba(0,0,0,0.5);
         --capsule-bg: #2d3436;
@@ -51,34 +53,14 @@ $prodotti = $conn->query("SELECT * FROM alimenti");
         transition: background-color 0.3s, color 0.3s;
     }
 
-    /* --- FIX STABILITÀ E VISIBILITÀ CARRELLO --- */
-    #pezzi-header {
-        display: inline-block;
-        min-width: 28px; /* Larghezza fissa per non far muovere il tasto */
-        height: 28px;
-        line-height: 20px; /* Centra il testo verticalmente */
-        text-align: center;
-        background-color: white !important;
-        color: #212529 !important; /* Forza il nero per visibilità su bianco */
-        font-weight: 800;
-        padding: 4px;
-        border-radius: 50%;
-        margin-left: 8px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
+    /* Override per Bootstrap in Dark Mode */
+    [data-theme="dark"] .text-muted { color: var(--text-muted) !important; }
+    [data-theme="dark"] .text-dark { color: #fff !important; }
 
-    .text-muted { color: var(--text-muted) !important; }
-    .text-dark { color: var(--text-main) !important; }
-    
+    /* Forza il colore BLU per i prezzi */
     .text-price { color: var(--price-color) !important; }
-    .price-stable {
-        font-variant-numeric: tabular-nums;
-        display: inline-block;
-        min-width: 80px;
-        text-align: right;
-    }
-
-    /* --- SIDEBAR --- */
+    
+    /* --- SIDEBAR & LAYOUT --- */
     .sidebar-custom {
         background: var(--surface-color);
         min-height: 100vh;
@@ -87,26 +69,7 @@ $prodotti = $conn->query("SELECT * FROM alimenti");
         transition: background 0.3s;
     }
 
-    .btn-categoria {
-        display: flex; align-items: center;
-        padding: 18px 25px; margin-bottom: 8px;
-        border-radius: 15px;
-        color: var(--text-muted); font-weight: 600; font-size: 1.1rem;
-        cursor: pointer; transition: 0.2s;
-    }
-
-    .btn-categoria:hover { background-color: rgba(255, 159, 67, 0.1); color: var(--primary); }
-    
-    .btn-categoria.active {
-        background-color: var(--primary);
-        color: white !important;
-        box-shadow: 0 4px 15px rgba(255, 159, 67, 0.4);
-    }
-    .btn-categoria.active .text-muted { color: white !important; }
-
-    /* --- STICKY HEADER --- */
     .sticky-header {
-        background: var(--surface-color); 
         background: rgba(var(--surface-color), 0.95);
         backdrop-filter: blur(12px);
         padding: 1.5rem;
@@ -114,8 +77,18 @@ $prodotti = $conn->query("SELECT * FROM alimenti");
         border-bottom: 1px solid var(--border-color);
         transition: background 0.3s;
     }
-    
     [data-theme="dark"] .sticky-header { background: rgba(30, 30, 30, 0.95); }
+
+    .btn-categoria {
+        display: flex; align-items: center;
+        padding: 18px 25px; margin-bottom: 8px;
+        border-radius: 15px;
+        color: var(--text-muted); font-weight: 600; font-size: 1.1rem;
+        cursor: pointer; transition: 0.2s;
+    }
+    .btn-categoria:hover { background-color: rgba(255, 159, 67, 0.1); color: var(--primary); }
+    .btn-categoria.active { background-color: var(--primary); color: white !important; box-shadow: 0 4px 15px rgba(255, 159, 67, 0.4); }
+    .btn-categoria.active .text-muted { color: white !important; }
 
     /* --- CARD PRODOTTO --- */
     .card-prodotto {
@@ -127,90 +100,86 @@ $prodotti = $conn->query("SELECT * FROM alimenti");
         border: 1px solid var(--border-color);
         box-shadow: 0 4px 15px var(--shadow-color);
     }
-
-    .card-prodotto:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 25px var(--shadow-color);
-        border-color: var(--price-color);
-        cursor: pointer;
-    }
-
+    .card-prodotto:hover { transform: translateY(-5px); box-shadow: 0 10px 25px var(--shadow-color); border-color: var(--price-color); cursor: pointer; }
+    
     .img-wrapper { height: 180px; overflow: hidden; position: relative; }
     .img-prodotto { width: 100%; height: 100%; object-fit: cover; }
-    
     .price-tag {
         position: absolute; bottom: 12px; right: 12px;
         background: var(--surface-color); padding: 6px 18px; border-radius: 30px;
-        font-weight: 700; font-size: 1.1rem;
+        font-weight: 700; font-size: 1.1rem; color: var(--price-color) !important;
         box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        color: var(--price-color);
     }
 
     .card-body { padding: 1.5rem; }
     .piatto-title { font-weight: 700; margin-bottom: 5px; font-size: 1.2rem; color: var(--text-main); }
     .piatto-desc { font-size: 0.9rem; color: var(--text-muted); height: 45px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
 
-    /* --- CONTROLLI QUANTITÀ BIG --- */
+    /* --- CONTROLLI QUANTITÀ --- */
     .qty-capsule {
         background: var(--capsule-bg);
-        border-radius: 50px; 
-        padding: 5px;
+        border-radius: 50px; padding: 5px;
         display: flex; justify-content: space-between; align-items: center;
-        width: 100%; max-width: 150px; 
-        height: 55px; 
+        width: 100%; max-width: 150px; height: 55px;
         z-index: 10; position: relative;
     }
-    
     .btn-circle {
         width: 45px; height: 45px;
         border-radius: 50%; border: none;
         display: flex; align-items: center; justify-content: center;
-        cursor: pointer; transition: transform 0.1s;
-        flex-shrink: 0;
+        cursor: pointer; transition: transform 0.1s; flex-shrink: 0;
     }
-    .btn-circle i { font-size: 1.2rem; pointer-events: none; }
     .btn-circle:active { transform: scale(0.9); }
-
     .btn-minus { background: var(--surface-color); color: #ff6b6b; border: 1px solid var(--border-color); }
     .btn-plus { background: var(--text-main); color: var(--bg-color); }
+    .qty-input { background: transparent; border: none; width: 50px; text-align: center; font-weight: 700; font-size: 1.4rem; color: var(--text-main); }
 
-    .qty-input { 
-        background: transparent; border: none; 
-        width: 50px; text-align: center; 
-        font-weight: 700; font-size: 1.4rem; color: var(--text-main); 
+    /* --- STILE BOTTONE VERDE (Aggiungi) --- */
+    .btn-green-custom {
+        background-color: #2ecc71; 
+        color: white;
+        border: none;
+        transition: all 0.2s;
     }
+    .btn-green-custom:hover {
+        background-color: #27ae60; 
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(46, 204, 113, 0.4);
+    }
+    .btn-green-custom:active { transform: scale(0.98); }
 
-    /* --- BADGE ALLERGENI --- */
+    /* --- BADGES & UI --- */
     .badge-alg {
-        background: var(--surface-color);
-        color: #e67e22; border: 1px solid var(--primary); 
-        font-size: 0.75rem; font-weight: 600;
-        padding: 5px 12px; border-radius: 50px;
+        background: var(--surface-color); color: #e67e22; border: 1px solid var(--primary); 
+        font-size: 0.75rem; font-weight: 600; padding: 5px 12px; border-radius: 50px;
         margin-right: 5px; margin-bottom: 5px; display: inline-block;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
     }
-
-    /* --- THEME TOGGLE --- */
     .theme-toggle {
         cursor: pointer; width: 45px; height: 45px;
         border-radius: 50%; background: var(--capsule-bg);
         display: flex; align-items: center; justify-content: center;
-        font-size: 1.3rem; color: var(--text-main);
-        transition: 0.3s;
-    }
-
-    /* --- MODALI --- */
-    .modal-content-custom {
-        background-color: var(--surface-color);
+        font-size: 1.3rem; transition: 0.3s;
         color: var(--text-main);
-        border-radius: 25px; border: none;
     }
-    .modal-header, .modal-footer { border-color: var(--border-color); }
-    .bg-light-custom { background-color: var(--bg-color) !important; }
-    .btn-close { filter: invert(var(--invert-val)); font-size: 1.5rem; } 
-    [data-theme="dark"] { --invert-val: 1; } [data-theme="light"] { --invert-val: 0; }
+    #pezzi-header {
+        display: inline-block; min-width: 28px; height: 28px; line-height: 20px;
+        text-align: center; background-color: white !important; color: #212529 !important;
+        font-weight: 800; padding: 4px; border-radius: 50%; margin-left: 8px;
+    }
 
-    .cart-item { border-bottom: 1px solid var(--border-color); padding: 1.5rem; }
+    /* --- MODALI FIX COLORI --- */
+    .modal-content-custom { background-color: var(--surface-color); color: var(--text-main); border-radius: 25px; border: none; }
+    .bg-light-custom { background-color: var(--bg-color) !important; }
+    .btn-close { filter: invert(var(--invert-val)); } 
+    [data-theme="dark"] { --invert-val: 1; } [data-theme="light"] { --invert-val: 0; }
+    
+    /* Fix specifico per gli elementi del carrello che diventavano bianchi/neri */
+    .list-group-item {
+        background-color: transparent !important; /* Rende trasparente lo sfondo della lista */
+        color: var(--text-main) !important; /* Forza il colore del testo corretto */
+        border-color: var(--border-color) !important;
+    }
 </style>
 
 <div class="container-fluid">
@@ -239,14 +208,9 @@ $prodotti = $conn->query("SELECT * FROM alimenti");
                         <div class="fw-bold fs-3 text-price price-stable"><span id="soldi-header">0.00</span>€</div>
                     </div>
 
-                    
-                    <div class="d-flex align-items-center gap-3">
-                        <button class="btn btn-dark rounded-pill px-4 py-3 shadow-sm d-flex align-items-center" onclick="apriStorico()">
-                            <i class="fas fa-receipt"></i> 
-                            <span class="d-none d-md-inline fw-bold ms-2">I miei Ordini</span>
-                        </button>
-                    </div>
-
+                    <button class="btn btn-dark rounded-pill px-4 py-3 shadow-sm d-flex align-items-center" onclick="apriStorico()">
+                        <i class="fas fa-receipt"></i> 
+                    </button>
                     
                     <button class="btn btn-dark rounded-pill px-4 py-3 shadow-sm d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#modalCarrello" onclick="aggiornaModale()">
                         <i class="fas fa-shopping-bag fa-lg"></i> 
@@ -260,20 +224,38 @@ $prodotti = $conn->query("SELECT * FROM alimenti");
                 <div class="row g-4">
                     <?php while($p = $prodotti->fetch_assoc()): ?>
                     <div class="col-sm-6 col-md-6 col-lg-4 col-xl-3 item-prodotto" data-cat="<?php echo $p['id_categoria']; ?>">
-                        <div class="card-prodotto" onclick="apriZoom(this)" data-id="<?php echo $p['id_alimento']; ?>" data-nome="<?php echo htmlspecialchars($p['nome_piatto']); ?>" data-desc="<?php echo htmlspecialchars($p['descrizione']); ?>" data-prezzo="<?php echo $p['prezzo']; ?>" data-img="../imgs/prodotti/<?php echo $p['immagine']; ?>" data-allergeni="<?php echo htmlspecialchars($p['lista_allergeni']); ?>">
-                            <div class="img-wrapper"><img src="../imgs/prodotti/<?php echo $p['immagine']; ?>" class="img-prodotto" loading="lazy"><div class="price-tag"><?php echo $p['prezzo']; ?>€</div></div>
+                        <div class="card-prodotto" onclick="apriZoom(this)" 
+                             data-id="<?php echo $p['id_alimento']; ?>" 
+                             data-nome="<?php echo htmlspecialchars($p['nome_piatto']); ?>" 
+                             data-desc="<?php echo htmlspecialchars($p['descrizione']); ?>" 
+                             data-prezzo="<?php echo $p['prezzo']; ?>" 
+                             data-img="../imgs/prodotti/<?php echo $p['immagine']; ?>" 
+                             data-allergeni="<?php echo htmlspecialchars($p['lista_allergeni']); ?>">
+                            
+                            <div class="img-wrapper">
+                                <img src="../imgs/prodotti/<?php echo $p['immagine']; ?>" class="img-prodotto" loading="lazy">
+                                <div class="price-tag"><?php echo $p['prezzo']; ?>€</div>
+                            </div>
+                            
                             <div class="card-body">
                                 <h5 class="piatto-title"><?php echo $p['nome_piatto']; ?></h5>
                                 <p class="piatto-desc"><?php echo $p['descrizione']; ?></p>
                                 <div class="mb-4" style="min-height: 25px;">
-                                    <?php $allergeni = explode(',', $p['lista_allergeni']); foreach($allergeni as $a) { if(trim($a) != "") echo "<span class='badge-alg'>".trim($a)."</span>"; } ?>
+                                    <?php 
+                                    $allergeni = explode(',', $p['lista_allergeni']); 
+                                    foreach($allergeni as $a) { 
+                                        if(trim($a) != "") echo "<span class='badge-alg'>".trim($a)."</span>"; 
+                                    } 
+                                    ?>
                                 </div>
+                                
                                 <div class="mt-auto d-flex justify-content-between align-items-center pt-3" style="border-top: 1px solid var(--border-color);">
                                     <small class="fw-bold text-uppercase text-muted">Quantità</small>
-                                    <div class="qty-capsule" onclick="event.stopPropagation()">
-                                        <button type="button" class="btn-circle btn-minus" onclick="gestisciCarrello(<?php echo $p['id_alimento']; ?>, -1, <?php echo $p['prezzo']; ?>, '<?php echo addslashes($p['nome_piatto']); ?>')"><i class="fas fa-minus"></i></button>
-                                        <input type="text" id="q-<?php echo $p['id_alimento']; ?>" value="0" class="qty-input" readonly>
-                                        <button type="button" class="btn-circle btn-plus" onclick="gestisciCarrello(<?php echo $p['id_alimento']; ?>, 1, <?php echo $p['prezzo']; ?>, '<?php echo addslashes($p['nome_piatto']); ?>')"><i class="fas fa-plus"></i></button>
+                                    <input type="hidden" id="q-<?php echo $p['id_alimento']; ?>" value="0">
+                                    <div class="text-end">
+                                        <button class="btn btn-sm btn-outline-secondary rounded-pill px-3">
+                                            Vedi <i class="fas fa-arrow-right ms-1"></i>
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -302,64 +284,6 @@ $prodotti = $conn->query("SELECT * FROM alimenti");
   </div>
 </div>
 
-<div class="modal fade" id="modalSuccesso" tabindex="-1" data-bs-backdrop="static">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content modal-content-custom border-0 shadow-lg text-center p-5">
-            <div class="success-animation">
-                <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52"><circle class="checkmark__circle" cx="26" cy="26" r="25" fill="none" /><path class="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8" /></svg>
-            </div>
-            <h2 class="fw-bold mt-4 mb-2">Ordine Inviato!</h2>
-            <p class="text-muted">La cucina ha ricevuto la tua comanda.</p>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="modalStorico" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-        <div class="modal-content modal-content-custom shadow-lg">
-            <div class="modal-header border-0 p-4 pb-2">
-                <div>
-                    <h4 class="modal-title fw-bold">Riepilogo Ordini 🕒</h4>
-                    <p class="m-0 text-muted">Ecco cosa hai ordinato finora</p>
-                </div>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            
-            <div class="modal-body p-4">
-                <div id="lista-storico"></div>
-            </div>
-
-            <div class="modal-footer border-0 bg-light-custom p-4">
-                <div class="w-100 d-flex justify-content-between align-items-center">
-                    <span class="text-uppercase fw-bold text-muted small">Totale Provvisorio</span>
-                    <span class="fs-2 fw-bold text-price" id="totale-storico">0.00€</span>
-                </div>
-                <div class="w-100 text-center mt-2">
-                    <small class="text-muted"><i class="fas fa-info-circle"></i> Il pagamento si effettua in cassa alla fine.</small>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="modalConfermaOrdine" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content modal-content-custom shadow-lg">
-            <div class="modal-body p-5 text-center">
-                <div class="mb-4">
-                    <i class="fas fa-question-circle fa-5x text-primary animate__animated animate__pulse animate__infinite"></i>
-                </div>
-                <h2 class="fw-bold mb-3">Sei pronto?</h2>
-                <p class="text-muted mb-4 fs-5">L'ordine verrà inviato direttamente alla cucina e preparato dai nostri chef.</p>
-                <div class="d-flex gap-3 justify-content-center">
-                    <button type="button" class="btn btn-light rounded-pill px-4 py-2 fw-bold" data-bs-dismiss="modal">ANNULLA</button>
-                    <button type="button" class="btn btn-primary rounded-pill px-5 py-2 fw-bold shadow" id="confirm-send-btn">SÌ, ORDINA!</button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
 <div class="modal fade" id="modalZoom" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered modal-xl">
         <div class="modal-content modal-content-custom shadow-lg overflow-hidden">
@@ -376,22 +300,30 @@ $prodotti = $conn->query("SELECT * FROM alimenti");
                         </div>
                         
                         <h1 class="fw-bold mb-2" id="zoom-nome">Nome Piatto</h1>
-                        <h2 class="fw-bold mb-4 text-price"><span id="zoom-prezzo">0.00</span>€</h2>
+                        <h4 class="fw-bold mb-4 text-muted"><span id="zoom-prezzo-unitario">0.00</span>€</h4>
                         
                         <p class="lead mb-4 text-muted flex-grow-1" id="zoom-desc">Descrizione del piatto...</p>
                         
-                        <div class="mb-5">
+                        <div class="mb-4">
                             <h6 class="text-uppercase small fw-bold mb-2 text-muted">Allergeni</h6>
                             <div id="zoom-allergeni"></div>
                         </div>
                         
-                        <div class="mt-auto p-3 rounded-3 d-flex justify-content-between align-items-center bg-light-custom">
-                            <span class="fw-bold fs-5">Aggiungi all'ordine</span>
-                            <div class="qty-capsule">
-                                <button class="btn-circle btn-minus" id="btn-zoom-minus"><i class="fas fa-minus"></i></button>
-                                <span class="qty-input" id="zoom-qty">0</span>
-                                <button class="btn-circle btn-plus" id="btn-zoom-plus"><i class="fas fa-plus"></i></button>
+                        <div class="mt-auto pt-3 border-top">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <span class="fw-bold fs-5">Seleziona quantità</span>
+                                
+                                <div class="qty-capsule" style="width: 140px;">
+                                    <button class="btn-circle btn-minus" onclick="updateZoomQty(-1)"><i class="fas fa-minus"></i></button>
+                                    <span class="qty-input" id="zoom-qty-display">1</span>
+                                    <button class="btn-circle btn-plus" onclick="updateZoomQty(1)"><i class="fas fa-plus"></i></button>
+                                </div>
                             </div>
+
+                            <button class="btn btn-green-custom w-100 rounded-pill py-3 fw-bold fs-5 shadow-sm d-flex justify-content-between px-4" id="btn-zoom-add" onclick="confermaZoom()">
+                                <span>Aggiungi al carrello</span>
+                                <span id="zoom-btn-totale">0.00€</span>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -400,15 +332,54 @@ $prodotti = $conn->query("SELECT * FROM alimenti");
     </div>
 </div>
 
+<div class="toast-container position-fixed bottom-0 start-50 translate-middle-x p-3" style="z-index: 2000">
+  <div id="liveToast" class="toast align-items-center text-white bg-success border-0 shadow-lg" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="d-flex">
+      <div class="toast-body fw-bold fs-6">
+        <i class="fas fa-check-circle me-2"></i> <span id="toast-msg">Prodotto aggiunto!</span>
+      </div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+    </div>
+  </div>
+</div>
 
-
+<div class="modal fade" id="modalConfermaOrdine" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content modal-content-custom shadow-lg">
+            <div class="modal-body p-5 text-center">
+                <div class="mb-4"><i class="fas fa-question-circle fa-5x text-primary animate__animated animate__pulse animate__infinite"></i></div>
+                <h2 class="fw-bold mb-3">Sei pronto?</h2>
+                <p class="text-muted mb-4 fs-5">L'ordine verrà inviato direttamente alla cucina.</p>
+                <div class="d-flex gap-3 justify-content-center">
+                    <button type="button" class="btn btn-light rounded-pill px-4 py-2 fw-bold" data-bs-dismiss="modal">ANNULLA</button>
+                    <button type="button" class="btn btn-primary rounded-pill px-5 py-2 fw-bold shadow" id="confirm-send-btn">SÌ, ORDINA!</button>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
-<script>
+<div class="modal fade" id="modalSuccesso" tabindex="-1" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content modal-content-custom border-0 shadow-lg text-center p-5">
+            <div class="success-animation">
+                <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52"><circle class="checkmark__circle" cx="26" cy="26" r="25" fill="none" /><path class="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8" /></svg>
+            </div>
+            <h2 class="fw-bold mt-4 mb-2">Ordine Inviato!</h2>
+            <p class="text-muted">La cucina ha ricevuto la tua comanda.</p>
+        </div>
+    </div>
+</div>
 
+<script>
+// --- STATE MANAGEMENT ---
+let carrello = {}; 
+let totaleSoldi = 0; 
+let totalePezzi = 0;
+// Stato temporaneo per il modale (inizia sempre da 1 quando apri)
+let zoomState = { id: null, nome: '', prezzo: 0, qtyAttuale: 1 };
+
+// --- THEME & SETUP ---
 function toggleTheme() {
     const body = document.body;
     const icon = document.getElementById('theme-icon');
@@ -420,25 +391,29 @@ function toggleTheme() {
 }
 if (localStorage.getItem('theme') === 'dark') { document.body.setAttribute('data-theme', 'dark'); document.getElementById('theme-icon').classList.replace('fa-moon', 'fa-sun'); }
 
-let carrello = {}; let totaleSoldi = 0; let totalePezzi = 0;
-
 function filtraCategoria(idCat, elemento) {
     document.querySelectorAll('.btn-categoria').forEach(el => el.classList.remove('active')); elemento.classList.add('active');
     document.querySelectorAll('.item-prodotto').forEach(piatto => { piatto.style.display = (idCat === 'all' || piatto.getAttribute('data-cat') == idCat) ? 'block' : 'none'; });
 }
 
+// --- LOGICA CARRELLO ---
 function gestisciCarrello(id, delta, prezzo, nome) {
     const input = document.getElementById('q-' + id);
     let valAttuale = parseInt(input.value);
     let valNuovo = valAttuale + delta;
+    
     if (valNuovo >= 0) {
         input.value = valNuovo;
-        totaleSoldi += (delta * prezzo); totalePezzi += delta;
+        totaleSoldi += (delta * prezzo); 
+        totalePezzi += delta;
+        
         document.getElementById('soldi-header').innerText = totaleSoldi.toFixed(2);
         document.getElementById('pezzi-header').innerText = totalePezzi;
+        
         if (!carrello[id]) carrello[id] = { id: id, nome: nome, qta: 0, prezzo: prezzo };
         carrello[id].qta = valNuovo;
         if (carrello[id].qta === 0) delete carrello[id];
+        
         checkInvioButton();
         if (document.getElementById('modalCarrello').classList.contains('show')) aggiornaModale();
     }
@@ -458,7 +433,7 @@ function aggiornaModale() {
     for (const [id, item] of Object.entries(carrello)) {
         let parziale = (item.qta * item.prezzo).toFixed(2);
         html += `
-            <div class="cart-item list-group-item d-flex justify-content-between align-items-center border-0 mb-1" style="background:var(--surface-color); color:var(--text-main);">
+            <div class="cart-item list-group-item d-flex justify-content-between align-items-center border-0 mb-1">
                 <div><h5 class="m-0 fw-bold">${item.nome}</h5><small class="text-price fw-bold fs-6">${item.prezzo}€ cad.</small></div>
                 <div class="d-flex align-items-center gap-3">
                     <div class="qty-capsule">
@@ -466,37 +441,69 @@ function aggiornaModale() {
                         <span class="qty-input">${item.qta}</span>
                         <button class="btn-circle btn-plus" onclick="gestisciCarrello(${id}, 1, ${item.prezzo}, '${item.nome.replace(/'/g, "\\'")}')"><i class="fas fa-plus"></i></button>
                     </div>
-                    <span class="fw-bold fs-4 price-stable">${parziale}€</span>
+                    <span class="fw-bold fs-4 text-price price-stable">${parziale}€</span>
                 </div>
             </div>`;
     }
     html += '</div>'; container.innerHTML = html; totaleSpan.innerText = totaleSoldi.toFixed(2);
 }
 
-
-function apriStorico() {
-    // Ancora da implementare!
-}
-
+// --- LOGICA ZOOM & AGGIUNTA ---
 function apriZoom(card) {
-    const id = card.getAttribute('data-id'); const nome = card.getAttribute('data-nome'); const desc = card.getAttribute('data-desc'); const prezzo = card.getAttribute('data-prezzo'); const img = card.getAttribute('data-img'); const allergeniRaw = card.getAttribute('data-allergeni');
-    document.getElementById('zoom-nome').innerText = nome; document.getElementById('zoom-desc').innerText = desc; document.getElementById('zoom-prezzo').innerText = prezzo; document.getElementById('zoom-img').src = img;
+    const id = card.getAttribute('data-id');
+    const nome = card.getAttribute('data-nome');
+    const desc = card.getAttribute('data-desc');
+    const prezzo = parseFloat(card.getAttribute('data-prezzo'));
+    const img = card.getAttribute('data-img');
+    const allergeniRaw = card.getAttribute('data-allergeni');
+
+    document.getElementById('zoom-nome').innerText = nome;
+    document.getElementById('zoom-desc').innerText = desc;
+    document.getElementById('zoom-prezzo-unitario').innerText = prezzo.toFixed(2);
+    document.getElementById('zoom-img').src = img;
+    
     const divAlg = document.getElementById('zoom-allergeni'); divAlg.innerHTML = '';
     if(allergeniRaw) { allergeniRaw.split(',').forEach(a => { if(a.trim()) divAlg.innerHTML += `<span class="badge-alg">${a.trim()}</span>`; }); } 
     else { divAlg.innerHTML = '<span class="small text-muted">Nessuno</span>'; }
-    const inputMain = document.getElementById('q-' + id);
-    document.getElementById('zoom-qty').innerText = inputMain ? parseInt(inputMain.value) : 0;
-    document.getElementById('btn-zoom-plus').onclick = () => { gestisciCarrello(id, 1, parseFloat(prezzo), nome); document.getElementById('zoom-qty').innerText = document.getElementById('q-' + id).value; };
-    document.getElementById('btn-zoom-minus').onclick = () => { gestisciCarrello(id, -1, parseFloat(prezzo), nome); document.getElementById('zoom-qty').innerText = document.getElementById('q-' + id).value; };
+
+    zoomState = { id: id, nome: nome, prezzo: prezzo, qtyAttuale: 1 };
+    
+    refreshZoomUI();
     new bootstrap.Modal(document.getElementById('modalZoom')).show();
 }
 
+function updateZoomQty(delta) {
+    let nuovoValore = zoomState.qtyAttuale + delta;
+    if (nuovoValore < 1) nuovoValore = 1; 
+    zoomState.qtyAttuale = nuovoValore;
+    refreshZoomUI();
+}
+
+function refreshZoomUI() {
+    document.getElementById('zoom-qty-display').innerText = zoomState.qtyAttuale;
+    document.getElementById('zoom-btn-totale').innerText = (zoomState.qtyAttuale * zoomState.prezzo).toFixed(2) + '€';
+}
+
+function confermaZoom() {
+    let qtaDaAggiungere = zoomState.qtyAttuale;
+    if (qtaDaAggiungere > 0) {
+        gestisciCarrello(zoomState.id, qtaDaAggiungere, zoomState.prezzo, zoomState.nome);
+        mostraToast(zoomState.nome);
+    }
+    bootstrap.Modal.getInstance(document.getElementById('modalZoom')).hide();
+}
+
+function mostraToast(nomePiatto) {
+    document.getElementById('toast-msg').innerText = `${nomePiatto} aggiunto al carrello!`;
+    const toastEl = document.getElementById('liveToast');
+    const toast = new bootstrap.Toast(toastEl, { delay: 2000 });
+    toast.show();
+}
+
+// --- INVIO ORDINE ---
 document.getElementById('btn-invia-ordine').onclick = function() {
-    // Nascondiamo il carrello
-    const modalCarrello = bootstrap.Modal.getInstance(document.getElementById('modalCarrello'));
-    modalCarrello.hide();
-    const modalConferma = new bootstrap.Modal(document.getElementById('modalConfermaOrdine'));
-    modalConferma.show();
+    bootstrap.Modal.getInstance(document.getElementById('modalCarrello')).hide();
+    new bootstrap.Modal(document.getElementById('modalConfermaOrdine')).show();
 };
 
 document.getElementById('confirm-send-btn').onclick = function() {
@@ -504,39 +511,28 @@ document.getElementById('confirm-send-btn').onclick = function() {
     btn.disabled = true;
     btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Invio in corso...';
 
-    // Trasforma il carrello in un array per PHP tramite .map
-    const listaProdotti = Object.values(carrello).map(item => {
-        return { id: item.id, qta: item.qta };
-    });
+    const listaProdotti = Object.values(carrello).map(item => { return { id: item.id, qta: item.qta }; });
 
-    // Chiamata per il file invia_ordine.php
     fetch('../api/invia_ordine.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            prodotti: listaProdotti
-        })
+        body: JSON.stringify({ prodotti: listaProdotti })
     })
     .then(res => res.json())
     .then(data => {
         bootstrap.Modal.getInstance(document.getElementById('modalConfermaOrdine')).hide();
-        
         if(data.success) {
             new bootstrap.Modal(document.getElementById('modalSuccesso')).show();
-                        setTimeout(() => {
-                location.reload();
-            }, 2500);
+            setTimeout(() => { location.reload(); }, 2500);
         } else {
             alert("Errore: " + data.message);
-            btn.disabled = false;
-            btn.innerText = "SÌ, ORDINA!";
+            btn.disabled = false; btn.innerText = "SÌ, ORDINA!";
         }
     })
     .catch(err => {
         console.error(err);
-        alert("Errore di connessione al server! Controlla la console (F12) per dettagli.");
-        btn.disabled = false;
-        btn.innerText = "SÌ, ORDINA!";
+        alert("Errore di connessione!");
+        btn.disabled = false; btn.innerText = "SÌ, ORDINA!";
     });
 };
 </script>
