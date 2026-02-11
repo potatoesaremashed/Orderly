@@ -15,6 +15,14 @@ include "../include/header.php";
         <span class="badge bg-primary fs-6">Benvenuto, <?php echo $_SESSION['username'] ?? 'Manager'; ?></span>
     </div>
 
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Dashboard Gestione</h1>
+        <div>
+            <span class="badge bg-primary fs-6 me-2">Benvenuto, <?php echo $_SESSION['username'] ?? 'Manager'; ?></span>
+            <a href="../logout.php" class="btn btn-danger btn-sm">Esci</a>
+        </div>
+    </div>
+    
     <?php if(isset($_GET['msg']) && $_GET['msg'] == 'success'): ?>
         <div class="alert alert-success alert-dismissible fade show" role="alert">
             Piatto aggiunto al menu con successo!
