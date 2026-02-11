@@ -164,6 +164,47 @@ include "../include/header.php";
             </div>
         </div>
     </div>
+    <div class="card mt-4 mb-5 shadow-sm border-0">
+        <div class="card-header bg-warning text-dark d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Categorie Menu</h5>
+            <small>Attenzione: non eliminare categorie con piatti collegati!</small>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Nome Categoria</th>
+                            <th class="text-end">Azioni</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php
+                        $res_cat = $conn->query("SELECT * FROM categorie ORDER BY nome_categoria ASC");
+                        
+                        if ($res_cat->num_rows > 0) {
+                            while($row = $res_cat->fetch_assoc()){
+                                echo "<tr>";
+                                echo "<td class='fw-bold'>" . htmlspecialchars($row['nome_categoria']) . "</td>";
+                                echo "<td class='text-end'>
+                                        <form action='../api/elimina_categoria.php' method='POST' onsubmit='return confirm(\"Sei sicuro di voler eliminare questa categoria?\");'>
+                                            <input type='hidden' name='id_categoria' value='" . $row['id_categoria'] . "'>
+                                            <button type='submit' class='btn btn-sm btn-outline-danger'>
+                                                <i class='bi bi-trash'></i> Elimina
+                                            </button>
+                                        </form>
+                                      </td>";
+                                echo "</tr>";
+                            }
+                        } else {
+                            echo "<tr><td colspan='2' class='text-center text-muted py-3'>Nessuna categoria trovata.</td></tr>";
+                        }
+                        ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 </div>
 
 <?php include "../include/footer.php"; ?>
