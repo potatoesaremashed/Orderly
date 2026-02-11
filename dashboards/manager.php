@@ -103,6 +103,20 @@ include "../include/header.php";
             </form>
         </div>
     </div>
+    <div class="card shadow-sm border-0 mt-4">
+        <div class="card-header bg-secondary text-white">
+            <h5 class="mb-0">Nuova Categoria</h5>
+        </div>
+        <div class="card-body">
+            <form action="../api/aggiungi_categoria.php" method="POST">
+                <div class="input-group">
+                    <input type="text" name="nome_categoria" class="form-control" placeholder="Es: Vini, Pizze..." required>
+                    <input type="hidden" name="id_menu" value="1"> 
+                    <button type="submit" class="btn btn-primary">Crea</button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
 
 <?php include "../include/footer.php"; ?>
