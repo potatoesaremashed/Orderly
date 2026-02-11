@@ -202,6 +202,10 @@ $prodotti = $conn->query("SELECT * FROM alimenti");
                 <div><h2 class="m-0 fw-bold">Ordina al Tavolo</h2><p class="m-0 text-muted">Scegli i piatti che preferisci</p></div>
                 <div class="d-flex align-items-center gap-3">
                     <div class="theme-toggle" onclick="toggleTheme()" title="Cambia Tema"><i class="fas fa-moon" id="theme-icon"></i></div>
+
+                    <a href="../logout.php" class="theme-toggle text-decoration-none text-danger ms-2" title="Abbandona Tavolo" style="border: 1px solid var(--border-color);">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </a>
                     
                     <div class="text-end d-none d-sm-block me-3 ms-3">
                         <small class="text-uppercase fw-bold d-block text-muted" style="font-size: 11px;">Totale Ordine</small>
