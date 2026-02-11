@@ -117,6 +117,53 @@ include "../include/header.php";
             </form>
         </div>
     </div>
+    <div class="card mt-4 mb-5 shadow-sm border-0">
+        <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Menu Attuale</h5>
+            <small>Clicca su "Elimina" per rimuovere un piatto</small>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Piatto</th>
+                            <th>Prezzo</th>
+                            <th class="text-end">Azioni</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php
+                        // Recupera tutti i piatti dal database
+                        $result = $conn->query("SELECT * FROM alimenti ORDER BY nome_piatto ASC");
+                        
+                        if ($result->num_rows > 0) {
+                            while($row = $result->fetch_assoc()){
+                                echo "<tr>";
+                                // Nome del piatto
+                                echo "<td class='fw-bold'>" . htmlspecialchars($row['nome_piatto']) . "</td>";
+                                // Prezzo formattato
+                                echo "<td>" . number_format($row['prezzo'], 2) . " €</td>";
+                                // Bottone Elimina (Form)
+                                echo "<td class='text-end'>
+                                        <form action='../api/elimina_piatto.php' method='POST' onsubmit='return confirm(\"Sei sicuro di voler eliminare questo piatto dal menu?\");'>
+                                            <input type='hidden' name='id_alimento' value='" . $row['id_alimento'] . "'>
+                                            <button type='submit' class='btn btn-sm btn-outline-danger'>
+                                                <i class='bi bi-trash'></i> Elimina
+                                            </button>
+                                        </form>
+                                      </td>";
+                                echo "</tr>";
+                            }
+                        } else {
+                            echo "<tr><td colspan='3' class='text-center text-muted py-3'>Nessun piatto nel menu. Aggiungine uno sopra!</td></tr>";
+                        }
+                        ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 </div>
 
 <?php include "../include/footer.php"; ?>
