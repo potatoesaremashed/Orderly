@@ -191,11 +191,15 @@ include '../include/header.php';
         <div class="theme-toggle" id="btn-audio" onclick="toggleAudio()" title="Suoni">
             <i class="fas fa-volume-mute"></i>
         </div>
-
+    
         <div class="theme-toggle" onclick="toggleTheme()" title="Cambia Tema">
             <i class="fas fa-moon" id="theme-icon"></i>
         </div>
 
+        <a href="../logout.php" class="theme-toggle text-decoration-none text-danger border-danger" title="Esci">
+            <i class="fas fa-power-off"></i>
+        </a>
+        
         <div class="badge bg-success rounded-pill px-3 py-2 ms-2 d-flex align-items-center gap-2">
             <div style="width:8px; height:8px; background:white; border-radius:50%; animation: blink 1s infinite;"></div>
             LIVE
