@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="UTF-8"?><project name="Untitled Gantt Project" company="" webLink="http://" view-date="2025-12-28" view-index="0" gantt-divider-location="543" resource-divider-location="300" version="3.3.3316" locale="en_US">
+    <description/>
+    <view zooming-state="default:5" id="gantt-chart">
+        <field id="tpd3" name="Name" width="259" order="0"/>
+        <field id="tpd4" name="Begin date" width="181" order="1"/>
+        <field id="tpd5" name="End date" width="87" order="2"/>
+        <field id="tpd15" name="Notes" width="20" order="3"/>
+        <option id="filter.completedTasks" value="false"/>
+        <option id="filter.dueTodayTasks" value="false"/>
+        <option id="filter.overdueTasks" value="false"/>
+        <option id="filter.inProgressTodayTasks" value="false"/>
+        <timeline><![CDATA[7]]></timeline>
+    </view>
+    <view id="resource-table">
+        <field id="0" name="Name" width="206" order="0"/>
+        <field id="1" name="Default role" width="90" order="1"/>
+    </view>
+    <!-- -->
+    <calendars>
+        <day-types>
+            <day-type id="0"/>
+            <day-type id="1"/>
+            <default-week id="1" name="default" sun="1" mon="0" tue="0" wed="0" thu="0" fri="0" sat="1"/>
+            <only-show-weekends value="false"/>
+            <overriden-day-types/>
+            <days/>
+        </day-types>
+    </calendars>
+    <tasks empty-milestones="true">
+        <taskproperties>
+            <taskproperty id="tpd0" name="type" type="default" valuetype="icon"/>
+            <taskproperty id="tpd1" name="priority" type="default" valuetype="icon"/>
+            <taskproperty id="tpd2" name="info" type="default" valuetype="icon"/>
+            <taskproperty id="tpd3" name="name" type="default" valuetype="text"/>
+            <taskproperty id="tpd4" name="begindate" type="default" valuetype="date"/>
+            <taskproperty id="tpd5" name="enddate" type="default" valuetype="date"/>
+            <taskproperty id="tpd6" name="duration" type="default" valuetype="int"/>
+            <taskproperty id="tpd7" name="completion" type="default" valuetype="int"/>
+            <taskproperty id="tpd8" name="coordinator" type="default" valuetype="text"/>
+            <taskproperty id="tpd9" name="predecessorsr" type="default" valuetype="text"/>
+        </taskproperties>
+        <task id="60" uid="188340759457478dbb49e1192855f77c" name="1.0 Analisi e Progettazione" meeting="false" start="2025-11-20" duration="49" complete="100" expand="true">
+            <depend id="9" type="2" difference="0" hardness="Strong"/>
+            <task id="0" uid="7b1cdb9e0f6549c2ab1282641f202e91" name="WBS" meeting="false" start="2026-01-15" duration="9" complete="100" expand="true"/>
+            <task id="1" uid="2d4bcd16c26a4e8cb743b087f39e5c31" name="Gantt" meeting="false" start="2026-01-16" duration="8" complete="100" expand="true"/>
+            <task id="2" uid="fc93ee8ebb1049619a4253fef12dd197" name="1.1 Progettazione DB" meeting="false" start="2025-11-20" duration="49" complete="100" thirdDate="2025-11-20" thirdDate-constraint="1" expand="false">
+                <task id="3" uid="274cc1cae6864f94bb6436a1986852ea" name="1.1.1 Analisi requisiti SRS" meeting="false" start="2025-11-20" duration="46" complete="100" expand="true"/>
+                <task id="61" uid="318ee731e19a4fe69e30b4c68c91fdac" name="1.1.2 Casi D'uso" meeting="false" start="2026-01-19" duration="4" complete="100" expand="true"/>
+                <task id="4" uid="28d12f5bfa984b6f89e94b9ef9fd4af9" name="1.1.3 Modellazione concettuale" meeting="false" start="2026-01-22" duration="1" complete="100" expand="true">
+                    <depend id="5" type="2" difference="0" hardness="Strong"/>
+                </task>
+                <task id="5" uid="ce991bef71cd4ea8be21ffbb4bd70679" name="1.1.4 Modellazione logica" meeting="false" start="2026-01-23" duration="1" complete="100" expand="true">
+                    <depend id="7" type="2" difference="0" hardness="Strong"/>
+                </task>
+                <task id="7" uid="8fabc3fd417a4507a823e6d53fdec2aa" name="1.1.5 Design Database" meeting="false" start="2026-01-26" duration="2" complete="100" webLink="https%3A%2F%2Fgithub.com%2Fpotatoesaremashed%2FOrderly%2Fblob%2Fmain%2Ftemplatedb.sql" expand="true"/>
+            </task>
+        </task>
+        <task id="9" uid="57a06306da504a8ca8252294059963f5" name="2.0 Backend" meeting="false" start="2026-01-28" duration="12" complete="81" thirdDate="2026-01-28" thirdDate-constraint="1" expand="false">
+            <depend id="32" type="4" difference="0" hardness="Strong"/>
+            <task id="62" uid="3f6ba490ef5c4ac7aa6bb697fe2fa3dc" name="2.1 Connesione PHP e DB" meeting="false" start="2026-01-28" duration="1" complete="100" expand="true"/>
+            <task id="63" uid="7f27f79196bd4ff9acb3a78496740047" name="2.2 Autenticazione" meeting="false" start="2026-01-29" duration="5" complete="60" expand="true">
+                <task id="10" uid="8243d36dcc1d4b1f88b548cffc8253c0" name="2.2.1 Pagina Login Multi-Ruolo" meeting="false" start="2026-01-29" duration="1" complete="100" webLink="https%3A%2F%2Fgithub.com%2Fpotatoesaremashed%2FOrderly%2Fblob%2Fmain%2Findex.php" expand="true">
+                    <notes><![CDATA[logica:1-30
+interfaccia:31-fine]]></notes>
+                </task>
+                <task id="64" uid="74d6fdfb1194429a8ec37932d6358774" name="2.2.2 Script Di Logout" meeting="false" start="2026-02-02" duration="2" complete="0" expand="true"/>
+                <task id="66" uid="7f9c91f24e3a4869b73ac57e4dc77b60" name="2.2.3 Gestione Sessione PHP" meeting="false" start="2026-02-03" duration="2" complete="100" expand="true"/>
+            </task>
+            <task id="11" uid="25270217086f4f2e849be8cfc73203a2" name="2.3 Funzioni Cliente" meeting="false" start="2026-01-30" duration="3" complete="100" expand="true">
+                <task id="27" uid="c838f5e04fb84a6fba29b7654b0a9f17" name="Connessione client-server ?" meeting="false" start="2026-02-02" duration="1" complete="100" webLink="https%3A%2F%2Fgithub.com%2Fpotatoesaremashed%2FOrderly%2Ftree%2Fmain%2Finclude" expand="true"/>
+                <task id="14" uid="c09fc8d4aae142afb04408b631b731cd" name="2.3.1 Gestione Carrello" meeting="false" start="2026-01-30" duration="3" complete="100" thirdDate="2026-01-30" thirdDate-constraint="1" expand="true">
+                    <task id="16" uid="1e422e356acc4e66b2be350ad2fee619" name="2.3.1.1 Aggiungi item carrello" meeting="false" start="2026-01-30" duration="1" complete="100" webLink="https%3A%2F%2Fgithub.com%2Fpotatoesaremashed%2FOrderly%2Fblob%2Fmain%2Fapi%2Faggiungi_al_carrello.php" expand="true">
+                        <notes><![CDATA[js/gestioneCarrello.js: Funzione gestisciCarrello() che esegue la chiamata fetch asincrona.]]></notes>
+                        <depend id="15" type="2" difference="0" hardness="Strong"/>
+                    </task>
+                    <task id="15" uid="d81139003eff4fbbb0937da86e867821" name="2.3.1.2 Rimuovi item carrello" meeting="false" start="2026-02-02" duration="1" complete="100" webLink="https%3A%2F%2Fgithub.com%2Fpotatoesaremashed%2FOrderly%2Fblob%2Fmain%2Fapi%2Frimuovi_dal_carrello.php" expand="true">
+                        <notes><![CDATA[js/gestioneCarrello.js: Logica client-side per gestire decrementi e feedback visivo.]]></notes>
+                        <depend id="17" type="2" difference="0" hardness="Strong"/>
+                    </task>
+                    <task id="17" uid="0e451faaebab4a139ca2c9ea09e945ac" name="2.3.1.3 Visualizza Carrello" meeting="false" start="2026-02-03" duration="1" complete="100" webLink="https%3A%2F%2Fgithub.com%2Fpotatoesaremashed%2FOrderly%2Fblob%2Fmain%2Fapi%2Fget_carrello.php" expand="true">
+                        <notes><![CDATA[api/get_carrello.php: API che esegue SELECT con JOIN tra ordini, dettaglio_ordini e alimenti per recuperare i dati persistenti.
+
+dashboards/tavolo.php: Struttura HTML della Modale.
+
+js/gestioneCarrello.js: Funzione aggiornaInterfacciaCarrello() che renderizza il JSON ricevuto.
+
+api/invia_ordine.php: Gestione del cambio stato da 'in_attesa' a 'in_coda'.]]></notes>
+                    </task>
+                    <task id="67" uid="722e02978b19461fab1d98dd76795e40" name="2.3.1.4 Invio Ordine" meeting="false" start="2026-02-02" duration="2" complete="100" expand="true"/>
+                </task>
+            </task>
+            <task id="18" uid="4143919271144ff2b92ce7043a710ac6" name="2.4 Funzioni Cucina" meeting="false" start="2026-02-04" duration="4" complete="100" thirdDate="2026-01-30" thirdDate-constraint="1" expand="true">
+                <task id="19" uid="d290f6807eb44d0b82a94e7fa4239695" name="2.4.1 Ricevi notifica" meeting="false" start="2026-02-04" duration="2" complete="100" webLink="https%3A%2F%2Fgithub.com%2Fpotatoesaremashed%2FOrderly%2Fblob%2Fmain%2Fapi%2Fleggi_ordini_cucina.php" expand="true">
+                    <notes><![CDATA[dashboards/cucina.php: Script JS setInterval per aggiornamento automatico della vista senza ricaricare la pagina.]]></notes>
+                </task>
+                <task id="20" uid="bb6be8c77c404e8d9124d2832031f762" name="2.4.2 Controllo stato ordini" meeting="false" start="2026-02-06" duration="2" complete="100" webLink="https%3A%2F%2Fgithub.com%2Fpotatoesaremashed%2FOrderly%2Fblob%2Fmain%2Fapi%2Fcambia_stato_ordine.php" expand="true">
+                    <notes><![CDATA[dashboards/cucina.php: Bottoni dinamici collegati all'API.]]></notes>
+                </task>
+            </task>
+            <task id="13" uid="b073989bfba44a73afe5fd4014908457" name="2.5 Funzioni Manager" meeting="false" start="2026-02-06" duration="5" complete="66" thirdDate="2026-01-30" thirdDate-constraint="1" expand="true">
+                <task id="21" uid="c26b97b6de174bbea2e7dd8ca77dc8fa" name="2.3.1 Editor Menu" meeting="false" start="2026-02-06" duration="3" complete="100" thirdDate="2026-01-30" thirdDate-constraint="1" expand="true">
+                    <task id="22" uid="bd1a7ecacdc2403e8e6164da9911ca9a" name="2.3.1.1 Aggiungi piatto" meeting="false" start="2026-02-06" duration="1" complete="100" webLink="https%3A%2F%2Fgithub.com%2Fpotatoesaremashed%2FOrderly%2Fblob%2Fmain%2Fapi%2Faggiungi_piatto.php" expand="true">
+                        <notes><![CDATA[dashboards/manager.php: Form HTML Multipart per invio dati e file.]]></notes>
+                        <depend id="24" type="2" difference="0" hardness="Strong"/>
+                    </task>
+                    <task id="24" uid="a3461db8281c4a0a96efe24f68d89167" name="2.3.1.2 Aggiungi Categoria" meeting="false" start="2026-02-09" duration="1" complete="100" expand="true"/>
+                    <task id="23" uid="bdacb65179fe48478d13f348a27602a1" name="2.3.1.3 Rimuovi piatto" meeting="false" start="2026-02-09" duration="1" complete="100" expand="true">
+                        <depend id="25" type="2" difference="0" hardness="Strong"/>
+                    </task>
+                    <task id="25" uid="8ad58c5953454556aa9ede9f4e5a5d39" name="2.3.1.4 Rimuovi Categoria" meeting="false" start="2026-02-10" duration="1" complete="100" expand="true"/>
+                </task>
+                <task id="28" uid="1213427389e74324b77513de8cf5109e" name="2.3.2 Gestione locale" meeting="false" start="2026-02-11" duration="2" complete="0" expand="true">
+                    <task id="29" uid="26cab5833502466db2b3dcfcc72c14f2" name="2.3.2.1 Monitoraggio tavoli" meeting="false" start="2026-02-11" duration="2" complete="0" expand="true"/>
+                </task>
+            </task>
+        </task>
+        <task id="32" uid="7b5f5dbd09fd4e6b84b4502baa774cb6" name="3.0 Frontend" meeting="false" start="2026-02-13" duration="9" complete="76" expand="false">
+            <depend id="46" type="2" difference="0" hardness="Strong"/>
+            <task id="69" uid="dc7ab2c1f61045ef8d90b100ce9641c9" name="3.1 Footer Header Dinamici" meeting="false" start="2026-02-16" duration="1" complete="100" expand="true"/>
+            <task id="33" uid="064c2e65533d4ea3ac613d4d2b8e7a4e" name="3.2 Dashboard tavolo/cliente" meeting="false" start="2026-02-18" duration="6" complete="62" expand="true">
+                <task id="34" uid="a249eac7c7dd4730be1fea7990f2c47c" name="3.2.1 Menu digitale" meeting="false" start="2026-02-18" duration="2" complete="100" webLink="https%3A%2F%2Fgithub.com%2Fpotatoesaremashed%2FOrderly%2Fblob%2Fmain%2Fdashboards%2Ftavolo.php" expand="true">
+                    <depend id="35" type="2" difference="0" hardness="Strong"/>
+                </task>
+                <task id="35" uid="c7e4303cb5144c85afcc1a0a5b839f5b" name="3.2.2 Interfaccia carrello" meeting="false" start="2026-02-20" duration="2" complete="50" expand="true"/>
+                <task id="37" uid="4bd5f0d1badd404ea48fe66c1bf33b50" name="3.2.3 UI aggiungi piatto" meeting="false" start="2026-02-20" duration="1" complete="100" expand="true">
+                    <depend id="38" type="2" difference="0" hardness="Strong"/>
+                </task>
+                <task id="38" uid="b4b74de820c74b198d044cb97c8728c6" name="3.2.4 UI rimuovi piatto" meeting="false" start="2026-02-23" duration="1" complete="100" expand="true"/>
+                <task id="36" uid="8660cab238b34df6a775aeff7bacfd70" name="3.2.5 Tracciamento ordine" meeting="false" start="2026-02-24" duration="2" complete="0" expand="true"/>
+            </task>
+            <task id="39" uid="608386cde20b494f98ddf482af6374b2" name="3.3 Interfaccia cucina" meeting="false" start="2026-02-13" duration="4" complete="100" expand="true">
+                <task id="71" uid="a22e2834f98d4ec6bf2e75f5e2e2de6f" name="3.3.1 Layout Kanban" meeting="false" start="2026-02-13" duration="1" complete="100" expand="true">
+                    <notes><![CDATA[Visualizzazione Colonne/card]]></notes>
+                </task>
+                <task id="41" uid="03423605209f4dd98696d77384a6e08f" name="3.3.2 Implementazione Auto-Refresh" meeting="false" start="2026-02-13" duration="1" complete="100" expand="true"/>
+                <task id="72" uid="a99a68cffd3e4c24b698fcc47e8ddf6b" name="3.3.3 Notifica con Suono" meeting="false" start="2026-02-18" duration="1" complete="100" expand="true"/>
+                <task id="40" uid="c1609f28479644a4b2a9b32b0a780f2b" name="3.3.4 Visualizza comande" meeting="false" start="2026-02-13" duration="2" complete="100" expand="true"/>
+            </task>
+            <task id="42" uid="c833db5af28145bbb3d7f6ad5287d93d" name="3.4 Interfaccia manager" meeting="false" start="2026-02-17" duration="6" complete="71" expand="true">
+                <task id="43" uid="369c3d68d7074d0eab0a751b8c963a92" name="3.4.1 Form Inserimento Piatti" meeting="false" start="2026-02-17" duration="2" complete="100" expand="true"/>
+                <task id="44" uid="ae26928e9aa9418a8b61c7eb4d280764" name="3.4.2 Form Inserimento Categorie" meeting="false" start="2026-02-19" duration="1" complete="100" expand="true"/>
+                <task id="70" uid="c7755258396e488ba20e7521d7b3ec0e" name="3.4.3 Tabelle Riepilogative con pulsanti di eliminazione" meeting="false" start="2026-02-18" duration="2" complete="100" expand="true"/>
+                <task id="45" uid="7528643d1ab84b73b4a2bd4c9bdb950a" name="3.4.4 Visualizza graficastruttura locale" meeting="false" start="2026-02-23" duration="2" complete="0" expand="true"/>
+            </task>
+        </task>
+        <task id="46" uid="86a38fb8dfe74aa2b375f568953a828e" name="4.0 Testing" meeting="false" start="2026-02-26" duration="3" complete="0" expand="false">
+            <depend id="76" type="2" difference="0" hardness="Strong"/>
+            <task id="47" uid="a2a51e6139a44bbe99eb8f8e4c1da20b" name="4.1 Test funzionali" meeting="false" start="2026-02-24" duration="3" complete="0" thirdDate="2026-03-02" thirdDate-constraint="1" expand="true">
+                <task id="48" uid="b8c862c412c04e4291844fab77ff8274" name="4.1.1 Test Sessione Carrello" meeting="false" start="2026-02-26" duration="1" complete="0" expand="true"/>
+                <task id="74" uid="dd79901e1fd64c3bb3e48503450ba433" name="4.1.2 Test Aggiungi/Rimuovi Item Carrello" meeting="false" start="2026-02-26" duration="1" complete="0" expand="true"/>
+                <task id="49" uid="fa5a1f78be2b4d43b3357bae4d08ab0d" name="4.1.3 Test CRUD Manager Aggiunta" meeting="false" start="2026-02-26" duration="1" complete="0" expand="true"/>
+                <task id="73" uid="3aeb4b4fc2ba44e4a7a32c7e1d7d7b7f" name="4.1.4 Test CRUD Manager Rimuozione" meeting="false" start="2026-02-26" duration="1" complete="0" expand="true"/>
+            </task>
+            <task id="51" uid="7305823334a14213a7f9fc584ccf44af" name="4.2 Test di sicurezza" meeting="false" start="2026-02-26" duration="2" complete="0" expand="true">
+                <task id="52" uid="d0763e67322845f6be337c9c20a7b820" name="4.2.1 Verifica Permessi/Autenticazione" meeting="false" start="2026-02-26" duration="1" complete="0" expand="true"/>
+                <task id="53" uid="51065b262d914d0a8846a81451531f85" name="4.2.2 Test real time ordine cucina" meeting="false" start="2026-02-27" duration="1" complete="0" expand="true"/>
+            </task>
+            <task id="54" uid="78667699e4d54577990b5cb174b497a0" name="4.3 Test di usabilita" meeting="false" start="2026-02-26" duration="3" complete="0" expand="true">
+                <task id="58" uid="a191a33a3fd74232a1a19fc01c8cf1fa" name="4.3.1 Deployment" meeting="false" start="2026-03-02" duration="1" complete="0" expand="true"/>
+                <task id="55" uid="5f4a3be59d634a3fb38d477eb663848f" name="4.3.2 Test reattivita" meeting="false" start="2026-02-26" duration="1" complete="0" expand="true"/>
+                <task id="56" uid="b1b9397a017547e6b800c6e26aa33e25" name="4.3.3 Test multidevice" meeting="false" start="2026-02-27" duration="1" complete="0" expand="true"/>
+                <task id="57" uid="761ceb351c5d4c89809c40ec043eaa47" name="4.3.4 Test concorrenza ordini" meeting="false" start="2026-03-02" duration="1" complete="0" expand="true"/>
+            </task>
+        </task>
+        <task id="76" uid="37f0c5d893d74af7b70aecb9f4364526" name="5.0 Rilascio" meeting="false" start="2026-03-03" duration="2" complete="0" expand="false">
+            <task id="77" uid="84a47f6c9b51450b913841f9ddb4c942" name="5.1 Documentazione Manuale" meeting="false" start="2026-03-03" duration="2" complete="0" expand="true"/>
+            <task id="79" uid="76362b61c4594b6d936f310354f02ce4" name="5.2 Documentazione Setup" meeting="false" start="2026-03-03" duration="2" complete="0" expand="true"/>
+        </task>
+    </tasks>
+    <resources>
+        <resource id="0" name="Gabriele" function="Default:0" contacts="" phone=""/>
+        <resource id="1" name="Emilianio" function="Default:0" contacts="" phone=""/>
+        <resource id="2" name="Chen" function="Default:0" contacts="" phone=""/>
+        <resource id="3" name="Fabio" function="Default:0" contacts="" phone=""/>
+        <resource id="4" name="Andrea" function="Default:0" contacts="" phone=""/>
+        <resource id="5" name="DIodor" function="Default:0" contacts="" phone=""/>
+        <resource id="6" name="Liviu" function="Default:0" contacts="" phone=""/>
+    </resources>
+    <allocations>
+        <allocation task-id="7" resource-id="0" function="Default:0" responsible="true" load="100.0"/>
+        <allocation task-id="24" resource-id="0" function="Default:0" responsible="true" load="100.0"/>
+        <allocation task-id="34" resource-id="0" function="Default:0" responsible="true" load="100.0"/>
+        <allocation task-id="0" resource-id="0" function="Default:0" responsible="false" load="20.0"/>
+        <allocation task-id="1" resource-id="0" function="Default:0" responsible="true" load="20.0"/>
+        <allocation task-id="10" resource-id="0" function="Default:0" responsible="true" load="100.0"/>
+        <allocation task-id="4" resource-id="1" function="Default:0" responsible="true" load="100.0"/>
+        <allocation task-id="27" resource-id="1" function="Default:0" responsible="true" load="100.0"/>
+        <allocation task-id="35" resource-id="1" function="Default:0" responsible="true" load="100.0"/>
+        <allocation task-id="53" resource-id="1" function="Default:0" responsible="true" load="100.0"/>
+        <allocation task-id="0" resource-id="1" function="Default:0" responsible="false" load="15.0"/>
+        <allocation task-id="1" resource-id="1" function="Default:0" responsible="false" load="10.0"/>
+        <allocation task-id="1" resource-id="2" function="Default:0" responsible="false" load="15.0"/>
+        <allocation task-id="23" resource-id="2" function="Default:0" responsible="true" load="100.0"/>
+        <allocation task-id="36" resource-id="2" function="Default:0" responsible="true" load="100.0"/>
+        <allocation task-id="45" resource-id="2" function="Default:0" responsible="true" load="100.0"/>
+        <allocation task-id="58" resource-id="2" function="Default:0" responsible="true" load="100.0"/>
+        <allocation task-id="0" resource-id="2" function="Default:0" responsible="false" load="15.0"/>
+        <allocation task-id="16" resource-id="3" function="Default:0" responsible="true" load="100.0"/>
+        <allocation task-id="48" resource-id="3" function="Default:0" responsible="true" load="100.0"/>
+        <allocation task-id="49" resource-id="3" function="Default:0" responsible="true" load="100.0"/>
+        <allocation task-id="52" resource-id="3" function="Default:0" responsible="true" load="100.0"/>
+        <allocation task-id="55" resource-id="3" function="Default:0" responsible="true" load="100.0"/>
+        <allocation task-id="15" resource-id="3" function="Default:0" responsible="false" load="100.0"/>
+        <allocation task-id="37" resource-id="3" function="Default:0" responsible="true" load="100.0"/>
+        <allocation task-id="17" resource-id="3" function="Default:0" responsible="true" load="100.0"/>
+        <allocation task-id="19" resource-id="3" function="Default:0" responsible="true" load="100.0"/>
+        <allocation task-id="20" resource-id="3" function="Default:0" responsible="true" load="100.0"/>
+        <allocation task-id="0" resource-id="3" function="Default:0" responsible="false" load="10.0"/>
+        <allocation task-id="1" resource-id="3" function="Default:0" responsible="false" load="20.0"/>
+        <allocation task-id="40" resource-id="4" function="Default:0" responsible="true" load="100.0"/>
+        <allocation task-id="41" resource-id="4" function="Default:0" responsible="true" load="100.0"/>
+        <allocation task-id="43" resource-id="4" function="Default:0" responsible="true" load="100.0"/>
+        <allocation task-id="44" resource-id="4" function="Default:0" responsible="true" load="100.0"/>
+        <allocation task-id="0" resource-id="4" function="Default:0" responsible="true" load="20.0"/>
+        <allocation task-id="1" resource-id="4" function="Default:0" responsible="false" load="15.0"/>
+        <allocation task-id="5" resource-id="5" function="Default:0" responsible="true" load="100.0"/>
+        <allocation task-id="29" resource-id="5" function="Default:0" responsible="true" load="100.0"/>
+        <allocation task-id="38" resource-id="5" function="Default:0" responsible="true" load="100.0"/>
+        <allocation task-id="56" resource-id="5" function="Default:0" responsible="true" load="100.0"/>
+        <allocation task-id="0" resource-id="5" function="Default:0" responsible="false" load="10.0"/>
+        <allocation task-id="1" resource-id="5" function="Default:0" responsible="false" load="10.0"/>
+        <allocation task-id="3" resource-id="6" function="Default:0" responsible="true" load="100.0"/>
+        <allocation task-id="57" resource-id="6" function="Default:0" responsible="true" load="100.0"/>
+        <allocation task-id="25" resource-id="6" function="Default:0" responsible="true" load="100.0"/>
+        <allocation task-id="0" resource-id="6" function="Default:0" responsible="false" load="10.0"/>
+        <allocation task-id="1" resource-id="6" function="Default:0" responsible="false" load="10.0"/>
+    </allocations>
+    <vacations/>
+    <previous/>
+    <roles roleset-name="Default"/>
+</project>
