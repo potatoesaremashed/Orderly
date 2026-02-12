@@ -1,0 +1,102 @@
+/* =========================================
+   FILE: css/cucina.css
+   Descrizione: Stili specifici Monitor Cucina
+   ========================================= */
+
+body { overflow: hidden; /* Blocca scroll pagina intera su cucina */ }
+
+.sticky-header { height: 80px; }
+.brand-title { font-weight: 700; font-size: 1.5rem; color: var(--text-main); }
+.brand-subtitle { font-size: 0.85rem; color: var(--text-muted); font-weight: 400; }
+
+.kanban-board {
+    display: flex;
+    height: calc(100vh - 80px); 
+    padding: 1.5rem;
+    gap: 2rem;
+    overflow-x: auto;
+}
+
+.k-column {
+    flex: 1;
+    background: var(--col-bg);
+    border-radius: 30px;
+    display: flex; flex-direction: column;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+    min-width: 300px;
+}
+
+.k-header {
+    padding: 1.5rem;
+    font-weight: 700; font-size: 1.1rem;
+    display: flex; justify-content: space-between; align-items: center;
+    background: var(--surface-color);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.badge-count {
+    background: var(--text-main); color: var(--surface-color);
+    padding: 5px 12px; border-radius: 20px; font-size: 0.9rem;
+}
+
+.k-body { flex: 1; overflow-y: auto; padding: 1.5rem; }
+
+.order-card {
+    background: var(--surface-color);
+    border-radius: var(--card-radius);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 15px var(--shadow-soft);
+    border: 1px solid var(--border-color);
+    transition: transform 0.2s;
+    animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    position: relative;
+}
+.order-card:hover { transform: translateY(-5px); border-color: var(--primary); }
+
+.card-top { 
+    display: flex; justify-content: space-between; align-items: center; 
+    margin-bottom: 1rem; padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.table-badge {
+    background: var(--primary); color: white;
+    padding: 6px 15px; border-radius: 12px;
+    font-weight: 700; font-size: 1.1rem;
+    box-shadow: 0 4px 10px rgba(255, 159, 67, 0.3);
+}
+
+.time-badge { color: var(--text-muted); font-size: 0.9rem; font-weight: 600; display: flex; align-items: center; gap: 5px; }
+
+.dish-row {
+    display: flex; align-items: flex-start;
+    margin-bottom: 12px; font-size: 1rem; color: var(--text-main);
+}
+
+/* Override specifico cucina per qty */
+.qty-capsule {
+    background: var(--capsule-bg);
+    color: var(--text-main);
+    font-weight: 700;
+    min-width: 35px; height: 35px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 10px; margin-right: 12px;
+    border: 1px solid var(--border-color);
+    width: auto; max-width: none; /* Reset del tavolo */
+}
+
+/* Buttons specifici */
+.btn-action {
+    width: 100%; border: none; padding: 12px;
+    border-radius: 50px; font-weight: 700; font-size: 0.9rem;
+    cursor: pointer; margin-top: 1rem;
+    transition: 0.2s; display: flex; justify-content: center; align-items: center; gap: 8px;
+}
+.btn-start { background: var(--dark); color: white; }
+.btn-start:hover { opacity: 0.9; transform: translateY(-2px); }
+
+@keyframes popIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+.k-body::-webkit-scrollbar { width: 6px; }
+.k-body::-webkit-scrollbar-thumb { background-color: var(--border-color); border-radius: 10px; }

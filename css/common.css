@@ -1,0 +1,119 @@
+/* =========================================
+   FILE: css/common.css
+   Descrizione: Variabili globali, Dark Mode e UI condivisa
+   ========================================= */
+
+:root {
+    /* Palette Comune */
+    --primary: #ff9f43;
+    --dark: #2d3436;
+    --bg-body: #f4f6f9;
+    --bg-card: #ffffff;
+    --surface-color: #ffffff;
+    --text-main: #2d3436;
+    --text-muted: #636e72;
+    --border-color: #e9ecef;
+    --input-bg: #f8f9fa;
+    --input-border: #dfe6e9;
+    --danger-soft: rgba(255, 71, 87, 0.1);
+    --danger: #ff4757;
+    --card-radius: 20px;
+    --shadow-soft: 0 4px 15px rgba(0,0,0,0.05);
+    
+    /* Variabili specifiche unite */
+    --price-color: #00a8ff;   /* Tavolo */
+    --capsule-bg: #f1f2f6;    /* Tavolo/Cucina */
+    --col-bg: #eaeff2;        /* Cucina */
+    
+    /* Stati Ordine Cucina */
+    --new-order-bg: #fff0f0;
+    --new-order-text: #ff6b6b;
+    --prep-order-bg: #f0f8ff;
+    --prep-order-text: #00a8ff;
+}
+
+/* --- DARK MODE SETTINGS --- */
+[data-theme="dark"] {
+    --bg-body: #121212;
+    --bg-card: #1e1e1e;
+    --surface-color: #1e1e1e;
+    --text-main: #ffffff;
+    --text-muted: #b0b0b0 !important;
+    --border-color: #333333;
+    --input-bg: #2d2d2d;
+    --input-border: #444444;
+    --capsule-bg: #2d3436;
+    --col-bg: #181818;
+    
+    --new-order-bg: #4a2b2b;
+    --prep-order-bg: #2b3a4a;
+}
+
+/* Fix Bootstrap Dark Mode Override */
+[data-theme="dark"] body, [data-theme="dark"] h1, [data-theme="dark"] h2, 
+[data-theme="dark"] h3, [data-theme="dark"] h4, [data-theme="dark"] h5, [data-theme="dark"] h6,
+[data-theme="dark"] .card-title, [data-theme="dark"] label {
+    color: var(--text-main) !important;
+}
+[data-theme="dark"] .text-muted { color: var(--text-muted) !important; }
+[data-theme="dark"] .list-group-item { background: transparent; color: var(--text-main); border-color: var(--border-color); }
+[data-theme="dark"] option { background-color: var(--bg-card); color: white; }
+[data-theme="dark"] .modal-content { background-color: var(--bg-card); color: var(--text-main); }
+[data-theme="dark"] .btn-close { filter: invert(1); }
+
+/* --- BASE STYLES --- */
+body {
+    background-color: var(--bg-body);
+    color: var(--text-main);
+    font-family: 'Poppins', sans-serif;
+    transition: background 0.3s, color 0.3s;
+}
+
+/* --- ELEMENTI CONDIVISI --- */
+/* Sticky Header */
+.sticky-header {
+    background: rgba(var(--surface-color), 0.95);
+    backdrop-filter: blur(12px);
+    padding: 1rem 2rem;
+    position: sticky; top: 0; z-index: 999;
+    border-bottom: 1px solid var(--border-color);
+    display: flex; justify-content: space-between; align-items: center;
+    transition: background 0.3s;
+}
+[data-theme="dark"] .sticky-header { background: rgba(30, 30, 30, 0.95); }
+
+/* Theme Toggle */
+.theme-toggle {
+    cursor: pointer; width: 40px; height: 40px;
+    background: var(--bg-card); border: 1px solid var(--border-color);
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    color: var(--text-main); transition: 0.3s;
+}
+
+/* Bottoni Comuni */
+.btn-main {
+    background-color: var(--primary); color: white;
+    border: none; padding: 12px; width: 100%; border-radius: 10px; font-weight: 600; transition: 0.2s;
+}
+.btn-main:hover { opacity: 0.9; transform: translateY(-2px); color: white; }
+
+.btn-action { padding: 5px 10px; border-radius: 8px; border: none; cursor: pointer; transition: 0.2s; }
+.btn-delete { background: var(--danger-soft); color: var(--danger); }
+.btn-delete:hover { background: var(--danger); color: white; }
+
+.btn-green-custom {
+    background-color: #2ecc71; color: white; border: none; transition: all 0.2s;
+}
+.btn-green-custom:hover {
+    background-color: #27ae60; transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(46, 204, 113, 0.4); color: white;
+}
+
+/* UI Extra */
+.modal-content-custom { background-color: var(--bg-card); color: var(--text-main); border-radius: 25px; border: none; }
+.bg-light-custom { background-color: var(--bg-body) !important; }
+.badge-alg {
+    background: var(--bg-card); color: #e67e22; border: 1px solid var(--primary);
+    font-size: 0.75rem; font-weight: 600; padding: 5px 12px; border-radius: 50px;
+    margin-right: 5px; margin-bottom: 5px; display: inline-block;
+}

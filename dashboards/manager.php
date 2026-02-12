@@ -1,6 +1,5 @@
 <?php
 session_start();
-// Controllo accesso: solo manager
 if (!isset($_SESSION['ruolo']) || $_SESSION['ruolo'] != 'manager') {
     header("Location: ../index.php");
     exit;
@@ -9,210 +8,181 @@ include "../include/conn.php";
 include "../include/header.php";
 ?>
 
-<div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1>Dashboard Gestione</h1>
-        <span class="badge bg-primary fs-6">Benvenuto, <?php echo $_SESSION['username'] ?? 'Manager'; ?></span>
-    </div>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="../css/manager.css">
 
+<div class="container py-4">
+    
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1>Dashboard Gestione</h1>
         <div>
-            <span class="badge bg-primary fs-6 me-2">Benvenuto, <?php echo $_SESSION['username'] ?? 'Manager'; ?></span>
-            <a href="../logout.php" class="btn btn-danger btn-sm">Esci</a>
+            <h2 class="fw-bold m-0">Gestione Menu</h2>
+            <p class="text-muted m-0 small">Benvenuto, <?php echo $_SESSION['username']; ?></p>
+        </div>
+        <div class="d-flex gap-3 align-items-center">
+            <div class="theme-toggle" onclick="toggleTheme()"><i class="fas fa-moon" id="theme-icon"></i></div>
+            <a href="../logout.php" class="btn btn-outline-danger btn-sm rounded-pill px-3">Esci</a>
         </div>
     </div>
-    
+
     <?php if(isset($_GET['msg']) && $_GET['msg'] == 'success'): ?>
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            Piatto aggiunto al menu con successo!
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        <div class="alert alert-success border-0 shadow-sm rounded-3 mb-4">
+            <i class="fas fa-check-circle me-2"></i> Operazione completata!
         </div>
     <?php endif; ?>
 
-    <div class="card shadow-sm border-0">
-        <div class="card-header bg-dark text-white">
-            <h5 class="mb-0">Aggiungi Nuovo Piatto</h5>
-        </div>
-        <div class="card-body">
-            <form action="../api/aggiungi_piatto.php" method="POST" enctype="multipart/form-data">
-                
-                <div class="mb-3">
-                    <label class="form-label fw-bold">Nome Piatto</label>
-                    <input type="text" name="nome_piatto" class="form-control" required placeholder="Es: Carbonara">
-                </div>
-                
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label fw-bold">Prezzo (€)</label>
-                        <div class="input-group">
-                            <input type="number" step="0.01" name="prezzo" class="form-control" required placeholder="0.00">
-                            <span class="input-group-text">€</span>
+    <div class="row g-4">
+        
+        <div class="col-lg-8">
+            <div class="card-custom">
+                <h5 class="card-title"><i class="fas fa-utensils me-2 text-warning"></i>Nuovo Piatto</h5>
+                <form action="../api/aggiungi_piatto.php" method="POST" enctype="multipart/form-data">
+                    <div class="row g-3">
+                        <div class="col-md-8">
+                            <input type="text" name="nome_piatto" class="form-control" required placeholder="Nome del piatto">
                         </div>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label fw-bold">Categoria</label>
-                        <select name="id_categoria" class="form-select" required>
-                            <option value="" selected disabled>Seleziona una categoria...</option>
-                            <?php
-                            // Recupera le categorie esistenti dal DB
-                            $res_cat = $conn->query("SELECT * FROM categorie");
-                            while($cat = $res_cat->fetch_assoc()) {
-                                echo "<option value='".$cat['id_categoria']."'>".$cat['nome_categoria']."</option>";
-                            }
-                            ?>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label fw-bold">Descrizione</label>
-                    <textarea name="descrizione" class="form-control" rows="3" placeholder="Descrivi il piatto..."></textarea>
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label fw-bold">Allergeni</label>
-                    <div class="card p-3 bg-light border-0">
-                        <div class="row">
-                            <?php
-                            // Lista standard allergeni (Normativa UE + comuni)
-                            $lista_allergeni = [
-                                "Glutine", "Crostacei", "Uova", "Pesce", 
-                                "Arachidi", "Soia", "Latte", "Lattosio",
-                                "Frutta a guscio", "Sedano", "Senape", 
-                                "Sesamo", "Solfiti", "Lupini", "Molluschi"
-                            ];
-
-                            foreach ($lista_allergeni as $allergene) {
-                                echo '
-                                <div class="col-6 col-md-4 mb-2">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="allergeni[]" value="'.$allergene.'" id="all_'.$allergene.'">
-                                        <label class="form-check-label" for="all_'.$allergene.'">
-                                            '.$allergene.'
-                                        </label>
-                                    </div>
-                                </div>';
-                            }
-                            ?>
+                        <div class="col-md-4">
+                            <input type="number" step="0.01" name="prezzo" class="form-control" required placeholder="Prezzo (€)">
                         </div>
-                    </div>
-                    <div class="form-text">Seleziona tutti gli allergeni presenti nel piatto.</div>
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label fw-bold">Immagine Piatto</label>
-                    <input type="file" name="immagine" class="form-control" accept="image/*" required>
-                </div>
-
-                <div class="d-grid">
-                    <button type="submit" class="btn btn-success btn-lg">Aggiungi al Menu</button>
-                </div>
-            </form>
-        </div>
-    </div>
-    <div class="card shadow-sm border-0 mt-4">
-        <div class="card-header bg-secondary text-white">
-            <h5 class="mb-0">Nuova Categoria</h5>
-        </div>
-        <div class="card-body">
-            <form action="../api/aggiungi_categoria.php" method="POST">
-                <div class="input-group">
-                    <input type="text" name="nome_categoria" class="form-control" placeholder="Es: Vini, Pizze..." required>
-                    <input type="hidden" name="id_menu" value="1"> 
-                    <button type="submit" class="btn btn-primary">Crea</button>
-                </div>
-            </form>
-        </div>
-    </div>
-    <div class="card mt-4 mb-5 shadow-sm border-0">
-        <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
-            <h5 class="mb-0">Menu Attuale</h5>
-            <small>Clicca su "Elimina" per rimuovere un piatto</small>
-        </div>
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-hover align-middle">
-                    <thead class="table-light">
-                        <tr>
-                            <th>Piatto</th>
-                            <th>Prezzo</th>
-                            <th class="text-end">Azioni</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php
-                        // Recupera tutti i piatti dal database
-                        $result = $conn->query("SELECT * FROM alimenti ORDER BY nome_piatto ASC");
+                        <div class="col-md-12">
+                            <select name="id_categoria" class="form-select" required>
+                                <option value="" selected disabled>Seleziona Categoria</option>
+                                <?php
+                                $res = $conn->query("SELECT * FROM categorie");
+                                while($cat = $res->fetch_assoc()){
+                                    echo "<option value='".$cat['id_categoria']."'>".$cat['nome_categoria']."</option>";
+                                }
+                                ?>
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <textarea name="descrizione" class="form-control" rows="2" placeholder="Descrizione ingredienti..."></textarea>
+                        </div>
                         
-                        if ($result->num_rows > 0) {
-                            while($row = $result->fetch_assoc()){
-                                echo "<tr>";
-                                // Nome del piatto
-                                echo "<td class='fw-bold'>" . htmlspecialchars($row['nome_piatto']) . "</td>";
-                                // Prezzo formattato
-                                echo "<td>" . number_format($row['prezzo'], 2) . " €</td>";
-                                // Bottone Elimina (Form)
-                                echo "<td class='text-end'>
-                                        <form action='../api/elimina_piatto.php' method='POST' onsubmit='return confirm(\"Sei sicuro di voler eliminare questo piatto dal menu?\");'>
-                                            <input type='hidden' name='id_alimento' value='" . $row['id_alimento'] . "'>
-                                            <button type='submit' class='btn btn-sm btn-outline-danger'>
-                                                <i class='bi bi-trash'></i> Elimina
-                                            </button>
-                                        </form>
-                                      </td>";
-                                echo "</tr>";
+                        <div class="col-12">
+                            <label class="small text-muted fw-bold mb-2">ALLERGENI</label>
+                            <div class="d-flex flex-wrap gap-2 p-3 rounded allergeni-box">
+                                <?php
+                                $allergeni = ["Glutine", "Crostacei", "Uova", "Pesce", "Arachidi", "Soia", "Latte", "Frutta a guscio", "Sedano", "Senape", "Sesamo", "Solfiti", "Molluschi"];
+                                foreach($allergeni as $a) {
+                                    echo "<div class='form-check form-check-inline m-0 me-3'>
+                                            <input class='form-check-input' type='checkbox' name='allergeni[]' value='$a' id='al_$a'>
+                                            <label class='form-check-label small' for='al_$a'>$a</label>
+                                          </div>";
+                                }
+                                ?>
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <label class="small text-muted fw-bold">FOTO PIATTO</label>
+                            <input type="file" name="immagine" class="form-control" accept="image/*" required>
+                        </div>
+
+                        <div class="col-12 mt-3">
+                            <button type="submit" class="btn-main">Aggiungi al Menu</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card-custom mb-4">
+                <h5 class="card-title"><i class="fas fa-tags me-2 text-primary"></i>Nuova Categoria</h5>
+                <form action="../api/aggiungi_categoria.php" method="POST" class="d-flex gap-2">
+                    <input type="text" name="nome_categoria" class="form-control" placeholder="Es: Dolci" required>
+                    <input type="hidden" name="id_menu" value="1">
+                    <button type="submit" class="btn btn-dark rounded-3"><i class="fas fa-plus"></i></button>
+                </form>
+            </div>
+
+            <div class="card-custom">
+                <h5 class="card-title">Lista Categorie</h5>
+                <div style="max-height: 300px; overflow-y: auto;">
+                    <table class="table-custom">
+                        <tbody>
+                            <?php
+                            $res_cat = $conn->query("SELECT * FROM categorie ORDER BY nome_categoria");
+                            while($row = $res_cat->fetch_assoc()){
+                                echo "<tr>
+                                        <td><strong>".$row['nome_categoria']."</strong></td>
+                                        <td class='text-end'>
+                                            <form action='../api/elimina_categoria.php' method='POST' onsubmit='return confirm(\"Eliminare questa categoria?\");'>
+                                                <input type='hidden' name='id_categoria' value='".$row['id_categoria']."'>
+                                                <button class='btn-action btn-delete'><i class='fas fa-trash'></i></button>
+                                            </form>
+                                        </td>
+                                      </tr>";
                             }
-                        } else {
-                            echo "<tr><td colspan='3' class='text-center text-muted py-3'>Nessun piatto nel menu. Aggiungine uno sopra!</td></tr>";
-                        }
-                        ?>
-                    </tbody>
-                </table>
+                            ?>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
-    <div class="card mt-4 mb-5 shadow-sm border-0">
-        <div class="card-header bg-warning text-dark d-flex justify-content-between align-items-center">
-            <h5 class="mb-0">Categorie Menu</h5>
-            <small>Attenzione: non eliminare categorie con piatti collegati!</small>
-        </div>
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-hover align-middle">
-                    <thead class="table-light">
-                        <tr>
-                            <th>Nome Categoria</th>
-                            <th class="text-end">Azioni</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php
-                        $res_cat = $conn->query("SELECT * FROM categorie ORDER BY nome_categoria ASC");
-                        
-                        if ($res_cat->num_rows > 0) {
-                            while($row = $res_cat->fetch_assoc()){
-                                echo "<tr>";
-                                echo "<td class='fw-bold'>" . htmlspecialchars($row['nome_categoria']) . "</td>";
-                                echo "<td class='text-end'>
-                                        <form action='../api/elimina_categoria.php' method='POST' onsubmit='return confirm(\"Sei sicuro di voler eliminare questa categoria?\");'>
-                                            <input type='hidden' name='id_categoria' value='" . $row['id_categoria'] . "'>
-                                            <button type='submit' class='btn btn-sm btn-outline-danger'>
-                                                <i class='bi bi-trash'></i> Elimina
-                                            </button>
-                                        </form>
-                                      </td>";
-                                echo "</tr>";
+
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card-custom">
+                <h5 class="card-title"><i class="fas fa-book-open me-2 text-info"></i>Menu Completo</h5>
+                <div class="table-responsive">
+                    <table class="table-custom">
+                        <thead>
+                            <tr>
+                                <th>Piatto</th>
+                                <th>Descrizione</th>
+                                <th>Prezzo</th>
+                                <th class="text-end">Azioni</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php
+                            $result = $conn->query("SELECT * FROM alimenti ORDER BY nome_piatto ASC");
+                            if ($result->num_rows > 0) {
+                                while($row = $result->fetch_assoc()){
+                                    echo "<tr>
+                                            <td class='fw-bold'>".htmlspecialchars($row['nome_piatto'])."</td>
+                                            <td class='small text-muted'>".substr($row['descrizione'], 0, 50)."...</td>
+                                            <td style='color: var(--primary); font-weight:bold;'>".number_format($row['prezzo'], 2)." €</td>
+                                            <td class='text-end'>
+                                                <form action='../api/elimina_piatto.php' method='POST' onsubmit='return confirm(\"Eliminare questo piatto?\");'>
+                                                    <input type='hidden' name='id_alimento' value='".$row['id_alimento']."'>
+                                                    <button type='submit' class='btn-action btn-delete'>
+                                                        <i class='fas fa-trash me-1'></i> Elimina
+                                                    </button>
+                                                </form>
+                                            </td>
+                                          </tr>";
+                                }
+                            } else {
+                                echo "<tr><td colspan='4' class='text-center py-4 text-muted'>Nessun piatto inserito.</td></tr>";
                             }
-                        } else {
-                            echo "<tr><td colspan='2' class='text-center text-muted py-3'>Nessuna categoria trovata.</td></tr>";
-                        }
-                        ?>
-                    </tbody>
-                </table>
+                            ?>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+    function toggleTheme() {
+        const body = document.body;
+        const icon = document.getElementById('theme-icon');
+        const isDark = body.getAttribute('data-theme') === 'dark';
+        
+        body.setAttribute('data-theme', isDark ? 'light' : 'dark');
+        icon.classList.replace(isDark ? 'fa-sun' : 'fa-moon', isDark ? 'fa-moon' : 'fa-sun');
+        localStorage.setItem('theme', isDark ? 'light' : 'dark');
+    }
+
+    if (localStorage.getItem('theme') === 'dark') {
+        document.body.setAttribute('data-theme', 'dark');
+        document.getElementById('theme-icon').classList.replace('fa-moon', 'fa-sun');
+    }
+</script>
 
 <?php include "../include/footer.php"; ?>
