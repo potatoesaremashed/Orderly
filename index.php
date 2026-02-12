@@ -46,15 +46,24 @@ if (isset($_POST['username'])) {
         header("Location: dashboards/tavolo.php?id=" . $row['id_tavolo']);
         exit; // Stop the code here
     }
+    
+    // If we reach here, no match was found (Username right/Pass wrong OR Username wrong)
+    $error = "Inserire il username o password corretto";
 }
 
 include "include/header.php"; // Load the top part of the website design
 ?>
 
-<!-- This is the box where the user types their login info -->
 <div class="container" style="max-width: 400px; margin-top: 50px; text-align: center;">
     <img src="imgs/ordnobg.png" style="width: 120px; margin-bottom: 15px;">
     <h3>Login</h3>
+
+    <?php 
+    // Display the error if it exists
+    if (isset($error)) {
+        echo '<div class="alert alert-danger" role="alert">' . $error . '</div>';
+    }
+    ?>
 
     <form method="post">
         <div class="mb-3" style="text-align: left;">
