@@ -141,22 +141,41 @@ include "../include/header.php";
                         </thead>
                         <tbody>
                             <?php
+                            // Query aggiornata per prendere anche id_categoria
                             $result = $conn->query("SELECT * FROM alimenti ORDER BY nome_piatto ASC");
                             if ($result->num_rows > 0) {
                                 while($row = $result->fetch_assoc()){
+                                    $allergeniSafe = htmlspecialchars($row['lista_allergeni'], ENT_QUOTES);
+                                    $descSafe = htmlspecialchars($row['descrizione'], ENT_QUOTES);
+                                    $nomeSafe = htmlspecialchars($row['nome_piatto'], ENT_QUOTES);
+                                    
                                     echo "<tr>
-                                            <td class='fw-bold'>".htmlspecialchars($row['nome_piatto'])."</td>
-                                            <td class='small text-muted'>".substr($row['descrizione'], 0, 50)."...</td>
+                                            <td class='fw-bold'>".$row['nome_piatto']."</td>
+                                            <td class='small text-muted'>".substr($row['descrizione'], 0, 40)."...</td>
                                             <td style='color: var(--primary); font-weight:bold;'>".number_format($row['prezzo'], 2)." €</td>
                                             <td class='text-end'>
-                                                <form action='../api/elimina_piatto.php' method='POST' onsubmit='return confirm(\"Eliminare questo piatto?\");'>
-                                                    <input type='hidden' name='id_alimento' value='".$row['id_alimento']."'>
-                                                    <button type='submit' class='btn-action btn-delete'>
-                                                        <i class='fas fa-trash me-1'></i> Elimina
+                                                <div class='d-flex justify-content-end gap-2'>
+                                                    <button type='button' class='btn btn-warning btn-sm text-white' 
+                                                        onclick='apriModalModifica(this)'
+                                                        data-id='".$row['id_alimento']."'
+                                                        data-nome='".$nomeSafe."'
+                                                        data-desc='".$descSafe."'
+                                                        data-prezzo='".$row['prezzo']."'
+                                                        data-cat='".$row['id_categoria']."'
+                                                        data-img='".$row['immagine']."'
+                                                        data-allergeni='".$allergeniSafe."'>
+                                                        <i class='fas fa-edit'></i>
                                                     </button>
-                                                </form>
+
+                                                    <form action='../api/elimina_piatto.php' method='POST' onsubmit='return confirm(\"Eliminare questo piatto?\");' style='margin:0;'>
+                                                        <input type='hidden' name='id_alimento' value='".$row['id_alimento']."'>
+                                                        <button type='submit' class='btn btn-danger btn-sm'>
+                                                            <i class='fas fa-trash'></i>
+                                                        </button>
+                                                    </form>
+                                                </div>
                                             </td>
-                                          </tr>";
+                                        </tr>";
                                 }
                             } else {
                                 echo "<tr><td colspan='4' class='text-center py-4 text-muted'>Nessun piatto inserito.</td></tr>";
@@ -170,21 +189,80 @@ include "../include/header.php";
     </div>
 </div>
 
-<script>
-    function toggleTheme() {
-        const body = document.body;
-        const icon = document.getElementById('theme-icon');
-        const isDark = body.getAttribute('data-theme') === 'dark';
-        
-        body.setAttribute('data-theme', isDark ? 'light' : 'dark');
-        icon.classList.replace(isDark ? 'fa-sun' : 'fa-moon', isDark ? 'fa-moon' : 'fa-sun');
-        localStorage.setItem('theme', isDark ? 'light' : 'dark');
-    }
+<div class="modal fade" id="modalModifica" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header border-0">
+        <h5 class="modal-title fw-bold">Modifica Piatto</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form action="../api/modifica_piatto.php" method="POST" enctype="multipart/form-data">
+            <input type="hidden" name="id_alimento" id="mod_id">
+            
+            <div class="row g-3">
+                <div class="col-md-8">
+                    <label class="small text-muted">Nome Piatto</label>
+                    <input type="text" name="nome_piatto" id="mod_nome" class="form-control" required>
+                </div>
+                <div class="col-md-4">
+                    <label class="small text-muted">Prezzo (€)</label>
+                    <input type="number" step="0.01" name="prezzo" id="mod_prezzo" class="form-control" required>
+                </div>
+                <div class="col-12">
+                    <label class="small text-muted">Categoria</label>
+                    <select name="id_categoria" id="mod_cat" class="form-select" required>
+                        <?php
+                        // Ricarica le categorie da presentare nel modal
+                        $res_mod = $conn->query("SELECT * FROM categorie");
+                        while($cat = $res_mod->fetch_assoc()){
+                            echo "<option value='".$cat['id_categoria']."'>".$cat['nome_categoria']."</option>";
+                        }
+                        ?>
+                    </select>
+                </div>
+                <div class="col-12">
+                    <label class="small text-muted">Descrizione</label>
+                    <textarea name="descrizione" id="mod_desc" class="form-control" rows="3"></textarea>
+                </div>
 
-    if (localStorage.getItem('theme') === 'dark') {
-        document.body.setAttribute('data-theme', 'dark');
-        document.getElementById('theme-icon').classList.replace('fa-moon', 'fa-sun');
-    }
-</script>
+                <div class="col-12">
+                    <label class="small text-muted fw-bold mb-2">ALLERGENI</label>
+                    <div class="d-flex flex-wrap gap-2 p-3 bg-light rounded">
+                        <?php
+                        // Lista riportata sopra per le checklist
+                        $allergeniList = ["Glutine", "Crostacei", "Uova", "Pesce", "Arachidi", "Soia", "Latte", "Frutta a guscio", "Sedano", "Senape", "Sesamo", "Solfiti", "Molluschi"];
+                        foreach($allergeniList as $a) {
+                            echo "<div class='form-check form-check-inline m-0 me-3'>
+                                    <input class='form-check-input mod-allergeni' type='checkbox' name='allergeni[]' value='$a' id='mod_al_$a'>
+                                    <label class='form-check-label small' for='mod_al_$a'>$a</label>
+                                  </div>";
+                        }
+                        ?>
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <div class="d-flex align-items-center gap-3">
+                        <img id="preview_img" src="" style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px;">
+                        <div class="w-100">
+                            <label class="small text-muted">Cambia Foto (Lascia vuoto per mantenere l'attuale)</label>
+                            <input type="file" name="immagine" class="form-control" accept="image/*">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="modal-footer border-0 px-0 mt-3">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                <button type="submit" class="btn btn-primary fw-bold">Salva Modifiche</button>
+            </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="../js/manager.js"></script>
 
 <?php include "../include/footer.php"; ?>
