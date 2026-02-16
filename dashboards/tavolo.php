@@ -24,7 +24,7 @@ $prodotti = $conn->query("SELECT * FROM alimenti");
 <div class="container-fluid">
     <div class="row g-0">
         <div class="col-md-3 col-lg-2 d-none d-md-block sidebar-custom">
-            <div class="text-center mb-5 mt-3"><img src="../imgs/ordnobg.png" width="100"></div>
+            <div class="text-center mb-5 mt-3"><img src="../imgs/ordlogo.png" width="100"></div>
             <div class="px-3">
                 <small class="text-uppercase fw-bold ps-3 mb-2 d-block text-muted" style="font-size: 11px;">Menu</small>
                 <div class="btn-categoria active" onclick="filtraCategoria('all', this)"><i class="fas fa-utensils me-3"></i> Tutto</div>

@@ -103,7 +103,6 @@ function aggiornaModale() {
     let html = '<div class="list-group list-group-flush w-100 px-3 py-2">'; 
     for (const [id, item] of Object.entries(carrello)) {
         let parziale = (item.qta * item.prezzo).toFixed(2);
-        // Nota: uso replace su nome per evitare problemi con apostrofi nel JS in linea
         let nomeSafe = item.nome.replace(/'/g, "\\'");
         
         html += `
@@ -216,12 +215,12 @@ if (btnConfirmSend) {
             // Svuota tutto UI e Logica
             resettaOrdineDopoInvio();
             
-            // Chiude il modale di successo dopo 2.5 secondi
+            // Chiude il modale di successo dopo 2s
             setTimeout(() => {
                 modalSuccesso.hide();
                 btn.disabled = false;
                 btn.innerHTML = 'SÌ, ORDINA!';
-            }, 2500);
+            }, 2000);
         })
         .catch(err => {
             console.error("Errore invio:", err);

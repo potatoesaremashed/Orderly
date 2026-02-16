@@ -41,7 +41,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             WHERE id_alimento = $id_alimento";
 
     if ($conn->query($sql) === TRUE) {
-        header("Location: ../pages/manager.php?msg=success");
+        header("Location: ../dashboards/manager.php?msg=success");
     } else {
         echo "Errore modifica: " . $conn->error;
     }

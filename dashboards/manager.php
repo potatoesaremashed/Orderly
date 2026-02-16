@@ -223,20 +223,19 @@ include "../include/header.php";
                 </div>
                 <div class="col-12">
                     <label class="small text-muted">Descrizione</label>
-                    <textarea name="descrizione" id="mod_desc" class="form-control" rows="3"></textarea>
+                    <textarea name="descrizione" id="mod_desc" class="form-control" rows="3" style="resize: none;"></textarea>
                 </div>
 
                 <div class="col-12">
                     <label class="small text-muted fw-bold mb-2">ALLERGENI</label>
-                    <div class="d-flex flex-wrap gap-2 p-3 bg-light rounded">
+                    <div class="d-flex flex-wrap gap-2 p-3 rounded bg-allergeni-custom">
                         <?php
-                        // Lista riportata sopra per le checklist
                         $allergeniList = ["Glutine", "Crostacei", "Uova", "Pesce", "Arachidi", "Soia", "Latte", "Frutta a guscio", "Sedano", "Senape", "Sesamo", "Solfiti", "Molluschi"];
                         foreach($allergeniList as $a) {
                             echo "<div class='form-check form-check-inline m-0 me-3'>
                                     <input class='form-check-input mod-allergeni' type='checkbox' name='allergeni[]' value='$a' id='mod_al_$a'>
                                     <label class='form-check-label small' for='mod_al_$a'>$a</label>
-                                  </div>";
+                                </div>";
                         }
                         ?>
                     </div>
