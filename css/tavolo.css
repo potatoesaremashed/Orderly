@@ -3,6 +3,14 @@
    Descrizione: Stili specifici Menu Cliente (Tavolo)
    ========================================= */
 
+html,
+body {
+    overflow-x: hidden;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+}
+
 .sidebar-custom {
     background: var(--surface-color);
     min-height: 100vh;

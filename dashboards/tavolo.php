@@ -21,7 +21,7 @@ $prodotti = $conn->query("SELECT * FROM alimenti");
 
 
 
-<div class="container-fluid">
+<div class="container-fluid p-0">
     <div class="row g-0">
         <div class="col-md-3 col-lg-2 d-none d-md-block sidebar-custom">
             <div class="text-center mb-5 mt-3"><img src="../imgs/ordlogo.png" width="100"></div>
@@ -61,12 +61,13 @@ $prodotti = $conn->query("SELECT * FROM alimenti");
                     <button class="btn btn-dark rounded-pill px-4 py-3 shadow-sm d-flex align-items-center"
                         onclick="apriStorico()">
                         <i class="fas fa-receipt"></i>
+                        <span class="d-none d-md-inline fw-bold ms-2">Ordini</span>
                     </button>
 
-                    <button class="btn btn-dark rounded-pill px-4 py-3 shadow-sm d-flex align-items-center me-2"
+                    <button class="btn btn-dark rounded-pill px-4 py-3 shadow-sm d-flex align-items-center"
                         data-bs-toggle="modal" data-bs-target="#modalFiltri">
                         <i class="fas fa-filter"></i>
-                        <span class="d-none d-md-inline ms-2">Filtro</span>
+                        <span class="d-none d-md-inline fw-bold ms-2">Filtro</span>
                     </button>
 
                     <button class="btn btn-dark rounded-pill px-4 py-3 shadow-sm d-flex align-items-center"
