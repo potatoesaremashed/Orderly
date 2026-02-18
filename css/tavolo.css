@@ -12,13 +12,32 @@
 }
 
 .btn-categoria {
-    display: flex; align-items: center; padding: 18px 25px; margin-bottom: 8px;
-    border-radius: 15px; color: var(--text-muted); font-weight: 600; 
-    font-size: 1.1rem; cursor: pointer; transition: 0.2s;
+    display: flex;
+    align-items: center;
+    padding: 18px 25px;
+    margin-bottom: 8px;
+    border-radius: 15px;
+    color: var(--text-muted);
+    font-weight: 600;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: 0.2s;
 }
-.btn-categoria:hover { background-color: rgba(255, 159, 67, 0.1); color: var(--primary); }
-.btn-categoria.active { background-color: var(--primary); color: white !important; box-shadow: 0 4px 15px rgba(255, 159, 67, 0.4); }
-.btn-categoria.active .text-muted { color: white !important; }
+
+.btn-categoria:hover {
+    background-color: rgba(255, 159, 67, 0.1);
+    color: var(--primary);
+}
+
+.btn-categoria.active {
+    background-color: var(--primary);
+    color: white !important;
+    box-shadow: 0 4px 15px rgba(255, 159, 67, 0.4);
+}
+
+.btn-categoria.active .text-muted {
+    color: white !important;
+}
 
 /* Card Prodotto */
 .card-prodotto {
@@ -26,44 +45,233 @@
     border-radius: var(--card-radius);
     overflow: hidden;
     transition: transform 0.2s, background 0.3s;
-    height: 100%; position: relative;
+    height: 100%;
+    position: relative;
     border: 1px solid var(--border-color);
     box-shadow: 0 4px 15px var(--shadow-soft);
     cursor: pointer;
 }
-.card-prodotto:hover { transform: translateY(-5px); border-color: var(--price-color); }
 
-.img-wrapper { height: 180px; overflow: hidden; position: relative; }
-.img-prodotto { width: 100%; height: 100%; object-fit: cover; }
-
-.price-tag {
-    position: absolute; bottom: 12px; right: 12px;
-    background: var(--surface-color); padding: 6px 18px; border-radius: 30px;
-    font-weight: 700; font-size: 1.1rem; color: var(--price-color) !important;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+.card-prodotto:hover {
+    transform: translateY(-5px);
+    border-color: var(--price-color);
 }
 
-.card-body { padding: 1.5rem; }
-.piatto-title { font-weight: 700; margin-bottom: 5px; font-size: 1.2rem; color: var(--text-main); }
-.piatto-desc { font-size: 0.9rem; color: var(--text-muted); height: 45px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.img-wrapper {
+    height: 180px;
+    overflow: hidden;
+    position: relative;
+}
+
+.img-prodotto {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.price-tag {
+    position: absolute;
+    bottom: 12px;
+    right: 12px;
+    background: var(--surface-color);
+    padding: 6px 18px;
+    border-radius: 30px;
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--price-color) !important;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.card-body {
+    padding: 1.5rem;
+}
+
+.piatto-title {
+    font-weight: 700;
+    margin-bottom: 5px;
+    font-size: 1.2rem;
+    color: var(--text-main);
+}
+
+.piatto-desc {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    height: 45px;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
 
 /* Controlli Quantità */
 .qty-capsule {
     background: var(--capsule-bg);
-    border-radius: 50px; padding: 5px;
-    display: flex; justify-content: space-between; align-items: center;
-    width: 100%; max-width: 150px; height: 55px;
-    z-index: 10; position: relative;
+    border-radius: 50px;
+    padding: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    max-width: 150px;
+    height: 55px;
+    z-index: 10;
+    position: relative;
 }
-.btn-circle {
-    width: 45px; height: 45px; border-radius: 50%; border: none;
-    display: flex; align-items: center; justify-content: center;
-    cursor: pointer; transition: transform 0.1s; flex-shrink: 0;
-}
-.btn-circle:active { transform: scale(0.9); }
-.btn-minus { background: var(--surface-color); color: #ff6b6b; border: 1px solid var(--border-color); }
-.btn-plus { background: var(--text-main); color: var(--bg-body); }
-.qty-input { background: transparent; border: none; width: 50px; text-align: center; font-weight: 700; font-size: 1.4rem; color: var(--text-main); }
 
-.text-price { color: var(--price-color) !important; }
-#pezzi-header { display: inline-block; min-width: 28px; height: 28px; line-height: 20px; text-align: center; background-color: white !important; color: #212529 !important; font-weight: 800; padding: 4px; border-radius: 50%; margin-left: 8px; }
+.btn-circle {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.1s;
+    flex-shrink: 0;
+}
+
+.btn-circle:active {
+    transform: scale(0.9);
+}
+
+.btn-minus {
+    background: var(--surface-color);
+    color: #ff6b6b;
+    border: 1px solid var(--border-color);
+}
+
+.btn-plus {
+    background: var(--text-main);
+    color: var(--bg-body);
+}
+
+.qty-input {
+    background: transparent;
+    border: none;
+    width: 50px;
+    text-align: center;
+    font-weight: 700;
+    font-size: 1.4rem;
+    color: var(--text-main);
+}
+
+.text-price {
+    color: var(--price-color) !important;
+}
+
+#pezzi-header {
+    display: inline-block;
+    min-width: 28px;
+    height: 28px;
+    line-height: 20px;
+    text-align: center;
+    background-color: white !important;
+    color: #212529 !important;
+    font-weight: 800;
+    padding: 4px;
+    border-radius: 50%;
+    margin-left: 8px;
+}
+
+/* Mobile Category Bar */
+.mobile-cat-bar {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding: 10px 16px;
+    background: var(--surface-color);
+    border-bottom: 1px solid var(--border-color);
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+}
+
+.mobile-cat-bar::-webkit-scrollbar {
+    display: none;
+}
+
+.mobile-cat-btn {
+    white-space: nowrap;
+    padding: 8px 18px;
+    border-radius: 50px;
+    border: 1px solid var(--border-color);
+    background: var(--surface-color);
+    color: var(--text-muted);
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: 0.2s;
+    flex-shrink: 0;
+}
+
+.mobile-cat-btn.active {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+    box-shadow: 0 2px 8px rgba(255, 159, 67, 0.3);
+}
+
+/* =========================================
+   RESPONSIVE — Tablet (< 992px)
+   ========================================= */
+@media (max-width: 991.98px) {
+    .card-prodotto .card-body {
+        padding: 1rem;
+    }
+
+    .img-wrapper {
+        height: 150px;
+    }
+}
+
+/* =========================================
+   RESPONSIVE — Mobile (< 768px)
+   ========================================= */
+@media (max-width: 767.98px) {
+    .p-4.pb-5 {
+        padding: 0.75rem !important;
+    }
+
+    .img-wrapper {
+        height: 130px;
+    }
+
+    .piatto-title {
+        font-size: 1rem;
+    }
+
+    .piatto-desc {
+        font-size: 0.8rem;
+        height: 36px;
+    }
+
+    .card-body {
+        padding: 0.75rem;
+    }
+
+    .price-tag {
+        font-size: 0.9rem;
+        padding: 4px 12px;
+        bottom: 8px;
+        right: 8px;
+    }
+
+    .qty-capsule {
+        height: 45px;
+        max-width: 130px;
+    }
+
+    .btn-circle {
+        width: 38px;
+        height: 38px;
+    }
+
+    .qty-input {
+        font-size: 1.1rem;
+    }
+
+    /* Zoom modal image smaller on mobile */
+    #modalZoom .col-lg-6.position-relative {
+        min-height: 220px !important;
+    }
+}

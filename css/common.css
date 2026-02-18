@@ -107,3 +107,20 @@ body {
     font-size: 0.75rem; font-weight: 600; padding: 5px 12px; border-radius: 50px;
     margin-right: 5px; margin-bottom: 5px; display: inline-block;
 }
+
+/* =========================================
+   RESPONSIVE — Mobile (< 768px)
+   ========================================= */
+@media (max-width: 767.98px) {
+    .sticky-header {
+        padding: 0.75rem 1rem;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+    .sticky-header h2 { font-size: 1.2rem; }
+    .sticky-header p { font-size: 0.75rem; }
+
+    .theme-toggle { width: 36px; height: 36px; font-size: 0.85rem; }
+
+    .modal-content-custom { border-radius: 18px; }
+}

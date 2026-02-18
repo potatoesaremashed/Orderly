@@ -10,67 +10,29 @@ let carrello = {};
 let totaleSoldi = 0;
 let totalePezzi = 0;
 let zoomState = { id: null, nome: '', prezzo: 0, qtyAttuale: 1 };
-let filtri = { categoria: 'all', allergeni: [] };
 
 function toggleTheme() {
     const body = document.body;
     const icon = document.getElementById('theme-icon');
     const isDark = body.getAttribute('data-theme') === 'dark';
     const nuovoTema = isDark ? 'light' : 'dark';
-
+    
     body.setAttribute('data-theme', nuovoTema);
     icon.classList.replace(isDark ? 'fa-sun' : 'fa-moon', isDark ? 'fa-moon' : 'fa-sun');
     localStorage.setItem('theme', nuovoTema);
 }
 
 /**
- * Filtra i prodotti per categoria e allergeni
+ * Filtra i prodotti per categoria
  */
 function filtraCategoria(idCat, elemento) {
-    // Clear active on both sidebar and mobile bar
     document.querySelectorAll('.btn-categoria').forEach(el => el.classList.remove('active'));
-    document.querySelectorAll('.mobile-cat-btn').forEach(el => el.classList.remove('active'));
-    if (elemento) elemento.classList.add('active');
-
-    filtri.categoria = idCat;
-    renderProdotti();
-}
-
-function applicaFiltriAllergeni() {
-    filtri.allergeni = [];
-    document.querySelectorAll('#modalFiltri input[type="checkbox"]:checked').forEach(cb => {
-        filtri.allergeni.push(cb.value);
-    });
-    renderProdotti();
-}
-
-function resettaFiltriAllergeni() {
-    document.querySelectorAll('#modalFiltri input[type="checkbox"]').forEach(cb => cb.checked = false);
-    filtri.allergeni = [];
-    renderProdotti();
-}
-
-function renderProdotti() {
+    if(elemento) elemento.classList.add('active');
+    
     document.querySelectorAll('.item-prodotto').forEach(piatto => {
         const catPiatto = piatto.getAttribute('data-cat');
-        const card = piatto.querySelector('.card-prodotto');
-        const allergeniRaw = card ? (card.getAttribute('data-allergeni') || '') : '';
-        const allergeniPiatto = allergeniRaw.toLowerCase().split(',').map(s => s.trim());
-
-        let mostra = true;
-
-        // 1. Categoria
-        if (filtri.categoria !== 'all' && catPiatto != filtri.categoria) {
-            mostra = false;
-        }
-
-        // 2. Allergeni (Esclusione)
-        if (mostra && filtri.allergeni.length > 0) {
-            const haAllergeneEscluso = filtri.allergeni.some(escluso => allergeniPiatto.includes(escluso.toLowerCase()));
-            if (haAllergeneEscluso) mostra = false;
-        }
-
-        piatto.style.display = mostra ? 'block' : 'none';
+        // Se idCat è 'all' mostra tutto, altrimenti controlla corrispondenza
+        piatto.style.display = (idCat === 'all' || catPiatto == idCat) ? 'block' : 'none';
     });
 }
 
@@ -79,8 +41,8 @@ function renderProdotti() {
  */
 function gestisciCarrello(id, delta, prezzo, nome) {
     const input = document.getElementById('q-' + id);
-    if (!input) return; // Sicurezza
-
+    if(!input) return; // Sicurezza
+    
     let valAttuale = parseInt(input.value) || 0;
     let valNuovo = valAttuale + delta;
 
@@ -92,18 +54,18 @@ function gestisciCarrello(id, delta, prezzo, nome) {
         // Aggiorna header
         const soldiHeader = document.getElementById('soldi-header');
         const pezziHeader = document.getElementById('pezzi-header');
-        if (soldiHeader) soldiHeader.innerText = Math.max(0, totaleSoldi).toFixed(2);
-        if (pezziHeader) pezziHeader.innerText = Math.max(0, totalePezzi);
+        if(soldiHeader) soldiHeader.innerText = Math.max(0, totaleSoldi).toFixed(2);
+        if(pezziHeader) pezziHeader.innerText = Math.max(0, totalePezzi);
 
         // Aggiorna oggetto carrello
         if (!carrello[id]) carrello[id] = { id: id, nome: nome, qta: 0, prezzo: prezzo };
         carrello[id].qta = valNuovo;
-
+        
         if (carrello[id].qta === 0) delete carrello[id];
 
         // Gestione stato bottone invio
         const btnInvia = document.getElementById('btn-invia-ordine');
-        if (btnInvia) {
+        if(btnInvia) {
             if (totalePezzi > 0) {
                 btnInvia.removeAttribute('disabled');
                 btnInvia.classList.replace('btn-secondary', 'btn-dark');
@@ -127,7 +89,7 @@ function gestisciCarrello(id, delta, prezzo, nome) {
 function aggiornaModale() {
     const container = document.getElementById('corpo-carrello');
     const totaleSpan = document.getElementById('totale-modale');
-
+    
     if (Object.keys(carrello).length === 0) {
         container.innerHTML = `
             <div class="d-flex flex-column align-items-center justify-content-center h-100 py-5">
@@ -138,11 +100,11 @@ function aggiornaModale() {
         return;
     }
 
-    let html = '<div class="list-group list-group-flush w-100 px-3 py-2">';
+    let html = '<div class="list-group list-group-flush w-100 px-3 py-2">'; 
     for (const [id, item] of Object.entries(carrello)) {
         let parziale = (item.qta * item.prezzo).toFixed(2);
         let nomeSafe = item.nome.replace(/'/g, "\\'");
-
+        
         html += `
             <div class="cart-item list-group-item d-flex align-items-center border-0 mb-3 px-0" style="background: transparent;">
                 
@@ -185,16 +147,16 @@ function resettaOrdineDopoInvio() {
     carrello = {};
     totaleSoldi = 0;
     totalePezzi = 0;
-
+    
     document.getElementById('soldi-header').innerText = '0.00';
     document.getElementById('pezzi-header').innerText = '0';
-
+    
     // Resetta tutti gli input numerici nella pagina principale
     document.querySelectorAll('input[id^="q-"]').forEach(input => input.value = 0);
-
+    
     // Disabilita il tasto invio
     const btnInvia = document.getElementById('btn-invia-ordine');
-    if (btnInvia) {
+    if(btnInvia) {
         btnInvia.setAttribute('disabled', 'true');
         btnInvia.classList.replace('btn-dark', 'btn-secondary');
     }
@@ -209,11 +171,11 @@ function resettaOrdineDopoInvio() {
 // 1. Quando clicco "INVIA ORDINE" nel carrello -> Apre Modale Conferma
 const btnInviaOrdine = document.getElementById('btn-invia-ordine');
 if (btnInviaOrdine) {
-    btnInviaOrdine.addEventListener('click', function () {
+    btnInviaOrdine.addEventListener('click', function() {
         // Chiudi carrello
         const modalCarrelloEl = document.getElementById('modalCarrello');
         const modalCarrello = bootstrap.Modal.getInstance(modalCarrelloEl);
-        if (modalCarrello) modalCarrello.hide();
+        if(modalCarrello) modalCarrello.hide();
 
         // Apri conferma
         const modalConfermaEl = document.getElementById('modalConfermaOrdine');
@@ -225,7 +187,7 @@ if (btnInviaOrdine) {
 // 2. Quando clicco "SÌ, ORDINA!" nella conferma -> Fa la chiamata API
 const btnConfirmSend = document.getElementById('confirm-send-btn');
 if (btnConfirmSend) {
-    btnConfirmSend.onclick = function () {
+    btnConfirmSend.onclick = function() {
         const btn = this;
         btn.disabled = true;
         btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Invio...';
@@ -237,40 +199,40 @@ if (btnConfirmSend) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ prodotti: listaProdotti })
         })
-            .then(res => res.text()) // O res.json() se il tuo PHP risponde JSON
-            .then(text => {
-                console.log("Risposta server:", text);
+        .then(res => res.text()) // O res.json() se il tuo PHP risponde JSON
+        .then(text => {
+            console.log("Risposta server:", text);
 
-                // Nasconde il modale di conferma
-                const modalConfermaEl = document.getElementById('modalConfermaOrdine');
-                const modalConferma = bootstrap.Modal.getInstance(modalConfermaEl);
-                if (modalConferma) modalConferma.hide();
-
-                // Mostra il successo
-                const modalSuccesso = new bootstrap.Modal(document.getElementById('modalSuccesso'));
-                modalSuccesso.show();
-
-                // Svuota tutto UI e Logica
-                resettaOrdineDopoInvio();
-
-                // Chiude il modale di successo dopo 2s
-                setTimeout(() => {
-                    modalSuccesso.hide();
-                    btn.disabled = false;
-                    btn.innerHTML = 'SÌ, ORDINA!';
-                }, 2000);
-            })
-            .catch(err => {
-                console.error("Errore invio:", err);
-                // In caso di errore, chiudi modale e resetta bottone
-                const modalConfermaEl = document.getElementById('modalConfermaOrdine');
-                const modalConferma = bootstrap.Modal.getInstance(modalConfermaEl);
-                if (modalConferma) modalConferma.hide();
-
+            // Nasconde il modale di conferma
+            const modalConfermaEl = document.getElementById('modalConfermaOrdine');
+            const modalConferma = bootstrap.Modal.getInstance(modalConfermaEl);
+            if(modalConferma) modalConferma.hide();
+            
+            // Mostra il successo
+            const modalSuccesso = new bootstrap.Modal(document.getElementById('modalSuccesso'));
+            modalSuccesso.show();
+            
+            // Svuota tutto UI e Logica
+            resettaOrdineDopoInvio();
+            
+            // Chiude il modale di successo dopo 2s
+            setTimeout(() => {
+                modalSuccesso.hide();
                 btn.disabled = false;
                 btn.innerHTML = 'SÌ, ORDINA!';
-                alert("Errore di connessione. Riprova.");
-            });
+            }, 2000);
+        })
+        .catch(err => {
+            console.error("Errore invio:", err);
+            // In caso di errore, chiudi modale e resetta bottone
+            const modalConfermaEl = document.getElementById('modalConfermaOrdine');
+            const modalConferma = bootstrap.Modal.getInstance(modalConfermaEl);
+            if(modalConferma) modalConferma.hide();
+            
+            btn.disabled = false;
+            btn.innerHTML = 'SÌ, ORDINA!';
+            alert("Errore di connessione. Riprova.");
+        });
     };
 }
 
@@ -283,14 +245,14 @@ function apriZoom(card) {
     document.getElementById('zoom-desc').innerText = d.desc;
     document.getElementById('zoom-prezzo-unitario').innerText = d.prezzo;
     document.getElementById('zoom-img').src = d.img;
-
+    
     const divAlg = document.getElementById('zoom-allergeni');
     divAlg.innerHTML = d.allergeni ? d.allergeni.split(',').map(a => `<span class="badge-alg">${a.trim()}</span>`).join('') : '<small>Nessuno</small>';
-
+    
     // Reset stato zoom
     zoomState = { id: d.id, nome: d.nome, prezzo: parseFloat(d.prezzo), qtyAttuale: 1 };
     refreshZoomUI();
-
+    
     new bootstrap.Modal(document.getElementById('modalZoom')).show();
 }
 
@@ -301,7 +263,7 @@ function updateZoomQty(delta) {
 
 function refreshZoomUI() {
     document.getElementById('zoom-qty-display').innerText = zoomState.qtyAttuale;
-
+    
     // Calcolo totale parziale nel bottone
     let tot = (zoomState.qtyAttuale * zoomState.prezzo).toFixed(2);
     document.getElementById('zoom-btn-totale').innerText = tot + '€';
@@ -309,13 +271,13 @@ function refreshZoomUI() {
 
 function confermaZoom() {
     gestisciCarrello(zoomState.id, zoomState.qtyAttuale, zoomState.prezzo, zoomState.nome);
-
+    
     // Feedback visivo (Toast)
     const toastEl = document.getElementById('liveToast');
     document.getElementById('toast-msg').innerText = `${zoomState.nome} aggiunto!`;
     const toast = new bootstrap.Toast(toastEl);
     toast.show();
-
+    
     // Chiudi modale
     const modalZoom = bootstrap.Modal.getInstance(document.getElementById('modalZoom'));
     modalZoom.hide();
