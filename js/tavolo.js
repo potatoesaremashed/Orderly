@@ -51,11 +51,14 @@ function resettaFiltriAllergeni() {
 }
 
 function renderProdotti() {
+    const searchText = (document.getElementById('search-bar')?.value || '').toLowerCase().trim();
+
     document.querySelectorAll('.item-prodotto').forEach(piatto => {
         const catPiatto = piatto.getAttribute('data-cat');
         const card = piatto.querySelector('.card-prodotto');
         const allergeniRaw = card ? (card.getAttribute('data-allergeni') || '') : '';
         const allergeniPiatto = allergeniRaw.toLowerCase().split(',').map(s => s.trim());
+        const nomePiatto = card ? (card.getAttribute('data-nome') || '').toLowerCase() : '';
 
         let mostra = true;
 
@@ -68,6 +71,11 @@ function renderProdotti() {
         if (mostra && filtri.allergeni.length > 0) {
             const haAllergeneEscluso = filtri.allergeni.some(escluso => allergeniPiatto.includes(escluso.toLowerCase()));
             if (haAllergeneEscluso) mostra = false;
+        }
+
+        // 3. Ricerca testuale
+        if (mostra && searchText && !nomePiatto.includes(searchText)) {
+            mostra = false;
         }
 
         piatto.style.display = mostra ? 'block' : 'none';

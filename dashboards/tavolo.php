@@ -23,25 +23,28 @@ $prodotti = $conn->query("SELECT * FROM alimenti");
 
 <div class="container-fluid p-0">
     <div class="row g-0">
-        <div class="col-md-3 col-lg-2 d-none d-md-block sidebar-custom">
-            <div class="text-center mb-5 mt-3"><img src="../imgs/ordlogo.png" width="100"></div>
-            <div class="px-3">
-                <small class="text-uppercase fw-bold ps-3 mb-2 d-block text-muted" style="font-size: 11px;">Menu</small>
-                <div class="btn-categoria active" onclick="filtraCategoria('all', this)"><i
-                        class="fas fa-utensils me-3"></i> Tutto</div>
-                <?php while ($cat = $categorie->fetch_assoc()): ?>
-                    <div class="btn-categoria" onclick="filtraCategoria(<?php echo $cat['id_categoria']; ?>, this)">
-                        <i class="fas fa-bookmark me-3"></i> <?php echo $cat['nome_categoria']; ?>
-                    </div>
-                <?php endwhile; ?>
+        <div class="col-md-3 col-lg-2 d-none d-md-block">
+            <div class="sidebar-custom">
+                <div class="text-center mb-5 mt-3"><img src="../imgs/ordlogo.png" width="100"></div>
+                <div class="px-3">
+                    <small class="text-uppercase fw-bold ps-3 mb-2 d-block text-muted" style="font-size: 11px;">Menu</small>
+                    <div class="btn-categoria active" onclick="filtraCategoria('all', this)"><i
+                            class="fas fa-utensils me-3"></i> Tutto</div>
+                    <?php while ($cat = $categorie->fetch_assoc()): ?>
+                        <div class="btn-categoria" onclick="filtraCategoria(<?php echo $cat['id_categoria']; ?>, this)">
+                            <i class="fas fa-bookmark me-3"></i> <?php echo $cat['nome_categoria']; ?>
+                        </div>
+                    <?php endwhile; ?>
+                </div>
             </div>
         </div>
 
         <div class="col-md-9 col-lg-10">
             <div class="sticky-header d-flex justify-content-between align-items-center">
-                <div>
-                    <h2 class="m-0 fw-bold">Ordina al Tavolo</h2>
-                    <p class="m-0 text-muted">Scegli i piatti che preferisci</p>
+                <div class="search-wrapper">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" id="search-bar" class="search-input" placeholder="Cerca un piatto..."
+                        oninput="renderProdotti()">
                 </div>
                 <div class="d-flex align-items-center gap-3">
                     <div class="theme-toggle" onclick="toggleTheme()" title="Cambia Tema"><i class="fas fa-moon"
@@ -87,7 +90,8 @@ $prodotti = $conn->query("SELECT * FROM alimenti");
                     $catMobile = $conn->query("SELECT * FROM categorie");
                     while ($cm = $catMobile->fetch_assoc()): ?>
                         <div class="mobile-cat-btn" onclick="filtraCategoria(<?php echo $cm['id_categoria']; ?>, this)">
-                            <?php echo $cm['nome_categoria']; ?></div>
+                            <?php echo $cm['nome_categoria']; ?>
+                        </div>
                     <?php endwhile; ?>
                 </div>
 
