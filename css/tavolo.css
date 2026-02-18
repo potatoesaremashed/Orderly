@@ -25,14 +25,14 @@
 }
 
 .btn-categoria:hover {
-    background-color: rgba(255, 159, 67, 0.1);
+    background-color: rgba(255, 71, 87, 0.1);
     color: var(--primary);
 }
 
 .btn-categoria.active {
     background-color: var(--primary);
     color: white !important;
-    box-shadow: 0 4px 15px rgba(255, 159, 67, 0.4);
+    box-shadow: 0 4px 15px rgba(255, 71, 87, 0.4);
 }
 
 .btn-categoria.active .text-muted {
