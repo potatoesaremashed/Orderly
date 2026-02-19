@@ -18,7 +18,7 @@ if (!$data || empty($data['prodotti'])) {
 }
 
 // Recupera l'ID del tavolo dalla sessione
-$id_tavolo = $_SESSION['id_utente']; 
+$id_tavolo = $_SESSION['id_tavolo'];
 
 $conn->begin_transaction();
 
@@ -27,11 +27,11 @@ try {
     $sql_ordine = "INSERT INTO ordini (id_tavolo, stato, data_ora) VALUES (?, 'in_attesa', NOW())";
     $stmt = $conn->prepare($sql_ordine);
     $stmt->bind_param("i", $id_tavolo);
-    
+
     if (!$stmt->execute()) {
         throw new Exception("Errore creazione ordine");
     }
-    
+
     // Recupera l'ID dell'ordine appena creato
     $id_ordine_creato = $conn->insert_id;
 
@@ -42,7 +42,7 @@ try {
     foreach ($data['prodotti'] as $p) {
         $id_alimento = $p['id'];
         $quantita = $p['qta'];
-        
+
         // Inserisci solo se quantità > 0
         if ($quantita > 0) {
             $note = isset($p['note']) ? $p['note'] : null;

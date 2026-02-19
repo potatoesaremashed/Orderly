@@ -162,6 +162,31 @@ $prodotti = $conn->query("SELECT * FROM alimenti");
     </div>
 </div>
 
+<!-- MODAL STORICO ORDINI -->
+<div class="modal fade" id="modalOrdini" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+        <div class="modal-content modal-content-custom shadow-lg">
+            <div class="modal-header border-0 p-4 pb-2">
+                <div>
+                    <h3 class="modal-title fw-bold">I tuoi Ordini 📋</h3>
+                    <p class="m-0 text-muted">Storico degli ordini inviati</p>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4 pt-2" id="corpo-ordini"
+                style="min-height: 300px; max-height: 60vh; overflow-y: auto;">
+            </div>
+            <div class="modal-footer border-0 p-4 bg-light-custom d-flex justify-content-between align-items-center">
+                <div><small class="text-uppercase fw-bold text-muted">Totale Complessivo</small>
+                    <h2 class="m-0 fw-bold text-price price-stable"><span id="totale-storico">0.00</span>€</h2>
+                </div>
+                <button type="button" class="btn btn-dark rounded-pill px-5 py-3 fw-bold"
+                    data-bs-dismiss="modal">CHIUDI</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="modal fade" id="modalCarrello" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content modal-content-custom shadow-lg">

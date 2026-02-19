@@ -309,6 +309,94 @@ if (btnConfirmSend) {
 }
 
 /**
+ * GESTIONE STORICO ORDINI
+ */
+function apriStorico() {
+    const container = document.getElementById('corpo-ordini');
+    const totaleSpan = document.getElementById('totale-storico');
+    container.innerHTML = '<div class="text-center py-5"><i class="fas fa-spinner fa-spin fa-2x text-muted"></i></div>';
+
+    fetch('../api/leggi_ordini_tavolo.php')
+        .then(res => res.json())
+        .then(ordini => {
+            if (!ordini || ordini.length === 0) {
+                container.innerHTML = `
+                    <div class="d-flex flex-column align-items-center justify-content-center py-5">
+                        <div class="display-1 mb-3" style="opacity:0.3">📋</div>
+                        <h5 class="fw-bold text-muted">Nessun ordine inviato</h5>
+                        <p class="text-muted small">I tuoi ordini appariranno qui</p>
+                    </div>`;
+                totaleSpan.innerText = '0.00';
+                new bootstrap.Modal(document.getElementById('modalOrdini')).show();
+                return;
+            }
+
+            const statusMap = {
+                'in_attesa': { label: 'In Attesa', class: 'bg-warning text-dark', icon: 'fa-clock' },
+                'in_preparazione': { label: 'In Preparazione', class: 'bg-primary text-white', icon: 'fa-fire-burner' },
+                'pronto': { label: 'Pronto', class: 'bg-success text-white', icon: 'fa-check-circle' }
+            };
+
+            let html = '';
+            let grandTotal = 0;
+
+            ordini.forEach((ordine, idx) => {
+                const st = statusMap[ordine.stato] || statusMap['in_attesa'];
+                grandTotal += parseFloat(ordine.totale);
+
+                let piattiHtml = ordine.piatti.map(p => {
+                    let noteHtml = p.note ? `<div class="small text-muted fst-italic"><i class="fas fa-comment-alt me-1"></i>${p.note}</div>` : '';
+                    return `
+                        <div class="d-flex justify-content-between align-items-start py-2 ${p !== ordine.piatti[ordine.piatti.length - 1] ? 'border-bottom' : ''}">
+                            <div style="flex:1; min-width:0;">
+                                <span class="fw-semibold">${p.nome}</span>
+                                ${noteHtml}
+                            </div>
+                            <div class="text-end ms-3 flex-shrink-0">
+                                <span class="text-muted small">x${p.qta}</span>
+                                <span class="fw-bold ms-2">${(p.qta * parseFloat(p.prezzo)).toFixed(2)}€</span>
+                            </div>
+                        </div>`;
+                }).join('');
+
+                html += `
+                    <div class="ordine-card mb-3 p-3 rounded-4 border" style="background: var(--card-bg, #fff);">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="fw-bold text-muted small"><i class="fas fa-clock me-1"></i>${ordine.ora}</span>
+                                <span class="text-muted small">${ordine.data}</span>
+                            </div>
+                            <span class="badge ${st.class} rounded-pill px-3 py-2">
+                                <i class="fas ${st.icon} me-1"></i>${st.label}
+                            </span>
+                        </div>
+                        <div class="px-1">
+                            ${piattiHtml}
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mt-3 pt-2 border-top">
+                            <span class="text-muted small fw-bold">Ordine #${ordine.id_ordine}</span>
+                            <span class="fw-bold fs-5" style="color: var(--primary);">${ordine.totale}€</span>
+                        </div>
+                    </div>`;
+            });
+
+            container.innerHTML = html;
+            totaleSpan.innerText = grandTotal.toFixed(2);
+            new bootstrap.Modal(document.getElementById('modalOrdini')).show();
+        })
+        .catch(err => {
+            console.error('Errore caricamento ordini:', err);
+            container.innerHTML = `
+                <div class="d-flex flex-column align-items-center justify-content-center py-5">
+                    <div class="display-1 mb-3" style="opacity:0.3">⚠️</div>
+                    <h5 class="fw-bold text-muted">Errore di caricamento</h5>
+                    <p class="text-muted small">Riprova tra qualche istante</p>
+                </div>`;
+            new bootstrap.Modal(document.getElementById('modalOrdini')).show();
+        });
+}
+
+/**
  * GESTIONE ZOOM PRODOTTO
  */
 function apriZoom(e, card) {
