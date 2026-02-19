@@ -16,8 +16,8 @@ $prodotti = $conn->query("SELECT * FROM alimenti");
 
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<link rel="stylesheet" href="../css/tavolo.css">
-<link rel="stylesheet" href="../css/common.css">
+<link rel="stylesheet" href="../css/tavolo.css?v=<?php echo time(); ?>">
+<link rel="stylesheet" href="../css/common.css?v=<?php echo time(); ?>">
 
 
 
@@ -26,9 +26,10 @@ $prodotti = $conn->query("SELECT * FROM alimenti");
         <div class="col-md-3 col-lg-2 d-none d-md-block">
             <div class="sidebar-custom d-flex flex-column">
                 <div class="text-center mb-5 mt-3"><img src="../imgs/ordlogo.png" width="100"></div>
-                
+
                 <div class="px-3 flex-grow-1 overflow-auto">
-                    <small class="text-uppercase fw-bold ps-3 mb-2 d-block text-muted" style="font-size: 11px;">Menu</small>
+                    <small class="text-uppercase fw-bold ps-3 mb-2 d-block text-muted"
+                        style="font-size: 11px;">Menu</small>
                     <div class="btn-categoria active" onclick="filtraCategoria('all', this)"><i
                             class="fas fa-utensils me-3"></i> Tutto</div>
                     <?php while ($cat = $categorie->fetch_assoc()): ?>
@@ -58,26 +59,30 @@ $prodotti = $conn->query("SELECT * FROM alimenti");
                     <input type="text" id="search-bar" class="search-input" placeholder="Cerca un piatto..."
                         oninput="renderProdotti()">
                 </div>
-                
+
                 <div class="d-flex align-items-center justify-content-end gap-2">
-                    <div class="d-none d-sm-flex align-items-center me-2 bg-surface rounded-pill px-3 py-2 border shadow-sm">
+                    <div
+                        class="d-none d-sm-flex align-items-center me-2 bg-surface rounded-pill px-3 py-2 border shadow-sm">
                         <small class="text-uppercase fw-bold text-muted me-2" style="font-size: 10px;">Totale</small>
                         <div class="fw-bold fs-5 text-price price-stable"><span id="soldi-header">0.00</span>€</div>
                     </div>
 
-                    <button class="btn btn-dark rounded-pill px-3 py-2 px-md-4 py-md-3 shadow-sm d-flex align-items-center"
+                    <button
+                        class="btn btn-dark rounded-pill px-3 py-2 px-md-4 py-md-3 shadow-sm d-flex align-items-center"
                         onclick="apriStorico()">
                         <i class="fas fa-receipt"></i>
                         <span class="d-none d-lg-inline fw-bold ms-2">Ordini</span>
                     </button>
 
-                    <button class="btn btn-dark rounded-pill px-3 py-2 px-md-4 py-md-3 shadow-sm d-flex align-items-center"
+                    <button
+                        class="btn btn-dark rounded-pill px-3 py-2 px-md-4 py-md-3 shadow-sm d-flex align-items-center"
                         data-bs-toggle="modal" data-bs-target="#modalFiltri">
                         <i class="fas fa-filter"></i>
                         <span class="d-none d-lg-inline fw-bold ms-2">Filtri</span>
                     </button>
 
-                    <button class="btn btn-dark rounded-pill px-3 py-2 px-md-4 py-md-3 shadow-sm d-flex align-items-center"
+                    <button
+                        class="btn btn-dark rounded-pill px-3 py-2 px-md-4 py-md-3 shadow-sm d-flex align-items-center"
                         data-bs-toggle="modal" data-bs-target="#modalCarrello" onclick="aggiornaModale()">
                         <i class="fas fa-shopping-bag fa-lg"></i>
                         <span class="d-none d-lg-inline fw-bold ms-2">Carrello</span>
@@ -103,7 +108,8 @@ $prodotti = $conn->query("SELECT * FROM alimenti");
                     <?php while ($p = $prodotti->fetch_assoc()): ?>
                         <div class="col-sm-6 col-md-6 col-lg-4 col-xl-3 item-prodotto"
                             data-cat="<?php echo $p['id_categoria']; ?>">
-                            <div class="card-prodotto" onclick="apriZoom(this)" data-id="<?php echo $p['id_alimento']; ?>"
+                            <div class="card-prodotto" onclick="apriZoom(event, this)"
+                                data-id="<?php echo $p['id_alimento']; ?>"
                                 data-nome="<?php echo htmlspecialchars($p['nome_piatto']); ?>"
                                 data-desc="<?php echo htmlspecialchars($p['descrizione']); ?>"
                                 data-prezzo="<?php echo $p['prezzo']; ?>"
@@ -131,13 +137,17 @@ $prodotti = $conn->query("SELECT * FROM alimenti");
 
                                     <div class="mt-auto d-flex justify-content-center align-items-center pt-3"
                                         style="border-top: 1px solid var(--border-color);">
-                                        
-                                        <div class="qty-capsule-card d-flex align-items-center justify-content-between" style="background: var(--capsule-bg); border-radius: 15px; padding: 6px; width: 100%;">
-                                            <button class="btn-card-qty" onclick="btnCardQty(event, <?php echo $p['id_alimento']; ?>, -1, <?php echo $p['prezzo']; ?>, '<?php echo addslashes($p['nome_piatto']); ?>')">
+
+                                        <div class="qty-capsule-card d-flex align-items-center justify-content-between"
+                                            style="background: var(--capsule-bg); border-radius: 15px; padding: 6px; width: 100%;">
+                                            <button class="btn-card-qty"
+                                                onclick="btnCardQty(event, <?php echo $p['id_alimento']; ?>, -1, <?php echo $p['prezzo']; ?>, '<?php echo addslashes($p['nome_piatto']); ?>')">
                                                 <i class="fas fa-minus"></i>
                                             </button>
-                                            <span id="q-<?php echo $p['id_alimento']; ?>" class="fw-bold fs-5" style="min-width: 30px; text-align: center;">0</span>
-                                            <button class="btn-card-qty" onclick="btnCardQty(event, <?php echo $p['id_alimento']; ?>, 1, <?php echo $p['prezzo']; ?>, '<?php echo addslashes($p['nome_piatto']); ?>')">
+                                            <span id="q-<?php echo $p['id_alimento']; ?>" class="fw-bold fs-5"
+                                                style="min-width: 30px; text-align: center;">0</span>
+                                            <button class="btn-card-qty"
+                                                onclick="btnCardQty(event, <?php echo $p['id_alimento']; ?>, 1, <?php echo $p['prezzo']; ?>, '<?php echo addslashes($p['nome_piatto']); ?>')">
                                                 <i class="fas fa-plus"></i>
                                             </button>
                                         </div>
@@ -200,10 +210,14 @@ $prodotti = $conn->query("SELECT * FROM alimenti");
                             <h6 class="text-uppercase small fw-bold mb-2 text-muted">Allergeni</h6>
                             <div id="zoom-allergeni"></div>
                         </div>
-                        
+
                         <div class="mb-4 flex-grow-1">
-                            <h6 class="text-uppercase small fw-bold mb-2 text-muted">Note per la cucina <small>(Opzionale)</small></h6>
-                            <textarea class="form-control rounded-3" id="zoom-note" rows="2" placeholder="Es. Senza cipolla, Ben cotto..." style="resize: none; background: #f8f9fa; border: 1px solid var(--border-color);"></textarea>
+                            <h6 class="text-uppercase small fw-bold mb-2 text-muted">Note per la cucina
+                                <small>(Opzionale)</small>
+                            </h6>
+                            <textarea class="form-control rounded-3" id="zoom-note" rows="2"
+                                placeholder="Es. Senza cipolla, Ben cotto..."
+                                style="resize: none; background: #f8f9fa; border: 1px solid var(--border-color);"></textarea>
                         </div>
 
                         <div class="mt-auto pt-3 border-top">
@@ -317,7 +331,7 @@ $prodotti = $conn->query("SELECT * FROM alimenti");
     </div>
 </div>
 
-<script src="../js/tavolo.js"></script>
+<script src="../js/tavolo.js?v=<?php echo time(); ?>"></script>
 
 
 <?php include "../include/footer.php"; ?>

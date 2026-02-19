@@ -97,11 +97,11 @@ function gestisciCarrello(id, delta, prezzo, nome, note = null) {
     const input = document.getElementById('q-' + id);
     if (!input) return; // Sicurezza
 
-    let valAttuale = parseInt(input.value) || 0;
+    let valAttuale = parseInt(input.innerText) || 0;
     let valNuovo = valAttuale + delta;
 
     if (valNuovo >= 0) {
-        input.value = valNuovo;
+        input.innerText = valNuovo;
         totaleSoldi += (delta * prezzo);
         totalePezzi += delta;
 
@@ -116,12 +116,12 @@ function gestisciCarrello(id, delta, prezzo, nome, note = null) {
         // Per semplicità, in questo step assumiamo che le note siano legate al prodotto. 
         // Se l'utente aggiunge lo stesso prodotto con note diverse, l'implementazione attuale sovrascriverebbe o sommerebbe.
         // PER ORA: Le note sono a livello di riga. Se passo note != null, aggiorno le note. Altrimenti tengo le vecchie.
-        
+
         if (!carrello[id]) carrello[id] = { id: id, nome: nome, qta: 0, prezzo: prezzo, note: '' };
-        
+
         carrello[id].qta = valNuovo;
         if (note !== null) {
-             carrello[id].note = note;
+            carrello[id].note = note;
         }
 
         // Aggiorna UI Card (il numeretto tra i bottoni - e +)
@@ -260,10 +260,10 @@ if (btnConfirmSend) {
         btn.disabled = true;
         btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Invio...';
 
-        const listaProdotti = Object.values(carrello).map(item => ({ 
-            id: item.id, 
+        const listaProdotti = Object.values(carrello).map(item => ({
+            id: item.id,
             qta: item.qta,
-            note: item.note 
+            note: item.note
         }));
 
         fetch('../api/invia_ordine.php', {
@@ -311,7 +311,9 @@ if (btnConfirmSend) {
 /**
  * GESTIONE ZOOM PRODOTTO
  */
-function apriZoom(card) {
+function apriZoom(e, card) {
+    // Don't open modal if click came from +/- buttons area
+    if (e && e.target && e.target.closest('.btn-card-qty, .qty-capsule-card')) return;
     const d = card.dataset;
     document.getElementById('zoom-nome').innerText = d.nome;
     document.getElementById('zoom-desc').innerText = d.desc;
@@ -327,7 +329,7 @@ function apriZoom(card) {
     if (carrello[d.id]) {
         currentNote = carrello[d.id].note || '';
     }
-    
+
     document.getElementById('zoom-note').value = currentNote;
 
     zoomState = { id: d.id, nome: d.nome, prezzo: parseFloat(d.prezzo), qtyAttuale: 1, note: currentNote };

@@ -20,6 +20,7 @@ body {
     position: sticky;
     top: 0;
     overflow-y: auto;
+    z-index: 100;
 }
 
 .sidebar-custom::-webkit-scrollbar {
