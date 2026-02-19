@@ -136,6 +136,10 @@ function caricaOrdini() {
                     cPrep++;
                 }
             });
+            // Inserimento HTML dell'ordine all'interno delle colonne
+            colNew.innerHTML = htmlNew;
+            colPrep.innerHTML = htmlPrep;
+
             // Aggiornamento contatori header
             document.getElementById('count-new').innerText = cNew;
             document.getElementById('count-prep').innerText = cPrep;

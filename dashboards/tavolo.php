@@ -344,12 +344,6 @@ $prodotti = $conn->query("SELECT * FROM alimenti");
 <div class="modal fade" id="modalSuccesso" tabindex="-1" data-bs-backdrop="static">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content modal-content-custom border-0 shadow-lg text-center p-5">
-            <div class="success-animation">
-                <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
-                    <circle class="checkmark__circle" cx="26" cy="26" r="25" fill="none" />
-                    <path class="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8" />
-                </svg>
-            </div>
             <h2 class="fw-bold mt-4 mb-2">Ordine Inviato!</h2>
             <p class="text-muted">La cucina ha ricevuto la tua comanda.</p>
         </div>
