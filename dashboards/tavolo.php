@@ -199,7 +199,7 @@ $prodotti = $conn->query("SELECT * FROM alimenti");
             </div>
             <div class="modal-body p-0" id="corpo-carrello" style="min-height: 300px;"></div>
             <div class="modal-footer border-0 p-4 d-flex justify-content-between align-items-center bg-light-custom">
-                <div><small class="text-uppercase fw-bold text-muted">Totale Finale</small>
+                <div><small class="text-uppercase fw-bold text-muted">Totale Ordine</small>
                     <h2 class="m-0 fw-bold text-price price-stable"><span id="totale-modale">0.00</span>€</h2>
                 </div>
                 <button id="btn-invia-ordine" class="btn btn-dark rounded-pill px-5 py-3 fs-5 fw-bold shadow"

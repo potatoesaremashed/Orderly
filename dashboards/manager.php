@@ -22,8 +22,11 @@ include "../include/header.php";
             <p class="text-muted m-0 small">Benvenuto, <?php echo $_SESSION['username']; ?></p>
         </div>
         <div class="d-flex gap-3 align-items-center">
-            <div class="theme-toggle" onclick="toggleTheme()"><i class="fas fa-moon" id="theme-icon"></i></div>
-            <a href="../logout.php" class="btn btn-outline-danger btn-sm rounded-pill px-3">Esci</a>
+            <div class="theme-toggle" onclick="toggleTheme()"><i class="fas fa-moon" id="theme-icon"></i>
+            </div>
+            <a href="../logout.php" class="theme-toggle-sidebar text-danger" title="Abbandona Dashboard">
+                <i class="fas fa-sign-out-alt p-2 mt-auto"></i>
+            </a>
         </div>
     </div>
 
