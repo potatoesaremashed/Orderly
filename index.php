@@ -1,57 +1,66 @@
 <?php
-session_start(); // Starts the "memory" of the website so we know who is logged in
-include "include/conn.php"; // Connects to the database (the place where data is stored)
+/**
+ * =========================================
+ * FILE: index.php
+ * =========================================
+ * Pagina di login dell'applicazione Orderly.
+ * Gestisce l'autenticazione per tre ruoli: Manager, Cuoco, Tavolo.
+ * In base alle credenziali, reindirizza alla dashboard appropriata.
+ */
 
-// Check if the user clicked the login button (sent a username)
+session_start(); // Avvia la sessione per tenere traccia dell'utente loggato
+include "include/conn.php"; // Connessione al database MySQL
+
+// Controlla se l'utente ha inviato il form di login (cliccato su "Accedi")
 if (isset($_POST['username'])) {
-    $user = $_POST['username']; // Get the name typed in the box
-    $pass = $_POST['password']; // Get the password typed in the box
+    $user = $_POST['username']; // Recupera lo username inserito
+    $pass = $_POST['password']; // Recupera la password inserita
 
-    // --- Check if the user is a Manager ---
-    // We ask the database: "Is there a manager with this name and password?"
+    // --- Verifica se l'utente è un Manager ---
+    // Cerca nel database se esiste un manager con queste credenziali
     $sql = "SELECT * FROM manager WHERE username='$user' AND password='$pass'";
     if ($conn->query($sql)->num_rows > 0) {
-        // Yes! Remember that this person is a manager
+        // Trovato! Salva il ruolo in sessione
         $_SESSION['ruolo'] = 'manager';
         $_SESSION['username'] = $user;
-        // Send them to the Manager's page
+        // Reindirizza alla dashboard del Manager
         header("Location: dashboards/manager.php");
-        exit; // Stop the code here
+        exit;
     }
 
-    // --- Check if the user is a Cook ---
-    // We ask the database: "Is there a cook with this name and password?"
+    // --- Verifica se l'utente è un Cuoco ---
+    // Cerca nel database se esiste un cuoco con queste credenziali
     $sql = "SELECT * FROM cuochi WHERE username='$user' AND password='$pass'";
     if ($conn->query($sql)->num_rows > 0) {
-        // Yes! Remember that this person is a cook
+        // Trovato! Salva il ruolo in sessione
         $_SESSION['ruolo'] = 'cuoco';
         $_SESSION['username'] = $user;
-        // Send them to the Kitchen page
+        // Reindirizza alla dashboard della Cucina
         header("Location: dashboards/cucina.php");
-        exit; // Stop the code here
+        exit;
     }
 
-    // --- Check if the user is a Table (Customer) ---
-    // We ask the database: "Is there a table with this name and password?"
+    // --- Verifica se l'utente è un Tavolo (Cliente) ---
+    // Cerca nel database se esiste un tavolo con queste credenziali
     $sql = "SELECT * FROM tavoli WHERE nome_tavolo='$user' AND password='$pass'";
     $res = $conn->query($sql);
     if ($res->num_rows > 0) {
-        // Yes! Get the table's information
+        // Trovato! Recupera i dati del tavolo
         $row = $res->fetch_assoc();
-        // Remember that this is a table and save its ID number
+        // Salva il ruolo e l'ID del tavolo in sessione
         $_SESSION['ruolo'] = 'tavolo';
         $_SESSION['id_tavolo'] = $row['id_tavolo'];
         $_SESSION['username'] = $user;
-        // Send them to the Menu page for this specific table
+        // Reindirizza alla dashboard del Tavolo (menu digitale)
         header("Location: dashboards/tavolo.php?id=" . $row['id_tavolo']);
-        exit; // Stop the code here
+        exit;
     }
-    
-    // If we reach here, no match was found (Username right/Pass wrong OR Username wrong)
+
+    // Se arriviamo qui, le credenziali non corrispondono a nessun ruolo
     $error = "Inserire il username o password corretto";
 }
 
-include "include/header.php"; // Load the top part of the website design
+include "include/header.php"; // Carica l'header HTML condiviso (Bootstrap, meta tags)
 ?>
 
 <link href="css/common.css" rel="stylesheet">
@@ -81,7 +90,7 @@ include "include/header.php"; // Load the top part of the website design
         border: 1px solid var(--border-color);
         border-radius: 24px;
         padding: 40px;
-        box-shadow: 0 10px 40px rgba(0,0,0,0.05);
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
         text-align: center;
         position: relative;
     }
@@ -104,7 +113,7 @@ include "include/header.php"; // Load the top part of the website design
         margin-bottom: 5px;
         font-size: 1.75rem;
     }
-    
+
     p.subtitle {
         color: var(--text-muted);
         margin-bottom: 30px;
@@ -115,7 +124,7 @@ include "include/header.php"; // Load the top part of the website design
         margin-bottom: 20px;
         text-align: left;
     }
-    
+
     .form-label {
         font-size: 0.85rem;
         font-weight: 600;
@@ -141,7 +150,7 @@ include "include/header.php"; // Load the top part of the website design
         box-shadow: 0 0 0 4px rgba(255, 71, 87, 0.15);
         background-color: var(--input-bg);
     }
-    
+
     .form-control-custom::placeholder {
         color: var(--text-muted);
         opacity: 0.7;
@@ -188,7 +197,7 @@ include "include/header.php"; // Load the top part of the website design
 
 <div class="login-container">
     <div class="card-login">
-        
+
         <div class="theme-toggle-pos">
             <div class="theme-toggle" onclick="toggleTheme()"><i class="fas fa-moon" id="theme-icon"></i></div>
         </div>
@@ -197,8 +206,8 @@ include "include/header.php"; // Load the top part of the website design
         <h3>Login</h3>
         <p class="subtitle">Inserisci le tue credenziali per accedere</p>
 
-        <?php 
-        // Display the error if it exists
+        <?php
+        // Mostra il messaggio di errore se le credenziali sono sbagliate
         if (isset($error)) {
             echo '<div class="alert alert-custom mb-4" role="alert">
                     <i class="fas fa-exclamation-circle"></i>
@@ -211,11 +220,11 @@ include "include/header.php"; // Load the top part of the website design
             <div class="form-group">
                 <label class="form-label">Username</label>
                 <div class="position-relative">
-                   <input type="text" name="username" class="form-control-custom" placeholder="Es: tavolo1" required> 
-                   <i class="fas fa-user position-absolute text-muted" style="right: 18px; top: 18px;"></i>
+                    <input type="text" name="username" class="form-control-custom" placeholder="Es: tavolo1" required>
+                    <i class="fas fa-user position-absolute text-muted" style="right: 18px; top: 18px;"></i>
                 </div>
             </div>
-            
+
             <div class="form-group">
                 <label class="form-label">Password</label>
                 <div class="position-relative">
@@ -223,7 +232,7 @@ include "include/header.php"; // Load the top part of the website design
                     <i class="fas fa-lock position-absolute text-muted" style="right: 18px; top: 18px;"></i>
                 </div>
             </div>
-            
+
             <button type="submit" class="btn-main-lg">Accedi</button>
         </form>
 
@@ -234,43 +243,47 @@ include "include/header.php"; // Load the top part of the website design
 </div>
 
 <script>
+    /**
+     * Alterna tra tema chiaro e scuro nella pagina di login.
+     * Salva la preferenza nel localStorage del browser.
+     */
     function toggleTheme() {
         const body = document.body;
         const icon = document.getElementById('theme-icon');
-        // Check current theme
+        // Controlla il tema attuale
         const isDark = body.getAttribute('data-theme') === 'dark';
-            
-        // Toggle
+
+        // Alterna il tema
         const newTheme = isDark ? 'light' : 'dark';
         body.setAttribute('data-theme', newTheme);
-        
-        // Update icon
-        if(newTheme === 'dark') {
+
+        // Aggiorna l'icona: luna (chiaro) ↔ sole (scuro)
+        if (newTheme === 'dark') {
             icon.classList.remove('fa-moon');
             icon.classList.add('fa-sun');
         } else {
             icon.classList.remove('fa-sun');
             icon.classList.add('fa-moon');
         }
-        
-        // Save preference
+
+        // Salva la preferenza per le visite future
         localStorage.setItem('theme', newTheme);
     }
 
-    // Initialize theme on load
-    (function() {
+    // Inizializzazione tema al caricamento: se l'utente aveva scelto il tema scuro, lo riapplica
+    (function () {
         const savedTheme = localStorage.getItem('theme');
         if (savedTheme === 'dark') {
             document.body.setAttribute('data-theme', 'dark');
             const icon = document.getElementById('theme-icon');
-            if(icon) {
-                 icon.classList.remove('fa-moon');
-                 icon.classList.add('fa-sun');
+            if (icon) {
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
             }
         }
     })();
 </script>
 
-<!-- Make sure footer doesn't break layout by being empty if possible -->
+<!-- Footer nascosto per evitare problemi di layout -->
 <div style="display:none;">
-<?php include "include/footer.php"; ?>
+    <?php include "include/footer.php"; ?>

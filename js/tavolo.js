@@ -1,41 +1,79 @@
 /**
  * =========================================
  * FILE: js/tavolo.js
- * Descrizione: Logica completa lato cliente
  * =========================================
+ * Logica completa lato cliente per la dashboard del tavolo (cliente).
+ * 
+ * Funzionalità gestite:
+ * - Carrello: aggiunta/rimozione prodotti, aggiornamento quantità e totali
+ * - Filtri: per categoria (sidebar), per allergeni (modale), per ricerca testuale
+ * - Zoom prodotto: modale dettaglio con quantità, note e aggiunta al carrello
+ * - Storico ordini: visualizzazione degli ordini inviati con stato e dettagli
+ * - Invio ordine: conferma, chiamata API e animazione successo
+ * - Tema: toggle dark/light mode con salvataggio in localStorage
  */
 
-// Stato globale
+// =============================================
+// STATO GLOBALE DELL'APPLICAZIONE
+// =============================================
+// Oggetto carrello: { id_prodotto: { id, nome, qta, prezzo, note } }
 let carrello = {};
+// Totale in euro e numero totale di pezzi nel carrello
 let totaleSoldi = 0;
 let totalePezzi = 0;
+// Stato del modale zoom (dettaglio prodotto)
 let zoomState = { id: null, nome: '', prezzo: 0, qtyAttuale: 1, note: '' };
+// Filtri attivi: categoria selezionata e allergeni da escludere
 let filtri = { categoria: 'all', allergeni: [] };
 
+// =============================================
+// GESTIONE TEMA (DARK / LIGHT MODE)
+// =============================================
+
+/**
+ * Alterna tra tema chiaro e scuro.
+ * Salva la preferenza nel localStorage del browser.
+ */
 function toggleTheme() {
     const body = document.body;
     const icon = document.getElementById('theme-icon');
     const isDark = body.getAttribute('data-theme') === 'dark';
     const nuovoTema = isDark ? 'light' : 'dark';
 
+    // Applica il nuovo tema al body
     body.setAttribute('data-theme', nuovoTema);
+    // Aggiorna l'icona: luna (chiaro) ↔ sole (scuro)
     icon.classList.replace(isDark ? 'fa-sun' : 'fa-moon', isDark ? 'fa-moon' : 'fa-sun');
+    // Salva la preferenza per le visite future
     localStorage.setItem('theme', nuovoTema);
 }
 
+// =============================================
+// GESTIONE FILTRI E RICERCA
+// =============================================
+
 /**
- * Filtra i prodotti per categoria e allergeni
+ * Filtra i prodotti per categoria.
+ * Viene chiamata quando l'utente clicca su una categoria nella sidebar o nella barra mobile.
+ * @param {string|number} idCat - ID della categoria o 'all' per mostrare tutto
+ * @param {HTMLElement} elemento - Il bottone cliccato (per evidenziarlo come attivo)
  */
 function filtraCategoria(idCat, elemento) {
-    // Clear active on both sidebar and mobile bar
+    // Rimuove la classe 'active' da tutti i bottoni categoria (sidebar + mobile)
     document.querySelectorAll('.btn-categoria').forEach(el => el.classList.remove('active'));
     document.querySelectorAll('.mobile-cat-btn').forEach(el => el.classList.remove('active'));
+    // Aggiunge 'active' al bottone cliccato
     if (elemento) elemento.classList.add('active');
 
+    // Aggiorna il filtro e ri-renderizza i prodotti
     filtri.categoria = idCat;
     renderProdotti();
 }
 
+/**
+ * Applica i filtri allergeni selezionati nel modale "Filtri".
+ * Raccoglie i valori delle checkbox selezionate e nasconde i piatti che contengono quegli allergeni.
+ */
 function applicaFiltriAllergeni() {
     filtri.allergeni = [];
     document.querySelectorAll('#modalFiltri input[type="checkbox"]:checked').forEach(cb => {
@@ -44,15 +82,28 @@ function applicaFiltriAllergeni() {
     renderProdotti();
 }
 
+/**
+ * Resetta tutti i filtri allergeni (deseleziona tutte le checkbox).
+ */
 function resettaFiltriAllergeni() {
     document.querySelectorAll('#modalFiltri input[type="checkbox"]').forEach(cb => cb.checked = false);
     filtri.allergeni = [];
     renderProdotti();
 }
 
+/**
+ * Renderizza i prodotti visibili applicando tutti i filtri attivi:
+ * 1. Categoria (sidebar)
+ * 2. Allergeni (modale filtri)
+ * 3. Ricerca testuale (barra di ricerca)
+ * 
+ * Ogni prodotto viene mostrato o nascosto in base ai filtri combinati.
+ */
 function renderProdotti() {
+    // Recupera il testo di ricerca dalla barra
     const searchText = (document.getElementById('search-bar')?.value || '').toLowerCase().trim();
 
+    // Itera su tutti i prodotti nella pagina
     document.querySelectorAll('.item-prodotto').forEach(piatto => {
         const catPiatto = piatto.getAttribute('data-cat');
         const card = piatto.querySelector('.card-prodotto');
@@ -62,74 +113,81 @@ function renderProdotti() {
 
         let mostra = true;
 
-        // 1. Categoria
+        // 1. Filtro per Categoria
         if (filtri.categoria !== 'all' && catPiatto != filtri.categoria) {
             mostra = false;
         }
 
-        // 2. Allergeni (Esclusione)
+        // 2. Filtro per Allergeni (esclusione: se il piatto contiene un allergene escluso, nascondilo)
         if (mostra && filtri.allergeni.length > 0) {
             const haAllergeneEscluso = filtri.allergeni.some(escluso => allergeniPiatto.includes(escluso.toLowerCase()));
             if (haAllergeneEscluso) mostra = false;
         }
 
-        // 3. Ricerca testuale
+        // 3. Filtro per Ricerca Testuale (il nome del piatto deve contenere il testo cercato)
         if (mostra && searchText && !nomePiatto.includes(searchText)) {
             mostra = false;
         }
 
+        // Mostra o nascondi il prodotto
         piatto.style.display = mostra ? 'block' : 'none';
     });
 }
 
+// =============================================
+// GESTIONE CARRELLO
+// =============================================
+
 /**
- * Modifica la quantità nel carrello e aggiorna l'interfaccia
- */
-/**
- * Modifica la quantità nel carrello e aggiorna l'interfaccia
- * @param {int} id - ID del prodotto
- * @param {int} delta - Variazione quantità (+1 o -1)
- * @param {float} prezzo - Prezzo prodotto
- * @param {string} nome - Nome prodotto
- * @param {string|null} note - Eventuali note (se null, non modifica le note esistenti)
+ * Funzione principale per gestire il carrello (aggiunta/rimozione prodotti).
+ * Aggiorna lo stato locale del carrello, i contatori nell'header,
+ * e la UI delle card e del modale carrello.
+ * 
+ * @param {number} id - ID del prodotto
+ * @param {number} delta - Variazione quantità (+1 per aggiungere, -1 per rimuovere)
+ * @param {number} prezzo - Prezzo unitario del prodotto
+ * @param {string} nome - Nome del prodotto
+ * @param {string|null} note - Note per la cucina (null = non modificare le note esistenti)
  */
 function gestisciCarrello(id, delta, prezzo, nome, note = null) {
+    // Cerca l'elemento che mostra la quantità nella card del prodotto
     const input = document.getElementById('q-' + id);
-    if (!input) return; // Sicurezza
+    if (!input) return; // Sicurezza: se l'elemento non esiste, esci
 
+    // Calcola la nuova quantità
     let valAttuale = parseInt(input.innerText) || 0;
     let valNuovo = valAttuale + delta;
 
+    // Non permettere quantità negative
     if (valNuovo >= 0) {
+        // Aggiorna il display della quantità nella card
         input.innerText = valNuovo;
+        // Aggiorna i totali globali
         totaleSoldi += (delta * prezzo);
         totalePezzi += delta;
 
-        // Aggiorna header
+        // Aggiorna i contatori nell'header (Totale € e badge Carrello)
         const soldiHeader = document.getElementById('soldi-header');
         const pezziHeader = document.getElementById('pezzi-header');
         if (soldiHeader) soldiHeader.innerText = Math.max(0, totaleSoldi).toFixed(2);
         if (pezziHeader) pezziHeader.innerText = Math.max(0, totalePezzi);
 
-        // Aggiorna oggetto carrello
-        // Chiave unica per prodotto + note (se vogliamo distinguere per note, servirebbe una chiave composta)
-        // Per semplicità, in questo step assumiamo che le note siano legate al prodotto. 
-        // Se l'utente aggiunge lo stesso prodotto con note diverse, l'implementazione attuale sovrascriverebbe o sommerebbe.
-        // PER ORA: Le note sono a livello di riga. Se passo note != null, aggiorno le note. Altrimenti tengo le vecchie.
-
+        // Aggiorna l'oggetto carrello in memoria
         if (!carrello[id]) carrello[id] = { id: id, nome: nome, qta: 0, prezzo: prezzo, note: '' };
 
         carrello[id].qta = valNuovo;
+        // Aggiorna le note solo se vengono passate esplicitamente
         if (note !== null) {
             carrello[id].note = note;
         }
 
-        // Aggiorna UI Card (il numeretto tra i bottoni - e +)
+        // Aggiorna il numeretto sulla card del prodotto (tra i bottoni − e +)
         updateCardQtyUI(id, valNuovo);
 
+        // Se la quantità è 0, rimuovi il prodotto dal carrello
         if (carrello[id].qta === 0) delete carrello[id];
 
-        // Gestione stato bottone invio
+        // Gestione stato bottone "INVIA ORDINE" (abilitato/disabilitato)
         const btnInvia = document.getElementById('btn-invia-ordine');
         if (btnInvia) {
             if (totalePezzi > 0) {
@@ -141,7 +199,7 @@ function gestisciCarrello(id, delta, prezzo, nome, note = null) {
             }
         }
 
-        // Se il modale è aperto, aggiorna la lista in tempo reale
+        // Se il modale del carrello è aperto, aggiorna la lista in tempo reale
         const modalCarrello = document.getElementById('modalCarrello');
         if (modalCarrello && modalCarrello.classList.contains('show')) {
             aggiornaModale();
@@ -150,12 +208,15 @@ function gestisciCarrello(id, delta, prezzo, nome, note = null) {
 }
 
 /**
- * Renderizza l'HTML dentro il modale carrello
+ * Renderizza l'HTML dentro il modale carrello.
+ * Mostra la lista dei prodotti con quantità, prezzo unitario e subtotale.
+ * Se il carrello è vuoto, mostra un messaggio di stato vuoto.
  */
 function aggiornaModale() {
     const container = document.getElementById('corpo-carrello');
     const totaleSpan = document.getElementById('totale-modale');
 
+    // Caso: carrello vuoto
     if (Object.keys(carrello).length === 0) {
         container.innerHTML = `
             <div class="d-flex flex-column align-items-center justify-content-center h-100 py-5">
@@ -166,10 +227,12 @@ function aggiornaModale() {
         return;
     }
 
+    // Costruisci l'HTML della lista prodotti
     let html = '<div class="list-group list-group-flush w-100 px-3 py-2">';
     for (const [id, item] of Object.entries(carrello)) {
-        let parziale = (item.qta * item.prezzo).toFixed(2);
-        let nomeSafe = item.nome.replace(/'/g, "\\'");
+        let parziale = (item.qta * item.prezzo).toFixed(2); // Subtotale per riga
+        let nomeSafe = item.nome.replace(/'/g, "\\'"); // Escape per onclick
+        // Se ci sono note, mostra un'icona con il testo
         let noteHtml = item.note ? `<div class="small text-muted fst-italic"><i class="fas fa-comment-alt me-1"></i>${item.note}</div>` : '';
 
         html += `
@@ -209,20 +272,23 @@ function aggiornaModale() {
 }
 
 /**
- * Svuota il carrello senza ricaricare la pagina
+ * Svuota il carrello dopo che l'ordine è stato inviato con successo.
+ * Resetta tutte le variabili globali, i contatori e i display delle quantità.
  */
 function resettaOrdineDopoInvio() {
+    // Reset dello stato globale
     carrello = {};
     totaleSoldi = 0;
     totalePezzi = 0;
 
+    // Reset dei contatori nell'header
     document.getElementById('soldi-header').innerText = '0.00';
     document.getElementById('pezzi-header').innerText = '0';
 
-    // Resetta tutti gli input numerici nella pagina principale
+    // Resetta tutte le quantità visualizzate nelle card dei prodotti
     document.querySelectorAll('[id^="q-"]').forEach(el => el.innerText = '0');
 
-    // Disabilita il tasto invio
+    // Disabilita il tasto "INVIA ORDINE"
     const btnInvia = document.getElementById('btn-invia-ordine');
     if (btnInvia) {
         btnInvia.setAttribute('disabled', 'true');
@@ -230,48 +296,56 @@ function resettaOrdineDopoInvio() {
     }
 }
 
-/**
- * -------------------------------------------------------
- * GESTIONE EVENTI (PONTE TRA CARRELLO E CONFERMA)
- * -------------------------------------------------------
- */
+// =============================================
+// GESTIONE INVIO ORDINE
+// =============================================
 
-// 1. Quando clicco "INVIA ORDINE" nel carrello -> Apre Modale Conferma
+/**
+ * Passo 1: Click su "INVIA ORDINE" nel carrello → Apre il modale di conferma.
+ * Il modale chiede all'utente se è sicuro di voler inviare l'ordine.
+ */
 const btnInviaOrdine = document.getElementById('btn-invia-ordine');
 if (btnInviaOrdine) {
     btnInviaOrdine.addEventListener('click', function () {
-        // Chiudi carrello
+        // Chiudi il modale carrello
         const modalCarrelloEl = document.getElementById('modalCarrello');
         const modalCarrello = bootstrap.Modal.getInstance(modalCarrelloEl);
         if (modalCarrello) modalCarrello.hide();
 
-        // Apri conferma
+        // Apri il modale di conferma ("Sei pronto? Sì, Ordina!")
         const modalConfermaEl = document.getElementById('modalConfermaOrdine');
         const modalConferma = new bootstrap.Modal(modalConfermaEl);
         modalConferma.show();
     });
 }
 
-// 2. Quando clicco "SÌ, ORDINA!" nella conferma -> Fa la chiamata API
+/**
+ * Passo 2: Click su "SÌ, ORDINA!" nel modale di conferma → Invia l'ordine alla cucina.
+ * Crea un JSON con la lista dei prodotti e lo invia all'API invia_ordine.php.
+ */
 const btnConfirmSend = document.getElementById('confirm-send-btn');
 if (btnConfirmSend) {
     btnConfirmSend.onclick = function () {
         const btn = this;
+        // Disabilita il bottone e mostra un loader per evitare doppi click
         btn.disabled = true;
         btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Invio...';
 
+        // Prepara la lista dei prodotti dal carrello
+        // Formato: [{ id: 5, qta: 2, note: "Senza cipolla" }, ...]
         const listaProdotti = Object.values(carrello).map(item => ({
             id: item.id,
             qta: item.qta,
             note: item.note
         }));
 
+        // Invia l'ordine al server tramite fetch POST
         fetch('../api/invia_ordine.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ prodotti: listaProdotti })
         })
-            .then(res => res.text()) // O res.json() se il tuo PHP risponde JSON
+            .then(res => res.text())
             .then(text => {
                 console.log("Risposta server:", text);
 
@@ -280,14 +354,14 @@ if (btnConfirmSend) {
                 const modalConferma = bootstrap.Modal.getInstance(modalConfermaEl);
                 if (modalConferma) modalConferma.hide();
 
-                // Mostra il successo
+                // Mostra l'animazione di successo (check verde)
                 const modalSuccesso = new bootstrap.Modal(document.getElementById('modalSuccesso'));
                 modalSuccesso.show();
 
-                // Svuota tutto UI e Logica
+                // Svuota il carrello (UI e logica)
                 resettaOrdineDopoInvio();
 
-                // Chiude il modale di successo dopo 2s
+                // Chiude automaticamente il modale di successo dopo 2 secondi
                 setTimeout(() => {
                     modalSuccesso.hide();
                     btn.disabled = false;
@@ -296,7 +370,7 @@ if (btnConfirmSend) {
             })
             .catch(err => {
                 console.error("Errore invio:", err);
-                // In caso di errore, chiudi modale e resetta bottone
+                // In caso di errore di rete, chiudi modale e avvisa l'utente
                 const modalConfermaEl = document.getElementById('modalConfermaOrdine');
                 const modalConferma = bootstrap.Modal.getInstance(modalConfermaEl);
                 if (modalConferma) modalConferma.hide();
@@ -308,17 +382,25 @@ if (btnConfirmSend) {
     };
 }
 
+// =============================================
+// GESTIONE STORICO ORDINI
+// =============================================
+
 /**
- * GESTIONE STORICO ORDINI
+ * Apre il modale "Ordini" mostrando lo storico degli ordini inviati dal tavolo.
+ * Chiama l'API leggi_ordini_tavolo.php e renderizza ogni ordine come una card
+ * con stato (badge colorato), ora, lista piatti e totale.
  */
 function apriStorico() {
     const container = document.getElementById('corpo-ordini');
     const totaleSpan = document.getElementById('totale-storico');
+    // Mostra un loader mentre carica i dati
     container.innerHTML = '<div class="text-center py-5"><i class="fas fa-spinner fa-spin fa-2x text-muted"></i></div>';
 
     fetch('../api/leggi_ordini_tavolo.php')
         .then(res => res.json())
         .then(ordini => {
+            // Caso: nessun ordine inviato
             if (!ordini || ordini.length === 0) {
                 container.innerHTML = `
                     <div class="d-flex flex-column align-items-center justify-content-center py-5">
@@ -331,6 +413,7 @@ function apriStorico() {
                 return;
             }
 
+            // Mappa degli stati: colore badge e icona in base allo stato dell'ordine
             const statusMap = {
                 'in_attesa': { label: 'In Attesa', class: 'bg-warning text-dark', icon: 'fa-clock' },
                 'in_preparazione': { label: 'In Preparazione', class: 'bg-primary text-white', icon: 'fa-fire-burner' },
@@ -338,12 +421,14 @@ function apriStorico() {
             };
 
             let html = '';
-            let grandTotal = 0;
+            let grandTotal = 0; // Totale complessivo di tutti gli ordini
 
+            // Genera l'HTML per ogni ordine
             ordini.forEach((ordine, idx) => {
                 const st = statusMap[ordine.stato] || statusMap['in_attesa'];
                 grandTotal += parseFloat(ordine.totale);
 
+                // Genera la lista dei piatti per questo ordine
                 let piattiHtml = ordine.piatti.map(p => {
                     let noteHtml = p.note ? `<div class="small text-muted fst-italic"><i class="fas fa-comment-alt me-1"></i>${p.note}</div>` : '';
                     return `
@@ -359,6 +444,7 @@ function apriStorico() {
                         </div>`;
                 }).join('');
 
+                // Card dell'ordine con header (ora + badge stato), lista piatti e totale
                 html += `
                     <div class="ordine-card mb-3 p-3 rounded-4 border" style="background: var(--card-bg, #fff);">
                         <div class="d-flex justify-content-between align-items-center mb-3">
@@ -380,11 +466,13 @@ function apriStorico() {
                     </div>`;
             });
 
+            // Inserisce l'HTML nel modale e aggiorna il totale complessivo
             container.innerHTML = html;
             totaleSpan.innerText = grandTotal.toFixed(2);
             new bootstrap.Modal(document.getElementById('modalOrdini')).show();
         })
         .catch(err => {
+            // Gestione errore di rete/server
             console.error('Errore caricamento ordini:', err);
             container.innerHTML = `
                 <div class="d-flex flex-column align-items-center justify-content-center py-5">
@@ -396,23 +484,34 @@ function apriStorico() {
         });
 }
 
+// =============================================
+// GESTIONE ZOOM PRODOTTO (MODALE DETTAGLIO)
+// =============================================
+
 /**
- * GESTIONE ZOOM PRODOTTO
+ * Apre il modale di dettaglio di un piatto (zoom).
+ * Mostra immagine, descrizione, allergeni, note e selettore quantità.
+ * Non si apre se il click proviene dai bottoni +/- della card.
+ * 
+ * @param {Event} e - Evento click (usato per verificare l'origine del click)
+ * @param {HTMLElement} card - L'elemento card cliccato (contiene i data-attributes)
  */
 function apriZoom(e, card) {
-    // Don't open modal if click came from +/- buttons area
+    // Non aprire il modale se il click proviene dai bottoni +/- della card
     if (e && e.target && e.target.closest('.btn-card-qty, .qty-capsule-card')) return;
+
+    // Recupera i dati del piatto dai data-attributes della card
     const d = card.dataset;
     document.getElementById('zoom-nome').innerText = d.nome;
     document.getElementById('zoom-desc').innerText = d.desc;
     document.getElementById('zoom-prezzo-unitario').innerText = d.prezzo;
     document.getElementById('zoom-img').src = d.img;
 
+    // Renderizza i badge degli allergeni
     const divAlg = document.getElementById('zoom-allergeni');
     divAlg.innerHTML = d.allergeni ? d.allergeni.split(',').map(a => `<span class="badge-alg">${a.trim()}</span>`).join('') : '<small>Nessuno</small>';
 
-    // Reset stato zoom
-    // Cerchiamo se il prodotto è già nel carrello per pre-popolare le note
+    // Pre-popola le note se il prodotto è già nel carrello
     let currentNote = '';
     if (carrello[d.id]) {
         currentNote = carrello[d.id].note || '';
@@ -420,48 +519,83 @@ function apriZoom(e, card) {
 
     document.getElementById('zoom-note').value = currentNote;
 
+    // Inizializza lo stato dello zoom con quantità 1
     zoomState = { id: d.id, nome: d.nome, prezzo: parseFloat(d.prezzo), qtyAttuale: 1, note: currentNote };
     refreshZoomUI();
 
+    // Apri il modale
     new bootstrap.Modal(document.getElementById('modalZoom')).show();
 }
 
+/**
+ * Aggiorna la quantità nel modale zoom (bottoni +/−).
+ * La quantità minima è sempre 1.
+ * @param {number} delta - +1 o -1
+ */
 function updateZoomQty(delta) {
     zoomState.qtyAttuale = Math.max(1, zoomState.qtyAttuale + delta);
     refreshZoomUI();
 }
 
+/**
+ * Aggiorna l'interfaccia del modale zoom:
+ * - Il numero di quantità visualizzato
+ * - Il totale parziale nel bottone "Aggiungi al carrello"
+ */
 function refreshZoomUI() {
     document.getElementById('zoom-qty-display').innerText = zoomState.qtyAttuale;
 
-    // Calcolo totale parziale nel bottone
+    // Calcolo totale parziale (quantità × prezzo unitario)
     let tot = (zoomState.qtyAttuale * zoomState.prezzo).toFixed(2);
     document.getElementById('zoom-btn-totale').innerText = tot + '€';
 }
 
+/**
+ * Conferma l'aggiunta dal modale zoom.
+ * Aggiunge il prodotto al carrello con le note specificate,
+ * mostra un toast di conferma e chiude il modale.
+ */
 function confermaZoom() {
+    // Recupera le note dal textarea
     const note = document.getElementById('zoom-note').value;
+    // Aggiunge al carrello con la quantità selezionata
     gestisciCarrello(zoomState.id, zoomState.qtyAttuale, zoomState.prezzo, zoomState.nome, note);
 
-    // Feedback visivo (Toast)
+    // Mostra il toast di conferma ("Carbonara aggiunto!")
     const toastEl = document.getElementById('liveToast');
     document.getElementById('toast-msg').innerText = `${zoomState.nome} aggiunto!`;
     const toast = new bootstrap.Toast(toastEl);
     toast.show();
 
-    // Chiudi modale
+    // Chiudi il modale zoom
     const modalZoom = bootstrap.Modal.getInstance(document.getElementById('modalZoom'));
     modalZoom.hide();
 }
 
+// =============================================
+// GESTIONE BOTTONI CARD (+/−)
+// =============================================
+
 /**
- * Gestione Click Bottoni Card (+ -)
+ * Gestisce il click sui bottoni +/− direttamente sulla card del prodotto.
+ * Blocca la propagazione dell'evento per non aprire il modale zoom.
+ * 
+ * @param {Event} event - Evento click
+ * @param {number} id - ID del prodotto
+ * @param {number} delta - +1 o -1
+ * @param {number} prezzo - Prezzo unitario
+ * @param {string} nome - Nome del prodotto
  */
 function btnCardQty(event, id, delta, prezzo, nome) {
-    event.stopPropagation(); // Evita apertura modale zoom
+    event.stopPropagation(); // Evita che il click apra il modale zoom
     gestisciCarrello(id, delta, prezzo, nome, null);
 }
 
+/**
+ * Aggiorna il display della quantità sulla card del prodotto.
+ * @param {number} id - ID del prodotto
+ * @param {number} val - Nuova quantità da visualizzare
+ */
 function updateCardQtyUI(id, val) {
     const el = document.getElementById('q-' + id);
     if (el) el.innerText = val;
