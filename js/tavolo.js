@@ -9,7 +9,7 @@
 let carrello = {};
 let totaleSoldi = 0;
 let totalePezzi = 0;
-let zoomState = { id: null, nome: '', prezzo: 0, qtyAttuale: 1 };
+let zoomState = { id: null, nome: '', prezzo: 0, qtyAttuale: 1, note: '' };
 let filtri = { categoria: 'all', allergeni: [] };
 
 function toggleTheme() {
@@ -85,7 +85,15 @@ function renderProdotti() {
 /**
  * Modifica la quantità nel carrello e aggiorna l'interfaccia
  */
-function gestisciCarrello(id, delta, prezzo, nome) {
+/**
+ * Modifica la quantità nel carrello e aggiorna l'interfaccia
+ * @param {int} id - ID del prodotto
+ * @param {int} delta - Variazione quantità (+1 o -1)
+ * @param {float} prezzo - Prezzo prodotto
+ * @param {string} nome - Nome prodotto
+ * @param {string|null} note - Eventuali note (se null, non modifica le note esistenti)
+ */
+function gestisciCarrello(id, delta, prezzo, nome, note = null) {
     const input = document.getElementById('q-' + id);
     if (!input) return; // Sicurezza
 
@@ -104,8 +112,20 @@ function gestisciCarrello(id, delta, prezzo, nome) {
         if (pezziHeader) pezziHeader.innerText = Math.max(0, totalePezzi);
 
         // Aggiorna oggetto carrello
-        if (!carrello[id]) carrello[id] = { id: id, nome: nome, qta: 0, prezzo: prezzo };
+        // Chiave unica per prodotto + note (se vogliamo distinguere per note, servirebbe una chiave composta)
+        // Per semplicità, in questo step assumiamo che le note siano legate al prodotto. 
+        // Se l'utente aggiunge lo stesso prodotto con note diverse, l'implementazione attuale sovrascriverebbe o sommerebbe.
+        // PER ORA: Le note sono a livello di riga. Se passo note != null, aggiorno le note. Altrimenti tengo le vecchie.
+        
+        if (!carrello[id]) carrello[id] = { id: id, nome: nome, qta: 0, prezzo: prezzo, note: '' };
+        
         carrello[id].qta = valNuovo;
+        if (note !== null) {
+             carrello[id].note = note;
+        }
+
+        // Aggiorna UI Card (il numeretto tra i bottoni - e +)
+        updateCardQtyUI(id, valNuovo);
 
         if (carrello[id].qta === 0) delete carrello[id];
 
@@ -150,12 +170,14 @@ function aggiornaModale() {
     for (const [id, item] of Object.entries(carrello)) {
         let parziale = (item.qta * item.prezzo).toFixed(2);
         let nomeSafe = item.nome.replace(/'/g, "\\'");
+        let noteHtml = item.note ? `<div class="small text-muted fst-italic"><i class="fas fa-comment-alt me-1"></i>${item.note}</div>` : '';
 
         html += `
             <div class="cart-item list-group-item d-flex align-items-center border-0 mb-3 px-0" style="background: transparent;">
                 
                 <div style="flex: 1; min-width: 0;">
                     <h5 class="m-0 fw-bold text-truncate">${item.nome}</h5>
+                    ${noteHtml}
                     <small class="text-muted">${item.prezzo}€ cad.</small>
                 </div>
 
@@ -198,7 +220,7 @@ function resettaOrdineDopoInvio() {
     document.getElementById('pezzi-header').innerText = '0';
 
     // Resetta tutti gli input numerici nella pagina principale
-    document.querySelectorAll('input[id^="q-"]').forEach(input => input.value = 0);
+    document.querySelectorAll('[id^="q-"]').forEach(el => el.innerText = '0');
 
     // Disabilita il tasto invio
     const btnInvia = document.getElementById('btn-invia-ordine');
@@ -238,7 +260,11 @@ if (btnConfirmSend) {
         btn.disabled = true;
         btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Invio...';
 
-        const listaProdotti = Object.values(carrello).map(item => ({ id: item.id, qta: item.qta }));
+        const listaProdotti = Object.values(carrello).map(item => ({ 
+            id: item.id, 
+            qta: item.qta,
+            note: item.note 
+        }));
 
         fetch('../api/invia_ordine.php', {
             method: 'POST',
@@ -296,7 +322,15 @@ function apriZoom(card) {
     divAlg.innerHTML = d.allergeni ? d.allergeni.split(',').map(a => `<span class="badge-alg">${a.trim()}</span>`).join('') : '<small>Nessuno</small>';
 
     // Reset stato zoom
-    zoomState = { id: d.id, nome: d.nome, prezzo: parseFloat(d.prezzo), qtyAttuale: 1 };
+    // Cerchiamo se il prodotto è già nel carrello per pre-popolare le note
+    let currentNote = '';
+    if (carrello[d.id]) {
+        currentNote = carrello[d.id].note || '';
+    }
+    
+    document.getElementById('zoom-note').value = currentNote;
+
+    zoomState = { id: d.id, nome: d.nome, prezzo: parseFloat(d.prezzo), qtyAttuale: 1, note: currentNote };
     refreshZoomUI();
 
     new bootstrap.Modal(document.getElementById('modalZoom')).show();
@@ -316,7 +350,8 @@ function refreshZoomUI() {
 }
 
 function confermaZoom() {
-    gestisciCarrello(zoomState.id, zoomState.qtyAttuale, zoomState.prezzo, zoomState.nome);
+    const note = document.getElementById('zoom-note').value;
+    gestisciCarrello(zoomState.id, zoomState.qtyAttuale, zoomState.prezzo, zoomState.nome, note);
 
     // Feedback visivo (Toast)
     const toastEl = document.getElementById('liveToast');
@@ -327,4 +362,17 @@ function confermaZoom() {
     // Chiudi modale
     const modalZoom = bootstrap.Modal.getInstance(document.getElementById('modalZoom'));
     modalZoom.hide();
+}
+
+/**
+ * Gestione Click Bottoni Card (+ -)
+ */
+function btnCardQty(event, id, delta, prezzo, nome) {
+    event.stopPropagation(); // Evita apertura modale zoom
+    gestisciCarrello(id, delta, prezzo, nome, null);
+}
+
+function updateCardQtyUI(id, val) {
+    const el = document.getElementById('q-' + id);
+    if (el) el.innerText = val;
 }

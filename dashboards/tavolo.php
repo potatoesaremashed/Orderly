@@ -24,9 +24,10 @@ $prodotti = $conn->query("SELECT * FROM alimenti");
 <div class="container-fluid p-0">
     <div class="row g-0">
         <div class="col-md-3 col-lg-2 d-none d-md-block">
-            <div class="sidebar-custom">
+            <div class="sidebar-custom d-flex flex-column">
                 <div class="text-center mb-5 mt-3"><img src="../imgs/ordlogo.png" width="100"></div>
-                <div class="px-3">
+                
+                <div class="px-3 flex-grow-1 overflow-auto">
                     <small class="text-uppercase fw-bold ps-3 mb-2 d-block text-muted" style="font-size: 11px;">Menu</small>
                     <div class="btn-categoria active" onclick="filtraCategoria('all', this)"><i
                             class="fas fa-utensils me-3"></i> Tutto</div>
@@ -35,6 +36,17 @@ $prodotti = $conn->query("SELECT * FROM alimenti");
                             <i class="fas fa-bookmark me-3"></i> <?php echo $cat['nome_categoria']; ?>
                         </div>
                     <?php endwhile; ?>
+                </div>
+
+                <div class="p-4 mt-auto">
+                    <div class="d-flex justify-content-center gap-3">
+                        <div class="theme-toggle-sidebar" onclick="toggleTheme()" title="Cambia Tema">
+                            <i class="fas fa-moon" id="theme-icon"></i>
+                        </div>
+                        <a href="../logout.php" class="theme-toggle-sidebar text-danger" title="Abbandona Tavolo">
+                            <i class="fas fa-sign-out-alt"></i>
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -46,37 +58,29 @@ $prodotti = $conn->query("SELECT * FROM alimenti");
                     <input type="text" id="search-bar" class="search-input" placeholder="Cerca un piatto..."
                         oninput="renderProdotti()">
                 </div>
-                <div class="d-flex align-items-center gap-3">
-                    <div class="theme-toggle" onclick="toggleTheme()" title="Cambia Tema"><i class="fas fa-moon"
-                            id="theme-icon"></i></div>
-
-                    <a href="../logout.php" class="theme-toggle text-decoration-none text-danger ms-2"
-                        title="Abbandona Tavolo" style="border: 1px solid var(--border-color);">
-                        <i class="fas fa-sign-out-alt"></i>
-                    </a>
-
-                    <div class="text-end d-none d-sm-block me-3 ms-3">
-                        <small class="text-uppercase fw-bold d-block text-muted" style="font-size: 11px;">Totale
-                            Ordine</small>
-                        <div class="fw-bold fs-3 text-price price-stable"><span id="soldi-header">0.00</span>€</div>
+                
+                <div class="d-flex align-items-center justify-content-end gap-2">
+                    <div class="d-none d-sm-flex align-items-center me-2 bg-surface rounded-pill px-3 py-2 border shadow-sm">
+                        <small class="text-uppercase fw-bold text-muted me-2" style="font-size: 10px;">Totale</small>
+                        <div class="fw-bold fs-5 text-price price-stable"><span id="soldi-header">0.00</span>€</div>
                     </div>
 
-                    <button class="btn btn-dark rounded-pill px-4 py-3 shadow-sm d-flex align-items-center"
+                    <button class="btn btn-dark rounded-pill px-3 py-2 px-md-4 py-md-3 shadow-sm d-flex align-items-center"
                         onclick="apriStorico()">
                         <i class="fas fa-receipt"></i>
-                        <span class="d-none d-md-inline fw-bold ms-2">Ordini</span>
+                        <span class="d-none d-lg-inline fw-bold ms-2">Ordini</span>
                     </button>
 
-                    <button class="btn btn-dark rounded-pill px-4 py-3 shadow-sm d-flex align-items-center"
+                    <button class="btn btn-dark rounded-pill px-3 py-2 px-md-4 py-md-3 shadow-sm d-flex align-items-center"
                         data-bs-toggle="modal" data-bs-target="#modalFiltri">
                         <i class="fas fa-filter"></i>
-                        <span class="d-none d-md-inline fw-bold ms-2">Filtro</span>
+                        <span class="d-none d-lg-inline fw-bold ms-2">Filtri</span>
                     </button>
 
-                    <button class="btn btn-dark rounded-pill px-4 py-3 shadow-sm d-flex align-items-center"
+                    <button class="btn btn-dark rounded-pill px-3 py-2 px-md-4 py-md-3 shadow-sm d-flex align-items-center"
                         data-bs-toggle="modal" data-bs-target="#modalCarrello" onclick="aggiornaModale()">
                         <i class="fas fa-shopping-bag fa-lg"></i>
-                        <span class="d-none d-md-inline fw-bold ms-2">Carrello</span>
+                        <span class="d-none d-lg-inline fw-bold ms-2">Carrello</span>
                         <span id="pezzi-header">0</span>
                     </button>
                 </div>
@@ -125,13 +129,16 @@ $prodotti = $conn->query("SELECT * FROM alimenti");
                                         ?>
                                     </div>
 
-                                    <div class="mt-auto d-flex justify-content-between align-items-center pt-3"
+                                    <div class="mt-auto d-flex justify-content-center align-items-center pt-3"
                                         style="border-top: 1px solid var(--border-color);">
-                                        <small class="fw-bold text-uppercase text-muted">Quantità</small>
-                                        <input type="hidden" id="q-<?php echo $p['id_alimento']; ?>" value="0">
-                                        <div class="text-end">
-                                            <button class="btn btn-sm btn-outline-secondary rounded-pill px-3">
-                                                Vedi <i class="fas fa-arrow-right ms-1"></i>
+                                        
+                                        <div class="qty-capsule-card d-flex align-items-center justify-content-between" style="background: var(--capsule-bg); border-radius: 15px; padding: 6px; width: 100%;">
+                                            <button class="btn-card-qty" onclick="btnCardQty(event, <?php echo $p['id_alimento']; ?>, -1, <?php echo $p['prezzo']; ?>, '<?php echo addslashes($p['nome_piatto']); ?>')">
+                                                <i class="fas fa-minus"></i>
+                                            </button>
+                                            <span id="q-<?php echo $p['id_alimento']; ?>" class="fw-bold fs-5" style="min-width: 30px; text-align: center;">0</span>
+                                            <button class="btn-card-qty" onclick="btnCardQty(event, <?php echo $p['id_alimento']; ?>, 1, <?php echo $p['prezzo']; ?>, '<?php echo addslashes($p['nome_piatto']); ?>')">
+                                                <i class="fas fa-plus"></i>
                                             </button>
                                         </div>
                                     </div>
@@ -192,6 +199,11 @@ $prodotti = $conn->query("SELECT * FROM alimenti");
                         <div class="mb-4">
                             <h6 class="text-uppercase small fw-bold mb-2 text-muted">Allergeni</h6>
                             <div id="zoom-allergeni"></div>
+                        </div>
+                        
+                        <div class="mb-4 flex-grow-1">
+                            <h6 class="text-uppercase small fw-bold mb-2 text-muted">Note per la cucina <small>(Opzionale)</small></h6>
+                            <textarea class="form-control rounded-3" id="zoom-note" rows="2" placeholder="Es. Senza cipolla, Ben cotto..." style="resize: none; background: #f8f9fa; border: 1px solid var(--border-color);"></textarea>
                         </div>
 
                         <div class="mt-auto pt-3 border-top">

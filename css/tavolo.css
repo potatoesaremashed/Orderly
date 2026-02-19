@@ -98,6 +98,28 @@ body {
     color: white !important;
 }
 
+.theme-toggle-sidebar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    background: var(--input-bg);
+    color: var(--text-muted);
+    transition: 0.2s;
+    border: 1px solid var(--border-color);
+    text-decoration: none;
+}
+
+.theme-toggle-sidebar:hover {
+    background: var(--surface-color);
+    color: var(--text-main);
+    transform: translateY(-2px);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
 /* Card Prodotto */
 .card-prodotto {
     background: var(--surface-color);
@@ -112,7 +134,7 @@ body {
 }
 
 .card-prodotto:hover {
-    transform: translateY(-5px);
+    /* transform: translateY(-5px); Rimosso per tablet */
     border-color: var(--price-color);
 }
 
@@ -159,6 +181,7 @@ body {
     overflow: hidden;
     display: -webkit-box;
     -webkit-line-clamp: 2;
+    line-clamp: 2;
     -webkit-box-orient: vertical;
 }
 
@@ -205,6 +228,32 @@ body {
     color: var(--bg-body);
 }
 
+.btn-card-qty {
+    width: 48px;
+    height: 42px;
+    border-radius: 12px;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.2s;
+    flex-shrink: 0;
+    font-size: 1.1rem;
+    background: var(--surface-color);
+    color: var(--text-main);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.btn-card-qty:active {
+    background: #e9ecef;
+}
+
+.btn-card-qty:hover {
+    background: var(--primary);
+    color: white;
+}
+
 .qty-input {
     background: transparent;
     border: none;
@@ -217,6 +266,19 @@ body {
 
 .text-price {
     color: var(--price-color) !important;
+}
+
+.price-stable {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum";
+    display: inline-block;
+    min-width: 70px;
+    text-align: right;
+    white-space: nowrap;
+}
+
+#soldi-header {
+    display: inline-block;
 }
 
 #pezzi-header {

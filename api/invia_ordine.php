@@ -36,7 +36,7 @@ try {
     $id_ordine_creato = $conn->insert_id;
 
     // Inserisci in dettaglio_ordine
-    $sql_dettaglio = "INSERT INTO dettaglio_ordini (id_ordine, id_alimento, quantita) VALUES (?, ?, ?)";
+    $sql_dettaglio = "INSERT INTO dettaglio_ordini (id_ordine, id_alimento, quantita, note) VALUES (?, ?, ?, ?)";
     $stmt_det = $conn->prepare($sql_dettaglio);
 
     foreach ($data['prodotti'] as $p) {
@@ -45,7 +45,8 @@ try {
         
         // Inserisci solo se quantità > 0
         if ($quantita > 0) {
-            $stmt_det->bind_param("iii", $id_ordine_creato, $id_alimento, $quantita);
+            $note = isset($p['note']) ? $p['note'] : null;
+            $stmt_det->bind_param("iiis", $id_ordine_creato, $id_alimento, $quantita, $note);
             if (!$stmt_det->execute()) {
                 throw new Exception("Errore inserimento prodotto ID: " . $id_alimento);
             }
