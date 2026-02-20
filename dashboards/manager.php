@@ -1,11 +1,22 @@
 <?php
+/**
+ * =========================================
+ * FILE: dashboards/manager.php
+ * =========================================
+ * Dashboard di amministrazione (Manager).
+ * Permette di aggiungere, modificare, visualizzare o eliminare piatti e categorie.
+ * Può essere vista come il backend di gestione del menu del ristorante.
+ */
+
 session_start();
+
+// Controllo Sicurezza: Solo chi ha il ruolo 'manager' può accedere a questa pagina.
 if (!isset($_SESSION['ruolo']) || $_SESSION['ruolo'] != 'manager') {
-    header("Location: ../index.php");
+    header("Location: ../index.php"); // Altrimenti torna alla pagina di login
     exit;
 }
-include "../include/conn.php";
-include "../include/header.php";
+include "../include/conn.php"; // Collegamento al DB MySQL
+include "../include/header.php"; // File per la struttura HTML/CSS base
 ?>
 
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
@@ -39,6 +50,7 @@ include "../include/header.php";
     <div class="row g-4">
 
         <div class="col-lg-8">
+            <!-- SEZIONE: Form per creare un nuovo piatto -->
             <div class="card-custom">
                 <h5 class="card-title"><i class="fas fa-utensils me-2 text-warning"></i>Nuovo Piatto</h5>
                 <form action="../api/aggiungi_piatto.php" method="POST" enctype="multipart/form-data">
@@ -96,6 +108,7 @@ include "../include/header.php";
         </div>
 
         <div class="col-lg-4">
+            <!-- SEZIONE: Form per creare una nuova categoria di menu (es. Antipasti, Primi, Bevande) -->
             <div class="card-custom mb-4">
                 <h5 class="card-title"><i class="fas fa-tags me-2 text-primary"></i>Nuova Categoria</h5>
                 <form action="../api/aggiungi_categoria.php" method="POST" class="d-flex gap-2">
@@ -133,6 +146,7 @@ include "../include/header.php";
 
     <div class="row mt-4">
         <div class="col-12">
+            <!-- SEZIONE: Tabella riassuntiva del Menu Completo (tutti i piatti salvati) -->
             <div class="card-custom">
                 <h5 class="card-title"><i class="fas fa-book-open me-2 text-info"></i>Menu Completo</h5>
                 <div class="table-responsive">
@@ -161,6 +175,7 @@ include "../include/header.php";
                                             <td style='color: var(--primary); font-weight:bold;'>" . number_format($row['prezzo'], 2) . " €</td>
                                             <td class='text-end'>
                                                 <div class='d-flex justify-content-end gap-2'>
+                                                    <!-- Bottone Modifica: Apre il pop-up (modal) e precarica i dati del piatto -->
                                                     <button type='button' class='btn btn-warning btn-sm text-white' 
                                                         onclick='apriModalModifica(this)'
                                                         data-id='" . $row['id_alimento'] . "'
@@ -195,6 +210,8 @@ include "../include/header.php";
     </div>
 </div>
 
+<!-- MODALE (POP-UP): Form per modificare i dati di un piatto esistente.
+     Questa finestra si apre sovrapponendosi alla tabella principale quando si clicca su 'Modifica'. -->
 <div class="modal fade" id="modalModifica" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -203,6 +220,7 @@ include "../include/header.php";
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
+                <!-- Il form analogo a quello di inserimento, ma salva le modifiche in API modifica_piatto.php -->
                 <form action="../api/modifica_piatto.php" method="POST" enctype="multipart/form-data">
                     <input type="hidden" name="id_alimento" id="mod_id">
 

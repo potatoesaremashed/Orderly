@@ -1,3 +1,8 @@
+/* =========================================
+   FILE: css/manager.css
+   Descrizione: Stili specifici per la Dashboard del Manager
+   ========================================= */
+
 .card-custom {
     background: var(--bg-card);
     border-radius: 15px;

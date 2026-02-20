@@ -1,15 +1,25 @@
 <?php
-session_start();
-include "../include/conn.php";
+/**
+ * =========================================
+ * FILE: dashboards/tavolo.php
+ * =========================================
+ * Menu Digitale lato Cliente (Tavolo).
+ * Questa pagina mostra tutti i piatti disponibili, permette di filtrare, 
+ * cercare, aggiungere piatti al carrello, mandare la comanda alla cucina 
+ * e visualizzare lo storico ordini e il totale conto.
+ */
 
-// Controllo accesso
+session_start();
+include "../include/conn.php"; // Collegamento al database
+
+// Sicurezza: blocca l'accesso se chi naviga non è loggato come 'tavolo'
 if (!isset($_SESSION['ruolo']) || $_SESSION['ruolo'] != 'tavolo') {
     header("Location: ../index.php");
     exit;
 }
 include "../include/header.php";
 
-// Recupero dati
+// Recupero di tutte le categorie e tutti gli alimenti dal database per stamparli in pagina.
 $categorie = $conn->query("SELECT * FROM categorie");
 $prodotti = $conn->query("SELECT * FROM alimenti");
 ?>
@@ -24,12 +34,13 @@ $prodotti = $conn->query("SELECT * FROM alimenti");
 <div class="container-fluid p-0">
     <div class="row g-0">
         <div class="col-md-3 col-lg-2 d-none d-md-block">
+            <!-- SEZIONE SIDEBAR SINISTRA: Contiene i filtri per Categoria (Tutto, Antipasti, Primi...) -->
             <div class="sidebar-custom d-flex flex-column">
                 <div class="text-center mb-5 mt-3"><img src="../imgs/ordlogo.png" width="100"></div>
 
                 <div class="px-3 flex-grow-1 overflow-auto">
-                    <small class="text-uppercase fw-bold ps-3 mb-2 d-block text-muted"
-                        style="font-size: 11px;">Menu</small>
+                    <small class="text-uppercase fw-bold ps-3 mb-2 d-block text-muted" style="font-size: 11px;">Menu
+                        Filtrato</small>
                     <div class="btn-categoria active" onclick="filtraCategoria('all', this)"><i
                             class="fas fa-utensils me-3"></i> Tutto</div>
                     <?php while ($cat = $categorie->fetch_assoc()): ?>
@@ -53,13 +64,16 @@ $prodotti = $conn->query("SELECT * FROM alimenti");
         </div>
 
         <div class="col-md-9 col-lg-10">
+            <!-- HEADER FISSO IN ALTO: Barra di ricerca, Totale Euro, Storico e Carrello -->
             <div class="sticky-header d-flex justify-content-between align-items-center">
+                <!-- Barra di Ricerca piatti -->
                 <div class="search-wrapper">
                     <i class="fas fa-search search-icon"></i>
                     <input type="text" id="search-bar" class="search-input" placeholder="Cerca un piatto..."
                         oninput="renderProdotti()">
                 </div>
 
+                <!-- Pulsanti per Ordini, Filtri Allergeni e Carrello -->
                 <div class="d-flex align-items-center justify-content-end gap-2">
                     <div
                         class="d-none d-sm-flex align-items-center me-2 bg-surface rounded-pill px-3 py-2 border shadow-sm">
@@ -162,7 +176,8 @@ $prodotti = $conn->query("SELECT * FROM alimenti");
     </div>
 </div>
 
-<!-- MODAL STORICO ORDINI -->
+<!-- MODALE (POP-UP) STORICO ORDINI: 
+     Mostra tutti gli ordini che il tavolo ha già inoltrato in cucina e lo stato (In Arrivo, Preparazione, Completato) -->
 <div class="modal fade" id="modalOrdini" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
         <div class="modal-content modal-content-custom shadow-lg">
@@ -187,6 +202,8 @@ $prodotti = $conn->query("SELECT * FROM alimenti");
     </div>
 </div>
 
+<!-- MODALE (POP-UP) DEL CARRELLO: 
+     Mostra la schermata finale con i piatti scelti dal cliente prima dell'invio definitivo in cucina -->
 <div class="modal fade" id="modalCarrello" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content modal-content-custom shadow-lg">
@@ -209,6 +226,9 @@ $prodotti = $conn->query("SELECT * FROM alimenti");
     </div>
 </div>
 
+<!-- MODALE (POP-UP) ZOOM DETTAGLIO PIATTO: 
+     Permette di vedere meglio un piatto (immagine grande, lunga descrizione) e di aggiungere 
+     particolari istruzioni per lo chef (es. "Senza sale", "Ben Cotto", ecc.) -->
 <div class="modal fade" id="modalZoom" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered modal-xl">
         <div class="modal-content modal-content-custom shadow-lg overflow-hidden">
