@@ -29,6 +29,8 @@ CREATE TABLE tavoli (
     id_tavolo INT AUTO_INCREMENT PRIMARY KEY,
     nome_tavolo VARCHAR(50) UNIQUE, 
     password VARCHAR(50),
+    stato ENUM('libero','occupato','riservato') DEFAULT 'libero',
+    posti INT DEFAULT 4,
     id_menu INT,
     FOREIGN KEY (id_menu) REFERENCES menu(id_menu)
 );
@@ -94,5 +96,14 @@ INSERT INTO categorie (nome_categoria, id_menu) VALUES
 INSERT INTO alimenti (nome_piatto, prezzo, descrizione, lista_allergeni, immagine, id_categoria) 
 VALUES ('Carbonara', 12.50, 'Classica pasta alla carbonara con guanciale croccante, uova fresche, pecorino romano DOP e pepe nero macinato al momento.', 'Glutine,Uova,Lattosio', 'default.jpg', 2); 
    
--- Tavolo di test
-INSERT INTO tavoli (nome_tavolo, password, id_menu) VALUES ('tavolotest', 'test', 1);
+-- Tavoli di test
+INSERT INTO tavoli (nome_tavolo, password, stato, posti, id_menu) VALUES ('tavolotest', 'test', 'libero', 4, 1);
+INSERT INTO tavoli (nome_tavolo, password, stato, posti, id_menu) VALUES 
+('tavolo1', '1234', 'libero', 2, 1),
+('tavolo2', '1234', 'occupato', 4, 1),
+('tavolo3', '1234', 'riservato', 6, 1),
+('tavolo4', '1234', 'libero', 4, 1),
+('tavolo5', '1234', 'occupato', 2, 1),
+('tavolo6', '1234', 'libero', 8, 1),
+('tavolo7', '1234', 'riservato', 4, 1),
+('tavolo8', '1234', 'libero', 4, 1);
