@@ -7,7 +7,7 @@
  * mantenendo i dati sincronizzati con il database.
  */
 session_start();
-include "../include/conn.php";
+include "../../include/conn.php";
 header('Content-Type: application/json');
 
 if (!isset($_SESSION['id_tavolo'])) {

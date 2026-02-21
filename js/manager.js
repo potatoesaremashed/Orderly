@@ -63,7 +63,7 @@ function switchPage(page, btn) {
 // CARICAMENTO TAVOLI
 // =============================================
 function caricaTavoli() {
-    fetch('../api/get_tavoli.php')
+    fetch('../api/manager/get_tavoli.php')
         .then(r => r.json())
         .then(data => {
             tavoli = data;
@@ -176,7 +176,7 @@ function cambiaStatoTavolo(id, nuovoStato) {
     formData.append('id_tavolo', id);
     formData.append('stato', nuovoStato);
 
-    fetch('../api/cambia_stato_tavolo.php', { method: 'POST', body: formData })
+    fetch('../api/manager/cambia_stato_tavolo.php', { method: 'POST', body: formData })
         .then(r => r.json())
         .then(data => {
             if (data.success) {
@@ -217,7 +217,7 @@ function aggiungiTavolo() {
     formData.append('password', password);
     formData.append('posti', posti);
 
-    fetch('../api/aggiungi_tavolo.php', { method: 'POST', body: formData })
+    fetch('../api/manager/aggiungi_tavolo.php', { method: 'POST', body: formData })
         .then(r => r.json())
         .then(data => {
             if (data.success) {
@@ -262,7 +262,7 @@ function modificaTavolo() {
     formData.append('password', password);
     formData.append('posti', posti);
 
-    fetch('../api/modifica_tavolo.php', { method: 'POST', body: formData })
+    fetch('../api/manager/modifica_tavolo.php', { method: 'POST', body: formData })
         .then(r => r.json())
         .then(data => {
             if (data.success) {
@@ -284,7 +284,7 @@ function eliminaTavolo(id, nome) {
     const formData = new FormData();
     formData.append('id_tavolo', id);
 
-    fetch('../api/elimina_tavolo.php', { method: 'POST', body: formData })
+    fetch('../api/manager/elimina_tavolo.php', { method: 'POST', body: formData })
         .then(r => r.json())
         .then(data => {
             if (data.success) {

@@ -133,7 +133,7 @@ $tavoli = $conn->query("SELECT * FROM tavoli ORDER BY nome_tavolo ASC");
                             <div class="card-custom">
                                 <h5 class="card-title"><i class="fas fa-utensils me-2 text-warning"></i>Nuovo Piatto
                                 </h5>
-                                <form action="../api/aggiungi_piatto.php" method="POST" enctype="multipart/form-data">
+                                <form action="../api/manager/aggiungi_piatto.php" method="POST" enctype="multipart/form-data">
                                     <div class="row g-3">
                                         <div class="col-md-8">
                                             <input type="text" name="nome_piatto" class="form-control" required
@@ -191,7 +191,7 @@ $tavoli = $conn->query("SELECT * FROM tavoli ORDER BY nome_tavolo ASC");
                         <div class="col-lg-4">
                             <div class="card-custom mb-4">
                                 <h5 class="card-title"><i class="fas fa-tags me-2 text-primary"></i>Nuova Categoria</h5>
-                                <form action="../api/aggiungi_categoria.php" method="POST" class="d-flex gap-2">
+                                <form action="../api/manager/aggiungi_categoria.php" method="POST" class="d-flex gap-2">
                                     <input type="text" name="nome_categoria" class="form-control"
                                         placeholder="Es: Dolci" required>
                                     <input type="hidden" name="id_menu" value="1">
@@ -211,7 +211,7 @@ $tavoli = $conn->query("SELECT * FROM tavoli ORDER BY nome_tavolo ASC");
                                                 echo "<tr>
                                                         <td><strong>" . $row['nome_categoria'] . "</strong></td>
                                                         <td class='text-end'>
-                                                            <form action='../api/elimina_categoria.php' method='POST' onsubmit='return confirm(\"Eliminare questa categoria?\");'>
+                                                            <form action='../api/manager/elimina_categoria.php' method='POST' onsubmit='return confirm(\"Eliminare questa categoria?\");'>
                                                                 <input type='hidden' name='id_categoria' value='" . $row['id_categoria'] . "'>
                                                                 <button class='btn-action btn-delete'><i class='fas fa-trash'></i></button>
                                                             </form>
@@ -267,7 +267,7 @@ $tavoli = $conn->query("SELECT * FROM tavoli ORDER BY nome_tavolo ASC");
                                                                         <i class='fas fa-edit'></i>
                                                                     </button>
 
-                                                                    <form action='../api/elimina_piatto.php' method='POST' onsubmit='return confirm(\"Eliminare questo piatto?\");' style='margin:0;'>
+                                                                    <form action='../api/manager/elimina_piatto.php' method='POST' onsubmit='return confirm(\"Eliminare questo piatto?\");' style='margin:0;'>
                                                                         <input type='hidden' name='id_alimento' value='" . $row['id_alimento'] . "'>
                                                                         <button type='submit' class='btn btn-danger btn-sm'>
                                                                             <i class='fas fa-trash'></i>
@@ -380,7 +380,7 @@ $tavoli = $conn->query("SELECT * FROM tavoli ORDER BY nome_tavolo ASC");
             </div>
             <div class="modal-body">
                 <!-- Il form analogo a quello di inserimento, ma salva le modifiche in API modifica_piatto.php -->
-                <form action="../api/modifica_piatto.php" method="POST" enctype="multipart/form-data">
+                <form action="../api/manager/modifica_piatto.php" method="POST" enctype="multipart/form-data">
                     <input type="hidden" name="id_alimento" id="mod_id">
 
                     <div class="row g-3">

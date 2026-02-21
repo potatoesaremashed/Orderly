@@ -14,7 +14,7 @@
 
 session_start();
 header('Content-Type: application/json');
-include "../include/conn.php";
+include "../../include/conn.php";
 
 // Verifica che l'utente sia autenticato come tavolo
 if (!isset($_SESSION['ruolo']) || $_SESSION['ruolo'] != 'tavolo') {

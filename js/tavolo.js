@@ -340,7 +340,7 @@ if (btnConfirmSend) {
         }));
 
         // Invia l'ordine al server tramite fetch POST
-        fetch('../api/invia_ordine.php', {
+        fetch('../api/tavolo/invia_ordine.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ prodotti: listaProdotti })
@@ -397,7 +397,7 @@ function apriStorico() {
     // Mostra un loader mentre carica i dati
     container.innerHTML = '<div class="text-center py-5"><i class="fas fa-spinner fa-spin fa-2x text-muted"></i></div>';
 
-    fetch('../api/leggi_ordini_tavolo.php')
+    fetch('../api/tavolo/leggi_ordini_tavolo.php')
         .then(res => res.json())
         .then(ordini => {
             // Caso: nessun ordine inviato

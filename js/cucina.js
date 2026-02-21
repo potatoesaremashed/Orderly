@@ -69,7 +69,7 @@ let lastCount = 0;
  * Fetch degli ordini dall'API e aggiornamento interfaccia
  */
 function caricaOrdini() {
-    fetch('../api/leggi_ordini_cucina.php')
+    fetch('../api/cucina/leggi_ordini_cucina.php')
         .then(res => res.json())
         .then(data => {
             const currentJsonString = JSON.stringify(data);
@@ -173,7 +173,7 @@ function cambiaStato(id, nuovoStato) {
     // Reset cache per forzare il refresh immediato della UI alla prossima chiamata
     lastJsonData = "";
 
-    fetch('../api/cambia_stato_ordine.php', {
+    fetch('../api/cucina/cambia_stato_ordine.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id_ordine: id, nuovo_stato: nuovoStato })
