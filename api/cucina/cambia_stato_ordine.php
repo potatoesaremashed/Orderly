@@ -6,7 +6,6 @@
  * Questo file viene chiamato (via AJAX/Fetch) ogni volta che un cuoco 
  * preme un pulsante per cambiare lo stato di un ordine (es. da "In Attesa" a "Pronto").
  * 
- * Per uno sviluppatore Junior:
  * Le API non mostrano HTML, ma scambiano dati (spesso in formato JSON).
  * Qui usiamo i "Prepared Statements" per proteggere il database da attacchi SQL Injection.
  */

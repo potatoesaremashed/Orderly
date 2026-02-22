@@ -7,7 +7,6 @@
  * Questo file viene utilizzato per verificare la struttura della tabella 'dettaglio_ordini'
  * nel database. Stampa a schermo i nomi e i tipi delle colonne esistenti.
  * 
- * Per uno sviluppatore Junior:
  * Questo è un esempio di come usare SQL per interrogare la struttura stessa del database
  * (metadati) invece che i dati contenuti nelle tabelle.
  */

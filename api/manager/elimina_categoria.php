@@ -5,7 +5,6 @@
  * =========================================
  * Rimuove una categoria dal menu.
  * 
- * ATTENZIONE (Per Sviluppatori Junior):
  * In un database relazionale, non puoi cancellare una categoria se questa 
  * contiene ancora dei piatti (Foreign Key Constraint). 
  * Se provi a farlo, il database restituirà un errore per proteggere i dati.

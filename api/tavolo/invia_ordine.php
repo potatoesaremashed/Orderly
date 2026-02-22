@@ -5,7 +5,6 @@
  * =========================================
  * Trasforma il carrello in un vero ordine pronto per la cucina.
  * 
- * Per uno sviluppatore Junior:
  * L'operazione "Invia Ordine" è critica. Usiamo le "Transazioni SQL". 
  * Immagina un bonifico: non puoi togliere soldi da un conto e non metterli nell'altro. 
  * Se qualcosa fallisce a metà (es. salta la luce), il database annulla 

@@ -5,7 +5,6 @@
  * =========================================
  * Mostra al cliente tutti gli ordini che ha fatto durante la sua permanenza.
  * 
- * Per uno sviluppatore Junior:
  * Quando leggiamo dal database, i piatti arrivano uno per riga. 
  * Se hai ordinato 3 piatti in un unico ordine, avrai 3 righe nel database.
  * Qui usiamo un array associativo per "raggruppare" i piatti sotto un unico 

@@ -5,7 +5,6 @@
  * =========================================
  * Rimuove definitivamente un tavolo dal sistema.
  * 
- * ATTENZIONE (Per Sviluppatori Junior):
  * Quando eliminiamo un tavolo, dobbiamo prima "pulire" la cronologia degli ordini
  * e dei dettagli ordini collegati a quel tavolo. Se non lo facessimo, il database
  * potrebbe bloccare l'azione per via dei vincoli di integrità.

@@ -6,7 +6,6 @@
  * Funzione di "lettura" (Read) che restituisce la situazione attuale dei tavoli.
  * Viene usata dalla dashboard Manager per mostrare i tavoli in tempo reale.
  * 
- * Per uno sviluppatore Junior:
  * Qui usiamo SQL avanzato (Subquery) per contare gli ordini di ogni tavolo 
  * direttamente dentro la query principale, risparmiando molto tempo al server.
  */

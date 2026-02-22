@@ -10,7 +10,6 @@
  * 2. Ricevere le credenziali via POST, verificare il ruolo nel database e 
  *    reindirizzare l'utente nella dashboard corretta.
  * 
- * Per uno sviluppatore Junior: 
  * L'uso di session_start() è fondamentale qui perché "registriamo" chi è l'utente 
  * che sta entrando, permettendo al server di ricordarselo nelle pagine successive.
  */

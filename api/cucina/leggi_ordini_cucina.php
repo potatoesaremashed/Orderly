@@ -6,7 +6,6 @@
  * Fornisce alla dashboard della cucina la lista di tutti gli ordini da preparare.
  * La cucina "interroga" (polling) questa API ogni pochi secondi per vedere se ci sono nuovi ordini.
  * 
- * Per uno sviluppatore Junior:
  * Questo è un esempio di query complessa (JOIN) che unisce tre tabelle diverse 
  * per ottenere tutti i dati necessari (nome piatto, quantità, note) in un colpo solo.
  */

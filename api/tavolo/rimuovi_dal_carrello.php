@@ -5,7 +5,6 @@
  * =========================================
  * Gestisce la rimozione o la diminuzione di quantità di un piatto nel carrello.
  * 
- * Per uno sviluppatore Junior:
  * Quando un utente preme "rimuovi", non vogliamo sempre cancellare la riga. 
  * Se ha ordinato 3 pizze, premendo rimuovi deve scendere a 2. 
  * Solo quando arriviamo a 1, la pressione successiva cancella fisicamente 

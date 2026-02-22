@@ -7,7 +7,6 @@
  * Ogni tavolo avrà un nome (es. "Tavolo 1") e una password per permettere ai clienti 
  * di accedere al menu digitale in modo protetto.
  * 
- * Per uno sviluppatore Junior:
  * Qui vediamo come gestire i dati inviati da un form HTML, come proteggerli 
  * e come rimandare l'utente alla pagina precedente dopo il salvataggio.
  */

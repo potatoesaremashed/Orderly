@@ -6,7 +6,6 @@
  * Permette al gestore di segnare un tavolo come Libero, Occupato o Riservato.
  * Viene usata nella dashboard per avere una visione d'insieme della sala.
  * 
- * Per uno sviluppatore Junior:
  * Questo è un classico esempio di "Update" dove validiamo i dati prima 
  * di inviarli al database per evitare che vengano inseriti stati a caso.
  */

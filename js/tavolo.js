@@ -5,7 +5,7 @@
  * Logica completa lato cliente per la dashboard del tavolo (cliente).
  * Questo script trasforma una semplice pagina in un'app interattiva.
  * 
- * JUNIOR TIP: Lo stato globale (le variabili in alto) è la "verità" 
+ * Lo stato globale (le variabili in alto) è la "verità" 
  * dell'applicazione. Se vuoi sapere cosa c'è nel carrello, non guardi
  * l'HTML, ma l'oggetto 'carrello'. L'HTML è solo una "fotografia" dello stato.
  * 

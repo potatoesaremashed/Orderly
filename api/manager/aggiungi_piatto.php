@@ -7,7 +7,6 @@
  * Oltre a salvare i testi (nome, descrizione, prezzo), gestisce il caricamento 
  * e il ridimensionamento delle immagini caricate dal Manager.
  * 
- * Per uno sviluppatore Junior:
  * Gestire le immagini è complesso. Qui vediamo come creare una cartella se non esiste,
  * come dare un nome unico ai file e come comprimerli per non rallentare il sito.
  */

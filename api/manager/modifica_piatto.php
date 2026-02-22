@@ -6,7 +6,6 @@
  * Permette al manager di aggiornare i dati di un piatto esistente.
  * Aggiorna: nome, prezzo, descrizione, categoria, allergeni e (opzionalmente) l'immagine.
  * 
- * Per uno sviluppatore Junior:
  * Qui usiamo una tecnica di "query dinamica". Se l'utente non carica una nuova foto,
  * non aggiorniamo il campo immagine lasciando quella vecchia.
  */

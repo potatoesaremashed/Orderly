@@ -6,7 +6,7 @@
  * Si occupa di caricare gli ordini in tempo reale e permettere ai cuochi
  * di avanzare lo stato (Inizia Cottura -> Pronto).
  * 
- * JUNIOR TIP: Usiamo il "polling" (setInterval) per simulare il tempo reale.
+ * Usiamo il "polling" (setInterval) per simulare il tempo reale.
  * Ogni 3 secondi chiediamo al server: "Ci sono nuovi ordini?".
  */
 

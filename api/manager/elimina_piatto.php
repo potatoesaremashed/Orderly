@@ -5,7 +5,6 @@
  * =========================================
  * Permette al manager di rimuovere un piatto dal menu.
  * 
- * Per uno sviluppatore Junior:
  * Quando eliminiamo un record in un database moderno, spesso usiamo la clausola
  * "ON DELETE CASCADE". Questo significa che se eliminiamo il piatto, il database 
  * pulirà automaticamente anche i riferimenti a quel piatto negli ordini passati.

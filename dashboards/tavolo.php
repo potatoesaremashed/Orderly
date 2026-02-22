@@ -6,7 +6,6 @@
  * Questa è la pagina che i clienti vedono sui tablet o i propri smartphone.
  * Funge da menu digitale interattivo.
  * 
- * Funzionalità chiave:
  * 1. Visualizzazione piatti divisi per categoria.
  * 2. Filtro per allergeni (esclusione piatti pericolosi).
  * 3. Carrello dinamico (gestito via tavolo.js).

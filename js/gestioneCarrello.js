@@ -6,7 +6,7 @@
  * Sincronizza le azioni dell'utente (aggiungi/rimuovi piatto) con il 
  * Database tramite chiamate API asincrone (Fetch).
  * 
- * JUNIOR TIP: In un'app moderna, l'interfaccia non deve ricaricarsi.
+ * In un'app moderna, l'interfaccia non deve ricaricarsi.
  * Usiamo 'fetch' per parlare con il server "dietro le quinte" e poi
  * aggiorniamo solo i pezzi di HTML necessari.
  * 

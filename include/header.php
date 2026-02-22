@@ -8,7 +8,6 @@
   Invece di riscrivere le stesse righe in ogni file, usiamo 'include' per 
   inserire questo pezzo di codice ovunque serva.
   
-  Per uno sviluppatore Junior:
   L'header contiene i metadati (head) che dicono al browser come comportarsi
   e caricano le librerie esterne (come Bootstrap per lo stile).
 -->

@@ -6,7 +6,6 @@
  * Questa è l'interfaccia principale per il proprietario del ristorante.
  * Da qui si gestisce tutto: tavoli, menu, categorie e prezzi.
  * 
- * Per uno sviluppatore Junior:
  * Questa è la pagina più complessa del progetto. Utilizza una struttura "SPA"
  * (Single Page Application) rudimentale: invece di caricare più file, 
  * mostriamo e nascondiamo diversi 'div' (sezioni) cliccando sulla sidebar.

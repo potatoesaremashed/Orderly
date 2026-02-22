@@ -7,7 +7,6 @@
  * Ha il compito di cancellare in modo sicuro la sessione attiva e reindirizzare l'utente 
  * alla pagina di accesso iniziale (login).
  * 
- * Per uno sviluppatore Junior:
  * Quando un utente fa il "logout", dobbiamo assicurarci che il server cancelli 
  * ogni informazione su di lui. Senza queste funzioni, chiunque usi lo stesso computer 
  * potrebbe ancora accedere alla dashboard premendo il tasto "indietro".

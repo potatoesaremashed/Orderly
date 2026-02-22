@@ -10,7 +10,6 @@
  * 2. Se non esiste, crea un nuovo record nella tabella 'ordini'.
  * 3. Inserisce o aggiorna la quantità del piatto scelto.
  * 
- * Per uno sviluppatore Junior:
  * Il "carrello" in questo progetto è salvato direttamente nel database. 
  * Questo permette al cliente di non perdere i piatti se ricarica la pagina.
  */

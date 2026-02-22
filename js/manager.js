@@ -7,7 +7,7 @@
  * 1. Gestione Tavoli (Griglia interattiva, CRUD)
  * 2. Gestione Menu (Modifica piatti e categorie)
  * 
- * JUNIOR TIP: Usiamo variabili globali come 'tavoli' per tenere in memoria
+ * Usiamo variabili globali come 'tavoli' per tenere in memoria
  * i dati scaricati dal server, evitando di ricaricare tutto ad ogni piccolo filtro.
  */
 

@@ -5,7 +5,6 @@
  * =========================================
  * Permette di cambiare nome, password, posti o stato di un tavolo già registrato.
  * 
- * Per uno sviluppatore Junior:
  * Particolare attenzione qui va alla "Verifica Unicità". Se l'utente cambia 
  * il nome del Tavolo 1 in Tavolo 2, dobbiamo assicurarci che Tavolo 2 non esista già.
  */

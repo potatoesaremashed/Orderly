@@ -6,7 +6,6 @@
  * Questa API fornisce al frontend la lista dei piatti "parcheggiati" nel carrello.
  * Viene usata per mostrare il riepilogo prima di inviare l'ordine definitivo in cucina.
  * 
- * Per uno sviluppatore Junior:
  * Qui usiamo una query JOIN che unisce tre tabelle:
  * - dettaglio_ordini (d): per le quantità.
  * - ordini (o): per filtrare solo l'ordine 'in_attesa' di questo tavolo.
