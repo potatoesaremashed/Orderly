@@ -1,3 +1,19 @@
+/**
+ * =========================================
+ * FILE: js/cucina.js
+ * =========================================
+ * Questo script gestisce la "Dashboard Cucina" (il Kanban Board).
+ * Si occupa di caricare gli ordini in tempo reale e permettere ai cuochi
+ * di avanzare lo stato (Inizia Cottura -> Pronto).
+ * 
+ * JUNIOR TIP: Usiamo il "polling" (setInterval) per simulare il tempo reale.
+ * Ogni 3 secondi chiediamo al server: "Ci sono nuovi ordini?".
+ */
+
+/**
+ * GESTIONE TEMA (DARK/LIGHT)
+ * Cambia i colori della pagina e salva la scelta nel browser (localStorage).
+ */
 function toggleTheme() {
     const body = document.body;
     const icon = document.getElementById('theme-icon');
@@ -8,11 +24,16 @@ function toggleTheme() {
     localStorage.setItem('theme', isDark ? 'light' : 'dark');
 }
 
+// All'avvio, controlla se l'utente aveva già scelto il tema scuro
 if (localStorage.getItem('theme') === 'dark') {
     document.body.setAttribute('data-theme', 'dark');
     document.getElementById('theme-icon')?.classList.replace('fa-moon', 'fa-sun');
 }
 
+/**
+ * SISTEMA DI NOTIFICA SONORA
+ * Utilizza la Web Audio API per generare un "beep" senza caricare file .mp3 esterni.
+ */
 let audioActive = false;
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
@@ -36,6 +57,7 @@ function playSound() {
     osc.stop(audioCtx.currentTime + 0.3);
 }
 
+// Attiva/Disattiva il suono delle notifiche
 function toggleAudio() {
     audioActive = !audioActive;
     const btn = document.getElementById('btn-audio');
@@ -53,29 +75,34 @@ function toggleAudio() {
     }
 }
 
-
-
-
+// =========== LOGICA CORE DASHBOARD ===========
 
 document.addEventListener("DOMContentLoaded", () => {
-    caricaOrdini();
-    setInterval(caricaOrdini, 3000);
+    caricaOrdini(); // Primo carico immediato
+    setInterval(caricaOrdini, 3000); // Poi ogni 3 secondi (Polling)
 });
 
+// Cache per evitare di ridisegnare la pagina se i dati non sono cambiati
 let lastJsonData = "";
-let lastCount = 0;
 
 /**
- * Fetch degli ordini dall'API e aggiornamento interfaccia
+ * Recupera gli ordini dall'API e aggiorna le colonne del Kanban.
  */
 function caricaOrdini() {
     fetch('../api/cucina/leggi_ordini_cucina.php')
         .then(res => res.json())
         .then(data => {
+            // Se i dati sono identici ai precedenti, non fare nulla (ottimizzazione)
             const currentJsonString = JSON.stringify(data);
             if (currentJsonString === lastJsonData) return;
 
-            lastJsonData = currentJsonString; // Aggiorna cache
+            lastJsonData = currentJsonString;
+
+            // Se ci sono nuovi ordini rispetto a prima, suona il beep!
+            if (data.length > lastCount && lastCount !== 0) {
+                playSound();
+            }
+            lastCount = data.length;
 
             const colNew = document.getElementById('col-new');
             const colPrep = document.getElementById('col-prep');
@@ -86,21 +113,19 @@ function caricaOrdini() {
             let cPrep = 0;
 
             data.forEach(ordine => {
-                // CALCOLO TEMPO TRASCORSO (Timer)
-                // Converte l'orario server in oggetto Date locale per calcolare il delta
+                // CALCOLO TIMER: Vediamo da quanto tempo l'ordine è in attesa
                 const oraOrdine = new Date();
                 const [h, m] = ordine.ora.split(':');
                 oraOrdine.setHours(h, m, 0);
 
-                // Calcolo differenza in minuti
                 const diffMs = new Date() - oraOrdine;
                 let diffMin = Math.floor(diffMs / 60000);
-                if (diffMin < 0) diffMin = 0; // Fallback per disallineamenti orari client/server
+                if (diffMin < 0) diffMin = 0;
 
-                // Logica visuale: Rosso se attesa > 15 minuti
+                // Estetica: se passano più di 15 minuti, il timer diventa rosso (URGENTE)
                 let timerColor = diffMin > 15 ? '#ff6b6b' : 'var(--text-muted)';
 
-                // Generazione HTML lista piatti
+                // Stringa HTML per i piatti dentro l'ordine
                 let piattiHtml = '';
                 ordine.piatti.forEach(p => {
                     piattiHtml += `
@@ -113,7 +138,7 @@ function caricaOrdini() {
                     </div>`;
                 });
 
-                // Generazione HTML Card Ordine
+                // Costruzione della "Card" dell'ordine
                 const card = `
                 <div class="order-card animate__animated animate__fadeIn">
                     <div class="card-top">
@@ -127,7 +152,7 @@ function caricaOrdini() {
                     ${getButton(ordine.id_ordine, ordine.stato)}
                 </div>`;
 
-                // Smistamento nelle colonne corrette
+                // Smistamento visivo tra le colonne "Nuovi" e "In Preparazione"
                 if (ordine.stato === 'in_attesa') {
                     htmlNew += card;
                     cNew++;
@@ -136,21 +161,22 @@ function caricaOrdini() {
                     cPrep++;
                 }
             });
-            // Inserimento HTML dell'ordine all'interno delle colonne
-            colNew.innerHTML = htmlNew;
-            colPrep.innerHTML = htmlPrep;
 
-            // Aggiornamento contatori header
+            // Inseriamo l'HTML generato nelle rispettive colonne
+            colNew.innerHTML = htmlNew || '<div class="text-center text-muted p-4">In attesa di ordini...</div>';
+            colPrep.innerHTML = htmlPrep || '<div class="text-center text-muted p-4">Nessun piatto sul fuoco</div>';
+
+            // Aggiorniamo i numeretti sopra le colonne
             document.getElementById('count-new').innerText = cNew;
             document.getElementById('count-prep').innerText = cPrep;
         })
-        .catch(err => console.error("Errore fetch ordini:", err));
+        .catch(err => console.error("Errore nel caricamento ordini:", err));
 }
 
+let lastCount = 0; // Contatore globale per sapere se suonare o no
+
 /**
- * Restituisce il pulsante d'azione corretto in base allo stato attuale dell'ordine.
- * @param {number} id - ID dell'ordine
- * @param {string} stato - Stato attuale ('in_attesa' | 'in_preparazione')
+ * Ritorna l'HTML del bottone d'azione corretto.
  */
 function getButton(id, stato) {
     if (stato === 'in_attesa') {
@@ -165,12 +191,10 @@ function getButton(id, stato) {
 }
 
 /**
- * Invia richiesta API per avanzamento di stato dell'ordine.
- * @param {number} id - ID dell'ordine da aggiornare
- * @param {string} nuovoStato - Il nuovo stato target
+ * Chiama l'API per cambiare lo stato dell'ordine nel database.
  */
 function cambiaStato(id, nuovoStato) {
-    // Reset cache per forzare il refresh immediato della UI alla prossima chiamata
+    // Svuotiamo la cache così la pagina si aggiorna subito
     lastJsonData = "";
 
     fetch('../api/cucina/cambia_stato_ordine.php', {
@@ -181,10 +205,10 @@ function cambiaStato(id, nuovoStato) {
         .then(res => res.json())
         .then(data => {
             if (data.success) {
-                caricaOrdini(); // Ricarica immediata dati
+                caricaOrdini(); // Rinfresca subito i dati
             } else {
-                alert("Errore API: " + data.message);
+                alert("Errore: " + data.message);
             }
         })
-        .catch(err => alert("Errore di connessione al server"));
+        .catch(err => alert("Errore di connessione. Riprova."));
 }

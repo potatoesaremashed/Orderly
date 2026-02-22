@@ -3,35 +3,34 @@
  * =========================================
  * API: Rimuovi dal Carrello
  * =========================================
- * Gestisce la rimozione di un piatto dall'ordine "in_attesa" del tavolo corrente.
+ * Gestisce la rimozione o la diminuzione di quantità di un piatto nel carrello.
  * 
- * Logica:
- * - Se la quantità del piatto è > 1, decrementa di 1
- * - Se la quantità è 1, rimuove completamente la riga dal database
+ * Per uno sviluppatore Junior:
+ * Quando un utente preme "rimuovi", non vogliamo sempre cancellare la riga. 
+ * Se ha ordinato 3 pizze, premendo rimuovi deve scendere a 2. 
+ * Solo quando arriviamo a 1, la pressione successiva cancella fisicamente 
+ * il piatto dal database.
  */
 
 session_start();
 include "../../include/conn.php";
-
 header('Content-Type: application/json');
 
-// 1. Verifica Sicurezza: deve essere un tavolo autenticato
+// 1. Verifica autorizzazione.
 if (!isset($_SESSION['ruolo']) || $_SESSION['ruolo'] != 'tavolo' || !isset($_SESSION['id_tavolo'])) {
     echo json_encode(['success' => false, 'message' => 'Non autorizzato']);
     exit;
 }
 
-// Recupera dati dalla richiesta POST
 $id_tavolo = $_SESSION['id_tavolo'];
 $id_alimento = isset($_POST['id_alimento']) ? intval($_POST['id_alimento']) : 0;
 
-// Validazione: l'ID del piatto deve essere positivo
 if ($id_alimento <= 0) {
-    echo json_encode(['success' => false, 'message' => 'ID alimento non valido']);
+    echo json_encode(['success' => false, 'message' => 'Piatto non valido.']);
     exit;
 }
 
-// 2. Cerca l'ordine "aperto" (in_attesa) per questo tavolo
+// 2. Troviamo il carrello aperto per questo tavolo.
 $sql_ordine = "SELECT id_ordine FROM ordini WHERE id_tavolo = $id_tavolo AND stato = 'in_attesa' LIMIT 1";
 $res_ordine = $conn->query($sql_ordine);
 
@@ -39,33 +38,34 @@ if ($res_ordine->num_rows > 0) {
     $row = $res_ordine->fetch_assoc();
     $id_ordine = $row['id_ordine'];
 
-    // 3. Controlla la quantità attuale del piatto nell'ordine
+    // 3. Controlliamo quante unità di quel piatto ci sono nel carrello.
     $check_qta = $conn->query("SELECT quantita FROM dettaglio_ordini WHERE id_ordine = $id_ordine AND id_alimento = $id_alimento");
 
     if ($check_qta->num_rows > 0) {
         $curr = $check_qta->fetch_assoc();
 
         if ($curr['quantita'] > 1) {
-            // Se ce n'è più di uno, decrementa la quantità di 1
-            $sql_delete = "UPDATE dettaglio_ordini SET quantita = quantita - 1 WHERE id_ordine = $id_ordine AND id_alimento = $id_alimento";
-        } else {
-            // Se è rimasto solo 1, rimuovi completamente la riga dal database
-            $sql_delete = "DELETE FROM dettaglio_ordini WHERE id_ordine = $id_ordine AND id_alimento = $id_alimento";
+            // Caso A: Ce n'è più di uno, quindi sottraiamo 1 dalla quantità.
+            $sql_action = "UPDATE dettaglio_ordini SET quantita = quantita - 1 WHERE id_ordine = $id_ordine AND id_alimento = $id_alimento";
+        }
+        else {
+            // Caso B: È rimasto l'ultimo pezzo, quindi cancelliamo la riga.
+            $sql_action = "DELETE FROM dettaglio_ordini WHERE id_ordine = $id_ordine AND id_alimento = $id_alimento";
         }
 
-        // Esegui l'operazione
-        if ($conn->query($sql_delete)) {
-            echo json_encode(['success' => true, 'message' => 'Prodotto rimosso']);
-        } else {
-            echo json_encode(['success' => false, 'message' => 'Errore database: ' . $conn->error]);
+        if ($conn->query($sql_action)) {
+            echo json_encode(['success' => true, 'message' => 'Carrello aggiornato correttamente.']);
         }
-    } else {
-        // Il piatto non è stato trovato nell'ordine
-        echo json_encode(['success' => false, 'message' => 'Prodotto non trovato nell\'ordine']);
+        else {
+            echo json_encode(['success' => false, 'message' => 'Errore tecnico: ' . $conn->error]);
+        }
+    }
+    else {
+        echo json_encode(['success' => false, 'message' => 'Piatto non trovato nel carrello.']);
     }
 
-} else {
-    // Non esiste un ordine aperto per questo tavolo
-    echo json_encode(['success' => false, 'message' => 'Nessun ordine attivo trovato']);
+}
+else {
+    echo json_encode(['success' => false, 'message' => 'Non hai un carrello attivo da cui rimuovere piatti.']);
 }
 ?>

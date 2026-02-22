@@ -3,6 +3,11 @@
  * FILE: js/tavolo.js
  * =========================================
  * Logica completa lato cliente per la dashboard del tavolo (cliente).
+ * Questo script trasforma una semplice pagina in un'app interattiva.
+ * 
+ * JUNIOR TIP: Lo stato globale (le variabili in alto) è la "verità" 
+ * dell'applicazione. Se vuoi sapere cosa c'è nel carrello, non guardi
+ * l'HTML, ma l'oggetto 'carrello'. L'HTML è solo una "fotografia" dello stato.
  * 
  * Funzionalità gestite:
  * - Carrello: aggiunta/rimozione prodotti, aggiornamento quantità e totali
@@ -97,7 +102,8 @@ function resettaFiltriAllergeni() {
  * 2. Allergeni (modale filtri)
  * 3. Ricerca testuale (barra di ricerca)
  * 
- * Ogni prodotto viene mostrato o nascosto in base ai filtri combinati.
+ * JUNIOR TIP: Invece di cancellare e ricreare l'HTML ogni volta, usiamo display: 'none'
+ * per nascondere quello che non serve. È molto più veloce perché evita il "reflow" pesante della pagina.
  */
 function renderProdotti() {
     // Recupera il testo di ricerca dalla barra
@@ -578,7 +584,10 @@ function confermaZoom() {
 
 /**
  * Gestisce il click sui bottoni +/− direttamente sulla card del prodotto.
- * Blocca la propagazione dell'evento per non aprire il modale zoom.
+ * 
+ * JUNIOR TIP: document.stopPropagation() è fondamentale qui. Impedisce 
+ * che il click "risalga" alla card intera, evitando di aprire il modale dello zoom
+ * mentre l'utente vuole solo aggiungere un pezzo.
  * 
  * @param {Event} event - Evento click
  * @param {number} id - ID del prodotto

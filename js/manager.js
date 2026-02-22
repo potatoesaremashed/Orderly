@@ -2,22 +2,24 @@
  * =========================================
  * FILE: js/manager.js
  * =========================================
- * Logica per la Dashboard Manager:
- * - Navigazione sidebar tra pagine
- * - Gestione tavoli (CRUD + cambio stato)
- * - Gestione piatti (modifica modale)
- * - Toggle tema chiaro/scuro
+ * Questo script gestisce la "Dashboard Manager" (Amministrazione).
+ * Funge da SPA (Single Page Application) gestendo i passaggi tra:
+ * 1. Gestione Tavoli (Griglia interattiva, CRUD)
+ * 2. Gestione Menu (Modifica piatti e categorie)
+ * 
+ * JUNIOR TIP: Usiamo variabili globali come 'tavoli' per tenere in memoria
+ * i dati scaricati dal server, evitando di ricaricare tutto ad ogni piccolo filtro.
  */
 
 // =============================================
-// DATI E STATO
+// DATI E STATO GLOBALE
 // =============================================
-let tavoli = [];
-let filtroCorrente = 'tutti';
+let tavoli = []; // Array che conterrà tutti i tavoli scaricati dal DB
+let filtroCorrente = 'tutti'; // Filtro UI attivo: tutti, libero, occupato, riservato
 
-// =============================================
-// GESTIONE TEMA (DARK / LIGHT MODE)
-// =============================================
+/**
+ * GESTIONE TEMA (DARK / LIGHT MODE)
+ */
 function toggleTheme() {
     const body = document.body;
     const icon = document.getElementById('theme-icon');
@@ -28,139 +30,133 @@ function toggleTheme() {
     localStorage.setItem('theme', isDark ? 'light' : 'dark');
 }
 
+// Controllo iniziale del tema salvato
 if (localStorage.getItem('theme') === 'dark') {
     document.body.setAttribute('data-theme', 'dark');
-    document.getElementById('theme-icon').classList.replace('fa-moon', 'fa-sun');
+    document.getElementById('theme-icon')?.classList.replace('fa-moon', 'fa-sun');
 }
 
 // =============================================
-// NAVIGAZIONE PAGINE (SIDEBAR)
+// NAVIGAZIONE SIDEBAR (SPA LOGIC)
 // =============================================
-function switchPage(page, btn) {
-    // Nascondi tutte le pagine
-    document.querySelectorAll('.page-section').forEach(s => s.style.display = 'none');
-    // Disattiva tutti i bottoni sidebar
-    document.querySelectorAll('.btn-sidebar').forEach(b => b.classList.remove('active'));
-    // Disattiva tutti i bottoni mobile
-    document.querySelectorAll('.mobile-nav-btn').forEach(b => b.classList.remove('active'));
 
-    // Mostra la pagina selezionata
+/**
+ * Switcha la visualizzazione tra le diverse sezioni della dashboard.
+ * @param {string} page - L'ID della pagina da mostrare (es. 'tavoli', 'menu')
+ * @param {HTMLElement} btn - Il bottone cliccato per aggiungere la classe .active
+ */
+function switchPage(page, btn) {
+    // Nascondiamo tutte le raggruppamenti di classe .page-section
+    document.querySelectorAll('.page-section').forEach(s => s.style.display = 'none');
+
+    // Puliamo la classe .active da tutti i controlli di navigazione
+    document.querySelectorAll('.btn-sidebar, .mobile-nav-btn').forEach(b => b.classList.remove('active'));
+
+    // Mostriamo la sezione target
     document.getElementById('page-' + page).style.display = 'block';
 
-    // Attiva il bottone cliccato
+    // Evidenziamo il bottone attivo (sia sidebar che mobile)
     if (btn) btn.classList.add('active');
 
-    // Sincronizza sidebar e mobile nav
-    const idx = page === 'tavoli' ? 0 : 1;
+    // Sync tra sidebar Desktop e navbar Mobile
+    const idx = (page === 'tavoli' ? 0 : 1);
     document.querySelectorAll('.btn-sidebar')[idx]?.classList.add('active');
     document.querySelectorAll('.mobile-nav-btn')[idx]?.classList.add('active');
 
-    // Se pagina tavoli, ricarica
+    // Se entriamo in 'tavoli', aggiorniamo i dati dal server
     if (page === 'tavoli') caricaTavoli();
 }
 
 // =============================================
-// CARICAMENTO TAVOLI
+// GESTIONE TAVOLI (CRUD & RENDERING)
 // =============================================
+
+/**
+ * Scarica la lista dei tavoli dal database tramite API.
+ */
 function caricaTavoli() {
     fetch('../api/manager/get_tavoli.php')
         .then(r => r.json())
         .then(data => {
-            tavoli = data;
-            aggiornaConta();
-            renderTavoli();
+            tavoli = data; // Salviamo i dati nello stato locale
+            aggiornaConta(); // Aggiorna i badge numerici nell'header
+            renderTavoli(); // Disegna le card nella griglia
         })
         .catch(() => {
             document.getElementById('tavoli-grid').innerHTML =
-                '<div class="tavoli-empty"><i class="fas fa-exclamation-triangle"></i><h4>Errore</h4><p>Impossibile caricare i tavoli</p></div>';
+                '<div class="tavoli-empty text-danger"><i class="fas fa-exclamation-triangle"></i><h4>Errore</h4><p>Impossibile comunicare con il server</p></div>';
         });
 }
 
+/**
+ * Conta quanti tavoli ci sono per ogni stato e aggiorna i contatori in UI.
+ */
 function aggiornaConta() {
-    const tutti = tavoli.length;
-    const liberi = tavoli.filter(t => t.stato === 'libero').length;
-    const occupati = tavoli.filter(t => t.stato === 'occupato').length;
-    const riservati = tavoli.filter(t => t.stato === 'riservato').length;
-
-    document.getElementById('count-tutti').textContent = tutti;
-    document.getElementById('count-libero').textContent = liberi;
-    document.getElementById('count-occupato').textContent = occupati;
-    document.getElementById('count-riservato').textContent = riservati;
+    document.getElementById('count-tutti').textContent = tavoli.length;
+    document.getElementById('count-libero').textContent = tavoli.filter(t => t.stato === 'libero').length;
+    document.getElementById('count-occupato').textContent = tavoli.filter(t => t.stato === 'occupato').length;
+    document.getElementById('count-riservato').textContent = tavoli.filter(t => t.stato === 'riservato').length;
 }
 
+/**
+ * Disegna fisicamente le card dei tavoli nell'elemento #tavoli-grid.
+ * Applica anche il filtro corrente (es. solo i Liberi).
+ */
 function renderTavoli() {
     const grid = document.getElementById('tavoli-grid');
     let filtered = tavoli;
 
+    // Applichiamo il filtro se diverso da 'tutti'
     if (filtroCorrente !== 'tutti') {
         filtered = tavoli.filter(t => t.stato === filtroCorrente);
     }
 
+    // Se non ci sono tavoli che corrispondono al filtro
     if (filtered.length === 0) {
-        grid.innerHTML = '<div class="tavoli-empty"><i class="fas fa-chair"></i><h4>Nessun tavolo</h4><p>Non ci sono tavoli da mostrare</p></div>';
+        grid.innerHTML = '<div class="tavoli-empty"><i class="fas fa-chair"></i><h4>Nessun tavolo</h4><p>Nessun tavolo corrisponde a questo filtro.</p></div>';
         return;
     }
 
+    // Generiamo l'HTML per ogni card
     grid.innerHTML = filtered.map(t => {
         const stato = t.stato || 'libero';
-        const statoLabel = stato.charAt(0).toUpperCase() + stato.slice(1);
-        const posti = t.posti || 4;
         const iconClass = getIconForStatus(stato);
         const nextStato = getNextStato(stato);
 
         return `
-            <div class="tavolo-card" data-id="${t.id_tavolo}" data-stato="${stato}">
+            <div class="tavolo-card" data-id="${t.id_tavolo}">
                 <div class="tavolo-card-header">
-                    <div class="tavolo-icon ${stato}">
-                        <i class="fas ${iconClass}"></i>
-                    </div>
+                    <div class="tavolo-icon ${stato}"><i class="fas ${iconClass}"></i></div>
                     <div class="tavolo-name">${t.nome_tavolo}</div>
-                    <div class="tavolo-seats">
-                        <i class="fas fa-users"></i> ${posti} posti
-                    </div>
+                    <div class="tavolo-seats"><i class="fas fa-users"></i> ${t.posti || 4} posti</div>
                 </div>
                 <div class="tavolo-card-footer">
+                    <!-- Il badge dello stato è cliccabile per ciclare velocemente lo stato -->
                     <div class="tavolo-status-badge badge-${stato}" 
-                         onclick="event.stopPropagation(); cambiaStatoTavolo(${t.id_tavolo}, '${nextStato}')"
-                         title="Clicca per cambiare stato">
-                        <span class="status-dot dot-${stato}"></span>
-                        ${statoLabel}
+                         onclick="cambiaStatoTavolo(${t.id_tavolo}, '${nextStato}')">
+                        <span class="status-dot dot-${stato}"></span> ${stato.toUpperCase()}
                     </div>
                     <div class="tavolo-actions">
-                        <button class="btn-act" onclick="event.stopPropagation(); apriModalModificaTavolo(${t.id_tavolo})" title="Modifica">
-                            <i class="fas fa-pen"></i>
-                        </button>
-                        <button class="btn-act btn-delete-t" onclick="event.stopPropagation(); eliminaTavolo(${t.id_tavolo}, '${t.nome_tavolo}')" title="Elimina">
-                            <i class="fas fa-trash"></i>
-                        </button>
+                        <button class="btn-act" onclick="apriModalModificaTavolo(${t.id_tavolo})"><i class="fas fa-pen"></i></button>
+                        <button class="btn-act btn-delete-t" onclick="eliminaTavolo(${t.id_tavolo}, '${t.nome_tavolo}')"><i class="fas fa-trash"></i></button>
                     </div>
                 </div>
-            </div>
-        `;
+            </div>`;
     }).join('');
 }
 
-function getIconForStatus(stato) {
-    switch (stato) {
-        case 'libero': return 'fa-check-circle';
-        case 'occupato': return 'fa-utensils';
-        case 'riservato': return 'fa-clock';
-        default: return 'fa-chair';
-    }
+// Funzioni utility per icone e rotazione stati
+function getIconForStatus(s) {
+    return s === 'libero' ? 'fa-check-circle' : (s === 'occupato' ? 'fa-utensils' : 'fa-clock');
+}
+function getNextStato(s) {
+    const cicli = { 'libero': 'occupato', 'occupato': 'riservato', 'riservato': 'libero' };
+    return cicli[s] || 'libero';
 }
 
-function getNextStato(stato) {
-    switch (stato) {
-        case 'libero': return 'occupato';
-        case 'occupato': return 'riservato';
-        case 'riservato': return 'libero';
-        default: return 'libero';
-    }
-}
-
-// =============================================
-// FILTRO TAVOLI
-// =============================================
+/**
+ * Filtra i tavoli in base alla selezione (Tutti, Liberi, ecc.)
+ */
 function filtraTavoli(filtro, btn) {
     filtroCorrente = filtro;
     document.querySelectorAll('.filter-tab').forEach(b => b.classList.remove('active'));
@@ -168,9 +164,9 @@ function filtraTavoli(filtro, btn) {
     renderTavoli();
 }
 
-// =============================================
-// CAMBIO STATO TAVOLO
-// =============================================
+/**
+ * Cambia lo stato di un tavolo (es. da Libero a Occupato).
+ */
 function cambiaStatoTavolo(id, nuovoStato) {
     const formData = new FormData();
     formData.append('id_tavolo', id);
@@ -180,59 +176,49 @@ function cambiaStatoTavolo(id, nuovoStato) {
         .then(r => r.json())
         .then(data => {
             if (data.success) {
-                // Aggiorna localmente
-                const tavolo = tavoli.find(t => t.id_tavolo == id);
-                if (tavolo) tavolo.stato = nuovoStato;
+                // Aggiorniamo i dati in locale senza rifare la fetch (più veloce!)
+                const t = tavoli.find(x => x.id_tavolo == id);
+                if (t) t.stato = nuovoStato;
                 aggiornaConta();
                 renderTavoli();
-                mostraToast('Stato aggiornato: ' + nuovoStato);
-            } else {
-                mostraToast(data.error || 'Errore', true);
+                mostraToast('Tavolo aggiornato: ' + nuovoStato);
             }
         });
 }
 
 // =============================================
-// AGGIUNGI TAVOLO
+// MODALI AGGIUNTA / MODIFICA TAVOLI
 // =============================================
+
 function apriModalAggiungi() {
-    document.getElementById('nuovo_nome_tavolo').value = '';
-    document.getElementById('nuovo_password_tavolo').value = '';
-    document.getElementById('nuovo_posti_tavolo').value = '4';
+    const form = document.querySelector('#modalAggiungiTavolo form');
+    if (form) form.reset();
     new bootstrap.Modal(document.getElementById('modalAggiungiTavolo')).show();
 }
 
 function aggiungiTavolo() {
     const nome = document.getElementById('nuovo_nome_tavolo').value.trim();
     const password = document.getElementById('nuovo_password_tavolo').value.trim();
-    const posti = document.getElementById('nuovo_posti_tavolo').value;
-
-    if (!nome || !password) {
-        mostraToast('Compila tutti i campi', true);
-        return;
-    }
+    if (!nome || !password) return mostraToast('Nome e Password obbligatori', true);
 
     const formData = new FormData();
     formData.append('nome_tavolo', nome);
     formData.append('password', password);
-    formData.append('posti', posti);
+    formData.append('posti', document.getElementById('nuovo_posti_tavolo').value);
 
     fetch('../api/manager/aggiungi_tavolo.php', { method: 'POST', body: formData })
         .then(r => r.json())
         .then(data => {
             if (data.success) {
                 bootstrap.Modal.getInstance(document.getElementById('modalAggiungiTavolo')).hide();
-                mostraToast('Tavolo "' + nome + '" creato!');
+                mostraToast('Tavolo aggiunto!');
                 caricaTavoli();
             } else {
-                mostraToast(data.error || 'Errore', true);
+                mostraToast(data.error, true);
             }
         });
 }
 
-// =============================================
-// MODIFICA TAVOLO
-// =============================================
 function apriModalModificaTavolo(id) {
     const t = tavoli.find(x => x.id_tavolo == id);
     if (!t) return;
@@ -247,43 +233,26 @@ function apriModalModificaTavolo(id) {
 }
 
 function modificaTavolo() {
-    const id = document.getElementById('mod_id_tavolo').value;
-    const nome = document.getElementById('mod_nome_tavolo').value.trim();
-    const password = document.getElementById('mod_password_tavolo').value.trim();
-    const posti = document.getElementById('mod_posti_tavolo').value;
-
-    if (!nome || !password) {
-        mostraToast('Compila tutti i campi', true);
-        return;
-    }
-
-    const stato = document.getElementById('mod_stato_tavolo').value;
-
     const formData = new FormData();
-    formData.append('id_tavolo', id);
-    formData.append('nome_tavolo', nome);
-    formData.append('password', password);
-    formData.append('posti', posti);
-    formData.append('stato', stato);
+    formData.append('id_tavolo', document.getElementById('mod_id_tavolo').value);
+    formData.append('nome_tavolo', document.getElementById('mod_nome_tavolo').value);
+    formData.append('password', document.getElementById('mod_password_tavolo').value);
+    formData.append('posti', document.getElementById('mod_posti_tavolo').value);
+    formData.append('stato', document.getElementById('mod_stato_tavolo').value);
 
     fetch('../api/manager/modifica_tavolo.php', { method: 'POST', body: formData })
         .then(r => r.json())
         .then(data => {
             if (data.success) {
                 bootstrap.Modal.getInstance(document.getElementById('modalModificaTavolo')).hide();
-                mostraToast('Tavolo aggiornato!');
+                mostraToast('Tavolo modificato!');
                 caricaTavoli();
-            } else {
-                mostraToast(data.error || 'Errore', true);
             }
         });
 }
 
-// =============================================
-// ELIMINA TAVOLO
-// =============================================
 function eliminaTavolo(id, nome) {
-    if (!confirm('Eliminare il tavolo "' + nome + '"? Tutti gli ordini associati verranno eliminati.')) return;
+    if (!confirm('Vuoi davvero eliminare il tavolo ' + nome + '?')) return;
 
     const formData = new FormData();
     formData.append('id_tavolo', id);
@@ -292,32 +261,31 @@ function eliminaTavolo(id, nome) {
         .then(r => r.json())
         .then(data => {
             if (data.success) {
-                mostraToast('Tavolo "' + nome + '" eliminato');
+                mostraToast('Tavolo rimosso');
                 caricaTavoli();
-            } else {
-                mostraToast(data.error || 'Errore', true);
             }
         });
 }
 
 // =============================================
-// TOAST
+// UTILITY: TOAST (NOTIFICHE)
 // =============================================
 function mostraToast(messaggio, isError = false) {
     const toastEl = document.getElementById('managerToast');
-    const msgSpan = document.getElementById('toast-msg-manager');
-
-    msgSpan.textContent = messaggio;
-    toastEl.className = 'toast align-items-center text-white border-0 shadow-lg ' +
-        (isError ? 'bg-danger' : 'bg-success');
-
-    const toast = new bootstrap.Toast(toastEl, { delay: 2500 });
-    toast.show();
+    document.getElementById('toast-msg-manager').textContent = messaggio;
+    toastEl.classList.toggle('bg-success', !isError);
+    toastEl.classList.toggle('bg-danger', isError);
+    new bootstrap.Toast(toastEl, { delay: 3000 }).show();
 }
 
 // =============================================
-// GESTIONE MODALE MODIFICA PIATTO (existing)
+// GESTIONE PIATTI (MODIFICA PRODOTTO)
 // =============================================
+
+/**
+ * Pre-popola il modale di modifica del menu con i dati estratti dai bottoni della tabella.
+ * @param {HTMLElement} btn - Il bottone "Modifica" cliccato nel Menu
+ */
 function apriModalModifica(btn) {
     const id = btn.getAttribute('data-id');
     const nome = btn.getAttribute('data-nome');
@@ -333,34 +301,27 @@ function apriModalModifica(btn) {
     document.getElementById('mod_prezzo').value = prezzo;
     document.getElementById('mod_cat').value = cat;
 
+    // Preview immagine
     const preview = document.getElementById('preview_img');
-    if (img) {
-        preview.src = "../imgs/prodotti/" + img;
-        preview.style.display = 'block';
-    } else {
-        preview.style.display = 'none';
+    preview.src = img ? "../imgs/prodotti/" + img : '';
+    preview.style.display = img ? 'block' : 'none';
+
+    // Gestione checkbox Allergeni
+    const checks = document.querySelectorAll('.mod-allergeni');
+    checks.forEach(cb => cb.checked = false);
+    if (allergeniString) {
+        const algs = allergeniString.split(',').map(s => s.trim());
+        checks.forEach(cb => { if (algs.includes(cb.value)) cb.checked = true; });
     }
 
-    const checkboxes = document.querySelectorAll('.mod-allergeni');
-    checkboxes.forEach(cb => cb.checked = false);
-
-    if (allergeniString && allergeniString.trim() !== "") {
-        const allergeniArray = allergeniString.split(',').map(s => s.trim());
-        checkboxes.forEach(cb => {
-            if (allergeniArray.includes(cb.value)) {
-                cb.checked = true;
-            }
-        });
-    }
-
-    const modalElement = document.getElementById('modalModifica');
-    const modal = new bootstrap.Modal(modalElement);
-    modal.show();
+    new bootstrap.Modal(document.getElementById('modalModifica')).show();
 }
 
 // =============================================
-// INIZIALIZZAZIONE
+// INIT
 // =============================================
-document.addEventListener('DOMContentLoaded', function () {
-    caricaTavoli();
+document.addEventListener('DOMContentLoaded', () => {
+    // Al caricamento, se siamo nella dashboard manager, carichiamo subito i tavoli
+    if (document.getElementById('tavoli-grid')) caricaTavoli();
 });
+

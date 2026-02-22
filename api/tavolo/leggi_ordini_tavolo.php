@@ -3,31 +3,32 @@
  * =========================================
  * API: Leggi Ordini Tavolo
  * =========================================
- * Restituisce lo storico di tutti gli ordini inviati dal tavolo corrente.
- * Usata dal bottone "Ordini" nella dashboard del tavolo.
+ * Mostra al cliente tutti gli ordini che ha fatto durante la sua permanenza.
  * 
- * Ritorna un array JSON con ogni ordine contenente:
- * - id_ordine, stato (in_attesa/in_preparazione/pronto), ora, data
- * - piatti: lista dei piatti ordinati con nome, quantità, prezzo e note
- * - totale: somma dei prezzi di tutti i piatti nell'ordine
+ * Per uno sviluppatore Junior:
+ * Quando leggiamo dal database, i piatti arrivano uno per riga. 
+ * Se hai ordinato 3 piatti in un unico ordine, avrai 3 righe nel database.
+ * Qui usiamo un array associativo per "raggruppare" i piatti sotto un unico 
+ * ID ordine, rendendo la lista ordinata e leggibile per l'utente.
  */
 
 session_start();
 header('Content-Type: application/json');
 include "../../include/conn.php";
 
-// Verifica che l'utente sia autenticato come tavolo
+// Verifica autorizzazione.
 if (!isset($_SESSION['ruolo']) || $_SESSION['ruolo'] != 'tavolo') {
     echo json_encode(['success' => false, 'message' => 'Non autorizzato']);
     exit;
 }
 
-// Recupera l'ID del tavolo dalla sessione
 $id_tavolo = $_SESSION['id_tavolo'];
 
-// Query: recupera tutti gli ordini del tavolo con i dettagli dei piatti
-// JOIN tra ordini → dettaglio_ordini → alimenti per ottenere i nomi e i prezzi
-// Ordinamento per data decrescente (gli ordini più recenti appaiono per primi)
+/**
+ * QUERY DI STORICO
+ * Uniamo ORDINI, DETTAGLI e ALIMENTI.
+ * Ordiniamo per tempo (DESC) così i più recenti sono in alto.
+ */
 $sql = "SELECT o.id_ordine, o.stato, o.data_ora,
                d.quantita, a.nome_piatto, a.prezzo, d.note
         FROM ordini o
@@ -41,42 +42,43 @@ $stmt->bind_param("i", $id_tavolo);
 $stmt->execute();
 $res = $stmt->get_result();
 
-// Raggruppa i risultati per ordine
-// Ogni riga del DB contiene un piatto, ma vogliamo raggruppare i piatti per ordine
 $ordini = [];
 
 while ($row = $res->fetch_assoc()) {
     $id = $row['id_ordine'];
 
-    // Se è il primo piatto di questo ordine, crea la struttura base
+    // Se è il primo piatto che troviamo per questo ID ordine, creiamo la struttura.
     if (!isset($ordini[$id])) {
         $ordini[$id] = [
             'id_ordine' => $id,
-            'stato' => $row['stato'],
-            'ora' => date('H:i', strtotime($row['data_ora'])),     // Formato ora: 14:30
-            'data' => date('d/m/Y', strtotime($row['data_ora'])),  // Formato data: 19/02/2026
+            'stato' => $row['stato'], // in_attesa, in_preparazione, pronto.
+            'ora' => date('H:i', strtotime($row['data_ora'])),
+            'data' => date('d/m/Y', strtotime($row['data_ora'])),
             'piatti' => [],
             'totale' => 0
         ];
     }
 
-    // Aggiungi il piatto alla lista dell'ordine
+    // Calcoliamo il costo di questo singolo piatto (prezzo * quantità).
     $subtotale = $row['quantita'] * $row['prezzo'];
+
+    // Aggiungiamo i dettagli del piatto all'ordine corrispondente.
     $ordini[$id]['piatti'][] = [
         'nome' => $row['nome_piatto'],
         'qta' => $row['quantita'],
         'prezzo' => number_format($row['prezzo'], 2),
         'note' => $row['note'] ?? ''
     ];
-    // Somma il subtotale al totale dell'ordine
+
+    // Incrementiamo il conto totale di quell'ordine.
     $ordini[$id]['totale'] += $subtotale;
 }
 
-// Formatta i totali con 2 decimali (es: 18.50)
+// Formattiamo il totale finale in formato valuta (es. 12.50).
 foreach ($ordini as &$o) {
     $o['totale'] = number_format($o['totale'], 2);
 }
 
-// Restituisce l'array come JSON (array_values rimuove le chiavi numeriche)
+// Spediamo tutto al frontend.
 echo json_encode(array_values($ordini));
 ?>

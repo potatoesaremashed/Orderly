@@ -1,25 +1,35 @@
 <?php
 /**
  * =========================================
- * FILE: dashboards/tavolo.php
+ * DASHBOARD: Tavolo (Client Interface)
  * =========================================
- * Menu Digitale lato Cliente (Tavolo).
- * Questa pagina mostra tutti i piatti disponibili, permette di filtrare, 
- * cercare, aggiungere piatti al carrello, mandare la comanda alla cucina 
- * e visualizzare lo storico ordini e il totale conto.
+ * Questa è la pagina che i clienti vedono sui tablet o i propri smartphone.
+ * Funge da menu digitale interattivo.
+ * 
+ * Funzionalità chiave:
+ * 1. Visualizzazione piatti divisi per categoria.
+ * 2. Filtro per allergeni (esclusione piatti pericolosi).
+ * 3. Carrello dinamico (gestito via tavolo.js).
+ * 4. Invio comanda in cucina con conferma via modal.
  */
 
 session_start();
-include "../include/conn.php"; // Collegamento al database
+include "../include/conn.php";
 
-// Sicurezza: blocca l'accesso se chi naviga non è loggato come 'tavolo'
+
+/**
+ * SICUREZZA
+ * Solo se la sessione ha il ruolo 'tavolo' (scaturito dal login in index.php)
+ * l'utente può stare su questa pagina.
+ */
 if (!isset($_SESSION['ruolo']) || $_SESSION['ruolo'] != 'tavolo') {
     header("Location: ../index.php");
     exit;
 }
+
 include "../include/header.php";
 
-// Recupero di tutte le categorie e tutti gli alimenti dal database per stamparli in pagina.
+// Carichiamo subito tutto dal DB. Il resto della "magia" lo farà il JavaScript.
 $categorie = $conn->query("SELECT * FROM categorie");
 $prodotti = $conn->query("SELECT * FROM alimenti");
 ?>
@@ -29,25 +39,25 @@ $prodotti = $conn->query("SELECT * FROM alimenti");
 <link rel="stylesheet" href="../css/tavolo.css?v=<?php echo time(); ?>">
 <link rel="stylesheet" href="../css/common.css?v=<?php echo time(); ?>">
 
-
-
 <div class="container-fluid p-0">
     <div class="row g-0">
+        <!-- ========== SIDEBAR: FILTRI CATEGORIA ========== -->
         <div class="col-md-3 col-lg-2 d-none d-md-block">
-            <!-- SEZIONE SIDEBAR SINISTRA: Contiene i filtri per Categoria (Tutto, Antipasti, Primi...) -->
             <div class="sidebar-custom d-flex flex-column">
                 <div class="text-center mb-5 mt-3"><img src="../imgs/ordlogo.png" width="100"></div>
 
                 <div class="px-3 flex-grow-1 overflow-auto">
-                    <small class="text-uppercase fw-bold ps-3 mb-2 d-block text-muted" style="font-size: 11px;">Menu
-                        Filtrato</small>
-                    <div class="btn-categoria active" onclick="filtraCategoria('all', this)"><i
-                            class="fas fa-utensils me-3"></i> Tutto</div>
+                    <small class="text-uppercase fw-bold ps-3 mb-2 d-block text-muted" style="font-size: 11px;">Esplora il Menu</small>
+                    <!-- Filtro 'Tutto': richiama filtraCategoria con 'all' -->
+                    <div class="btn-categoria active" onclick="filtraCategoria('all', this)">
+                        <i class="fas fa-utensils me-3"></i> Tutto
+                    </div>
                     <?php while ($cat = $categorie->fetch_assoc()): ?>
                         <div class="btn-categoria" onclick="filtraCategoria(<?php echo $cat['id_categoria']; ?>, this)">
                             <i class="fas fa-bookmark me-3"></i> <?php echo $cat['nome_categoria']; ?>
                         </div>
-                    <?php endwhile; ?>
+                    <?php
+endwhile; ?>
                 </div>
 
                 <div class="p-4 mt-auto">
@@ -55,7 +65,7 @@ $prodotti = $conn->query("SELECT * FROM alimenti");
                         <div class="theme-toggle-sidebar" onclick="toggleTheme()" title="Cambia Tema">
                             <i class="fas fa-moon" id="theme-icon"></i>
                         </div>
-                        <a href="../logout.php" class="theme-toggle-sidebar text-danger" title="Abbandona Tavolo">
+                        <a href="../logout.php" class="theme-toggle-sidebar text-danger" title="Chiudi Sessione">
                             <i class="fas fa-sign-out-alt"></i>
                         </a>
                     </div>
@@ -63,65 +73,58 @@ $prodotti = $conn->query("SELECT * FROM alimenti");
             </div>
         </div>
 
+        <!-- ========== CONTENUTO PRINCIPALE ========== -->
         <div class="col-md-9 col-lg-10">
-            <!-- HEADER FISSO IN ALTO: Barra di ricerca, Totale Euro, Storico e Carrello -->
+            <!-- HEADER STICKY: Cerca e Stato Carrello -->
             <div class="sticky-header d-flex justify-content-between align-items-center">
-                <!-- Barra di Ricerca piatti -->
                 <div class="search-wrapper">
                     <i class="fas fa-search search-icon"></i>
-                    <input type="text" id="search-bar" class="search-input" placeholder="Cerca un piatto..."
-                        oninput="renderProdotti()">
+                    <input type="text" id="search-bar" class="search-input" placeholder="Cerca un piatto..." oninput="renderProdotti()">
                 </div>
 
-                <!-- Pulsanti per Ordini, Filtri Allergeni e Carrello -->
                 <div class="d-flex align-items-center justify-content-end gap-2">
-                    <div
-                        class="d-none d-sm-flex align-items-center me-2 bg-surface rounded-pill px-3 py-2 border shadow-sm">
-                        <small class="text-uppercase fw-bold text-muted me-2" style="font-size: 10px;">Totale</small>
+                    <div class="d-none d-sm-flex align-items-center me-2 bg-surface rounded-pill px-3 py-2 border shadow-sm">
+                        <small class="text-uppercase fw-bold text-muted me-2" style="font-size: 10px;">Conto Stimato</small>
                         <div class="fw-bold fs-5 text-price price-stable"><span id="soldi-header">0.00</span>€</div>
                     </div>
 
-                    <button
-                        class="btn btn-dark rounded-pill px-3 py-2 px-md-4 py-md-3 shadow-sm d-flex align-items-center"
-                        onclick="apriStorico()">
+                    <button class="btn btn-dark rounded-pill px-3 py-2 px-md-4 py-md-3 shadow-sm d-flex align-items-center" onclick="apriStorico()">
                         <i class="fas fa-receipt"></i>
-                        <span class="d-none d-lg-inline fw-bold ms-2">Ordini</span>
+                        <span class="d-none d-lg-inline fw-bold ms-2">I miei Ordini</span>
                     </button>
 
-                    <button
-                        class="btn btn-dark rounded-pill px-3 py-2 px-md-4 py-md-3 shadow-sm d-flex align-items-center"
-                        data-bs-toggle="modal" data-bs-target="#modalFiltri">
+                    <button class="btn btn-dark rounded-pill px-3 py-2 px-md-4 py-md-3 shadow-sm d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#modalFiltri">
                         <i class="fas fa-filter"></i>
-                        <span class="d-none d-lg-inline fw-bold ms-2">Filtri</span>
+                        <span class="d-none d-lg-inline fw-bold ms-2">Filtra</span>
                     </button>
 
-                    <button
-                        class="btn btn-dark rounded-pill px-3 py-2 px-md-4 py-md-3 shadow-sm d-flex align-items-center"
-                        data-bs-toggle="modal" data-bs-target="#modalCarrello" onclick="aggiornaModale()">
+                    <button class="btn btn-dark rounded-pill px-3 py-2 px-md-4 py-md-3 shadow-sm d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#modalCarrello" onclick="aggiornaModale()">
                         <i class="fas fa-shopping-bag fa-lg"></i>
-                        <span class="d-none d-lg-inline fw-bold ms-2">Carrello</span>
-                        <span id="pezzi-header">0</span>
+                        <span class="d-none d-lg-inline fw-bold ms-2">Vai al Carrello</span>
+                        <span id="pezzi-header" class="ms-1">0</span>
                     </button>
                 </div>
             </div>
 
             <div class="p-4 pb-5">
-                <!-- Mobile Category Bar (visible on small screens only) -->
+                <!-- Mobile Category Bar (per schermi piccoli) -->
                 <div class="mobile-cat-bar d-md-none mb-3">
                     <div class="mobile-cat-btn active" onclick="filtraCategoria('all', this)">Tutto</div>
                     <?php
-                    $catMobile = $conn->query("SELECT * FROM categorie");
-                    while ($cm = $catMobile->fetch_assoc()): ?>
+$catMobile = $conn->query("SELECT * FROM categorie");
+while ($cm = $catMobile->fetch_assoc()): ?>
                         <div class="mobile-cat-btn" onclick="filtraCategoria(<?php echo $cm['id_categoria']; ?>, this)">
                             <?php echo $cm['nome_categoria']; ?>
                         </div>
-                    <?php endwhile; ?>
+                    <?php
+endwhile; ?>
                 </div>
 
+                <!-- GRIGLIA PRODOTTI -->
                 <div class="row g-4">
                     <?php while ($p = $prodotti->fetch_assoc()): ?>
-                        <div class="col-sm-6 col-md-6 col-lg-4 col-xl-3 item-prodotto"
-                            data-cat="<?php echo $p['id_categoria']; ?>">
+                        <div class="col-sm-6 col-md-6 col-lg-4 col-xl-3 item-prodotto" data-cat="<?php echo $p['id_categoria']; ?>">
+                            <!-- La "Card" del prodotto scatta l'apertura dello Zoom se cliccata -->
                             <div class="card-prodotto" onclick="apriZoom(event, this)"
                                 data-id="<?php echo $p['id_alimento']; ?>"
                                 data-nome="<?php echo htmlspecialchars($p['nome_piatto']); ?>"
@@ -131,8 +134,7 @@ $prodotti = $conn->query("SELECT * FROM alimenti");
                                 data-allergeni="<?php echo htmlspecialchars($p['lista_allergeni']); ?>">
 
                                 <div class="img-wrapper">
-                                    <img src="../imgs/prodotti/<?php echo $p['immagine']; ?>" class="img-prodotto"
-                                        loading="lazy">
+                                    <img src="../imgs/prodotti/<?php echo $p['immagine']; ?>" class="img-prodotto" loading="lazy">
                                     <div class="price-tag"><?php echo $p['prezzo']; ?>€</div>
                                 </div>
 
@@ -141,27 +143,23 @@ $prodotti = $conn->query("SELECT * FROM alimenti");
                                     <p class="piatto-desc"><?php echo $p['descrizione']; ?></p>
                                     <div class="mb-4" style="min-height: 25px;">
                                         <?php
-                                        $allergeni = explode(',', $p['lista_allergeni']);
-                                        foreach ($allergeni as $a) {
-                                            if (trim($a) != "")
-                                                echo "<span class='badge-alg'>" . trim($a) . "</span>";
-                                        }
-                                        ?>
+    // Esplodiamo la stringa degli allergeni salvata nel DB per creare i piccoli badge.
+    $allergeni = explode(',', $p['lista_allergeni']);
+    foreach ($allergeni as $a) {
+        if (trim($a) != "")
+            echo "<span class='badge-alg'>" . trim($a) . "</span>";
+    }
+?>
                                     </div>
 
-                                    <div class="mt-auto d-flex justify-content-center align-items-center pt-3"
-                                        style="border-top: 1px solid var(--border-color);">
-
-                                        <div class="qty-capsule-card d-flex align-items-center justify-content-between"
-                                            style="background: var(--capsule-bg); border-radius: 15px; padding: 6px; width: 100%;">
-                                            <button class="btn-card-qty"
-                                                onclick="btnCardQty(event, <?php echo $p['id_alimento']; ?>, -1, <?php echo $p['prezzo']; ?>, '<?php echo addslashes($p['nome_piatto']); ?>')">
+                                    <!-- Controller di quantità rapido sotto ogni card -->
+                                    <div class="mt-auto d-flex justify-content-center align-items-center pt-3" style="border-top: 1px solid var(--border-color);">
+                                        <div class="qty-capsule-card d-flex align-items-center justify-content-between" style="background: var(--capsule-bg); border-radius: 15px; padding: 6px; width: 100%;">
+                                            <button class="btn-card-qty" onclick="btnCardQty(event, <?php echo $p['id_alimento']; ?>, -1, <?php echo $p['prezzo']; ?>, '<?php echo addslashes($p['nome_piatto']); ?>')">
                                                 <i class="fas fa-minus"></i>
                                             </button>
-                                            <span id="q-<?php echo $p['id_alimento']; ?>" class="fw-bold fs-5"
-                                                style="min-width: 30px; text-align: center;">0</span>
-                                            <button class="btn-card-qty"
-                                                onclick="btnCardQty(event, <?php echo $p['id_alimento']; ?>, 1, <?php echo $p['prezzo']; ?>, '<?php echo addslashes($p['nome_piatto']); ?>')">
+                                            <span id="q-<?php echo $p['id_alimento']; ?>" class="fw-bold fs-5" style="min-width: 30px; text-align: center;">0</span>
+                                            <button class="btn-card-qty" onclick="btnCardQty(event, <?php echo $p['id_alimento']; ?>, 1, <?php echo $p['prezzo']; ?>, '<?php echo addslashes($p['nome_piatto']); ?>')">
                                                 <i class="fas fa-plus"></i>
                                             </button>
                                         </div>
@@ -169,119 +167,108 @@ $prodotti = $conn->query("SELECT * FROM alimenti");
                                 </div>
                             </div>
                         </div>
-                    <?php endwhile; ?>
+                    <?php
+endwhile; ?>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- MODALE (POP-UP) STORICO ORDINI: 
-     Mostra tutti gli ordini che il tavolo ha già inoltrato in cucina e lo stato (In Arrivo, Preparazione, Completato) -->
+<!-- ================= MODALI (FINESTRE POPUP) ================= -->
+
+<!-- MODAL: Storico Ordini Inviati -->
 <div class="modal fade" id="modalOrdini" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
         <div class="modal-content modal-content-custom shadow-lg">
             <div class="modal-header border-0 p-4 pb-2">
                 <div>
-                    <h3 class="modal-title fw-bold">I tuoi Ordini 📋</h3>
-                    <p class="m-0 text-muted">Storico degli ordini inviati</p>
+                    <h3 class="modal-title fw-bold">I tuoi Piatti in Arrivo 📋</h3>
+                    <p class="m-0 text-muted">Controlla lo stato delle tue ordinazioni</p>
                 </div>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body p-4 pt-2" id="corpo-ordini"
-                style="min-height: 300px; max-height: 60vh; overflow-y: auto;">
+            <div class="modal-body p-4 pt-2" id="corpo-ordini" style="min-height: 300px; max-height: 60vh; overflow-y: auto;">
+                <!-- Riempito via JS leggendo api/tavolo/leggi_ordini_tavolo.php -->
             </div>
             <div class="modal-footer border-0 p-4 bg-light-custom d-flex justify-content-between align-items-center">
-                <div><small class="text-uppercase fw-bold text-muted">Totale Complessivo</small>
+                <div>
+                    <small class="text-uppercase fw-bold text-muted">Totale già ordinato</small>
                     <h2 class="m-0 fw-bold text-price price-stable"><span id="totale-storico">0.00</span>€</h2>
                 </div>
-                <button type="button" class="btn btn-dark rounded-pill px-5 py-3 fw-bold"
-                    data-bs-dismiss="modal">CHIUDI</button>
+                <button type="button" class="btn btn-dark rounded-pill px-5 py-3 fw-bold" data-bs-dismiss="modal">CHIUDI</button>
             </div>
         </div>
     </div>
 </div>
 
-<!-- MODALE (POP-UP) DEL CARRELLO: 
-     Mostra la schermata finale con i piatti scelti dal cliente prima dell'invio definitivo in cucina -->
+<!-- MODAL: Riepilogo Carrello prima dell'invio -->
 <div class="modal fade" id="modalCarrello" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content modal-content-custom shadow-lg">
             <div class="modal-header border-0 p-4 pb-2">
                 <div>
-                    <h3 class="modal-title fw-bold">Il tuo Ordine 🧾</h3>
-                    <p class="m-0 text-muted">Controlla e modifica le quantità</p>
+                    <h3 class="modal-title fw-bold">Cosa desideri ordinare? 🧾</h3>
+                    <p class="m-0 text-muted">Manda questi piatti in cucina</p>
                 </div>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body p-0" id="corpo-carrello" style="min-height: 300px;"></div>
+            <div class="modal-body p-0" id="corpo-carrello" style="min-height: 300px;">
+                <!-- Sezione dinamica gestita da tavolo.js -->
+            </div>
             <div class="modal-footer border-0 p-4 d-flex justify-content-between align-items-center bg-light-custom">
-                <div><small class="text-uppercase fw-bold text-muted">Totale Ordine</small>
+                <div>
+                    <small class="text-uppercase fw-bold text-muted">Costo attuale</small>
                     <h2 class="m-0 fw-bold text-price price-stable"><span id="totale-modale">0.00</span>€</h2>
                 </div>
-                <button id="btn-invia-ordine" class="btn btn-dark rounded-pill px-5 py-3 fs-5 fw-bold shadow"
-                    disabled>INVIA ORDINE <i class="fas fa-paper-plane ms-2"></i></button>
+                <button id="btn-invia-ordine" class="btn btn-dark rounded-pill px-5 py-3 fs-5 fw-bold shadow" disabled>ORDINATE ORA! <i class="fas fa-paper-plane ms-2"></i></button>
             </div>
         </div>
     </div>
 </div>
 
-<!-- MODALE (POP-UP) ZOOM DETTAGLIO PIATTO: 
-     Permette di vedere meglio un piatto (immagine grande, lunga descrizione) e di aggiungere 
-     particolari istruzioni per lo chef (es. "Senza sale", "Ben Cotto", ecc.) -->
+<!-- MODAL: Zoom Dettaglio Prodotto -->
 <div class="modal fade" id="modalZoom" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered modal-xl">
         <div class="modal-content modal-content-custom shadow-lg overflow-hidden">
             <div class="modal-body p-0">
                 <div class="row g-0">
-                    <div class="col-lg-6 position-relative bg-light-custom"
-                        style="min-height: 350px; display:flex; align-items:center; justify-content:center; overflow:hidden;">
-                        <img id="zoom-img" src="" class="w-100 h-100"
-                            style="object-fit: cover; position: absolute; top:0; left:0;">
+                    <div class="col-lg-6 position-relative bg-light-custom" style="min-height: 350px; overflow:hidden;">
+                        <img id="zoom-img" src="" class="w-100 h-100" style="object-fit: cover; position: absolute; top:0; left:0;">
                     </div>
 
                     <div class="col-lg-6 p-4 p-md-5 d-flex flex-column">
                         <div class="d-flex justify-content-between align-items-start mb-3">
-                            <span class="badge bg-warning text-dark fs-6 rounded-pill px-3">DETTAGLI</span>
+                            <span class="badge bg-warning text-dark fs-6 rounded-pill px-3">APPROFONDIMENTO</span>
                             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                         </div>
 
                         <h1 class="fw-bold mb-2" id="zoom-nome">Nome Piatto</h1>
                         <h4 class="fw-bold mb-4 text-muted"><span id="zoom-prezzo-unitario">0.00</span>€</h4>
 
-                        <p class="lead mb-4 text-muted flex-grow-1" id="zoom-desc">Descrizione del piatto...</p>
+                        <p class="lead mb-4 text-muted flex-grow-1" id="zoom-desc">Descrizione...</p>
 
                         <div class="mb-4">
-                            <h6 class="text-uppercase small fw-bold mb-2 text-muted">Allergeni</h6>
+                            <h6 class="text-uppercase small fw-bold mb-2 text-muted">Allergeni evidenziati</h6>
                             <div id="zoom-allergeni"></div>
                         </div>
 
                         <div class="mb-4 flex-grow-1">
-                            <h6 class="text-uppercase small fw-bold mb-2 text-muted">Note per la cucina
-                                <small>(Opzionale)</small>
-                            </h6>
-                            <textarea class="form-control rounded-3" id="zoom-note" rows="2"
-                                placeholder="Es. Senza cipolla, Ben cotto..."
-                                style="resize: none; background: #f8f9fa; border: 1px solid var(--border-color);"></textarea>
+                            <h6 class="text-uppercase small fw-bold mb-2 text-muted">Note per lo Chef <small>(opz.)</small></h6>
+                            <textarea class="form-control rounded-3" id="zoom-note" rows="2" placeholder="Es. Ben cotto, senza salse..." style="resize: none; background: #f8f9fa; border: 1px solid #ddd;"></textarea>
                         </div>
 
                         <div class="mt-auto pt-3 border-top">
                             <div class="d-flex justify-content-between align-items-center mb-3">
                                 <span class="fw-bold fs-5">Seleziona quantità</span>
-
                                 <div class="qty-capsule" style="width: 140px;">
-                                    <button class="btn-circle btn-minus" onclick="updateZoomQty(-1)"><i
-                                            class="fas fa-minus"></i></button>
+                                    <button class="btn-circle btn-minus" onclick="updateZoomQty(-1)"><i class="fas fa-minus"></i></button>
                                     <span class="qty-input" id="zoom-qty-display">1</span>
-                                    <button class="btn-circle btn-plus" onclick="updateZoomQty(1)"><i
-                                            class="fas fa-plus"></i></button>
+                                    <button class="btn-circle btn-plus" onclick="updateZoomQty(1)"><i class="fas fa-plus"></i></button>
                                 </div>
                             </div>
-
-                            <button
-                                class="btn btn-green-custom w-100 rounded-pill py-3 fw-bold fs-5 shadow-sm d-flex justify-content-between px-4"
-                                id="btn-zoom-add" onclick="confermaZoom()">
-                                <span>Aggiungi al carrello</span>
+                            <button class="btn btn-green-custom w-100 rounded-pill py-3 fw-bold fs-5 shadow-sm d-flex justify-content-between px-4" id="btn-zoom-add" onclick="confermaZoom()">
+                                <span>Aggiungi</span>
                                 <span id="zoom-btn-totale">0.00€</span>
                             </button>
                         </div>
@@ -292,85 +279,66 @@ $prodotti = $conn->query("SELECT * FROM alimenti");
     </div>
 </div>
 
-<div class="toast-container position-fixed bottom-0 start-50 translate-middle-x p-3" style="z-index: 2000">
-    <div id="liveToast" class="toast align-items-center text-white bg-success border-0 shadow-lg" role="alert"
-        aria-live="assertive" aria-atomic="true">
-        <div class="d-flex">
-            <div class="toast-body fw-bold fs-6">
-                <i class="fas fa-check-circle me-2"></i> <span id="toast-msg">Prodotto aggiunto!</span>
-            </div>
-            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="modalConfermaOrdine" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content modal-content-custom shadow-lg">
-            <div class="modal-body p-5 text-center">
-                <div class="mb-4"><i
-                        class="fas fa-question-circle fa-5x text-primary animate__animated animate__pulse animate__infinite"></i>
-                </div>
-                <h2 class="fw-bold mb-3">Sei pronto?</h2>
-                <p class="text-muted mb-4 fs-5">L'ordine verrà inviato direttamente alla cucina.</p>
-                <div class="d-flex gap-3 justify-content-center">
-                    <button type="button" class="btn btn-light rounded-pill px-4 py-2 fw-bold"
-                        data-bs-dismiss="modal">ANNULLA</button>
-                    <button type="button" class="btn btn-primary rounded-pill px-5 py-2 fw-bold shadow"
-                        id="confirm-send-btn">SÌ, ORDINA!</button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-
+<!-- Filtri Allergeni -->
 <div class="modal fade" id="modalFiltri" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content modal-content-custom shadow-lg">
             <div class="modal-header border-0 p-4 pb-2">
                 <div>
-                    <h3 class="modal-title fw-bold">Filtra Allergeni 🚫</h3>
-                    <p class="m-0 text-muted">Escludi piatti con questi allergeni</p>
+                    <h3 class="modal-title fw-bold">Gestione Intolleranze 🚫</h3>
+                    <p class="m-0 text-muted">Seleziona cosa NON puoi mangiare</p>
                 </div>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body p-4 pt-2">
                 <div class="row g-2" id="lista-allergeni-filtro">
                     <?php
-                    $allergeni = ["Glutine", "Crostacei", "Uova", "Pesce", "Arachidi", "Soia", "Lattosio", "Frutta a guscio", "Sedano", "Senape", "Sesamo", "Solfiti", "Molluschi"];
-                    foreach ($allergeni as $a) {
-                        $safeId = str_replace(' ', '_', $a);
-                        echo '<div class="col-6">
+$allergeni = ["Glutine", "Crostacei", "Uova", "Pesce", "Arachidi", "Soia", "Lattosio", "Frutta a guscio", "Sedano", "Senape", "Sesamo", "Solfiti", "Molluschi"];
+foreach ($allergeni as $a) {
+    $safeId = str_replace(' ', '_', $a);
+    echo '<div class="col-6">
                                 <div class="d-flex align-items-center gap-2 p-2 border rounded" style="cursor:pointer">
                                     <input class="form-check-input m-0 flex-shrink-0" type="checkbox" value="' . $a . '" id="f_' . $safeId . '">
                                     <label class="form-check-label fw-bold w-100 m-0" for="f_' . $safeId . '" style="cursor:pointer">' . $a . '</label>
                                 </div>
                               </div>';
-                    }
-                    ?>
+}
+?>
                 </div>
             </div>
             <div class="modal-footer border-0 p-4 bg-light-custom justify-content-between">
-                <button type="button" class="btn btn-link text-muted"
-                    onclick="resettaFiltriAllergeni()">Resetta</button>
-                <button type="button" class="btn btn-dark rounded-pill px-5 fw-bold" onclick="applicaFiltriAllergeni()"
-                    data-bs-dismiss="modal">APPLICA</button>
+                <button type="button" class="btn btn-link text-muted" onclick="resettaFiltriAllergeni()">Resetta Filtri</button>
+                <button type="button" class="btn btn-dark rounded-pill px-5 fw-bold" onclick="applicaFiltriAllergeni()" data-bs-dismiss="modal">SALVA</button>
             </div>
         </div>
     </div>
 </div>
 
-<div class="modal fade" id="modalSuccesso" tabindex="-1" data-bs-backdrop="static">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content modal-content-custom border-0 shadow-lg text-center p-5">
-            <h2 class="fw-bold mt-4 mb-2">Ordine Inviato!</h2>
-            <p class="text-muted">La cucina ha ricevuto la tua comanda.</p>
+<!-- Toasts e Messaggi -->
+<div class="toast-container position-fixed bottom-0 start-50 translate-middle-x p-3">
+    <div id="liveToast" class="toast align-items-center text-white bg-success border-0 shadow-lg" role="alert">
+        <div class="d-flex">
+            <div class="toast-body fw-bold">
+                <i class="fas fa-check-circle me-2"></i> <span id="toast-msg">Operazione riuscita!</span>
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
         </div>
     </div>
 </div>
 
-<script src="../js/tavolo.js?v=<?php echo time(); ?>"></script>
+<!-- Modal Finale dopo invio ordine -->
+<div class="modal fade" id="modalSuccesso" tabindex="-1" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content modal-content-custom border-0 shadow-lg text-center p-5">
+            <div class="mb-4"><i class="fas fa-check-circle fa-5x text-success"></i></div>
+            <h2 class="fw-bold mb-2">Comanda Inviata!</h2>
+            <p class="text-muted">Il tuo ordine è stato ricevuto. Buon appetito!</p>
+            <button class="btn btn-dark rounded-pill px-5 py-2 mt-3" data-bs-dismiss="modal">Perfetto!</button>
+        </div>
+    </div>
+</div>
 
+<!-- Carichiamo il file JS che gestisce il menu lato cliente -->
+<script src="../js/tavolo.js?v=<?php echo time(); ?>"></script>
 
 <?php include "../include/footer.php"; ?>

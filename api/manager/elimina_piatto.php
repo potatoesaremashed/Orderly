@@ -1,50 +1,57 @@
 <?php
 /**
+ * =========================================
  * API: Elimina Piatto
+ * =========================================
  * Permette al manager di rimuovere un piatto dal menu.
+ * 
+ * Per uno sviluppatore Junior:
+ * Quando eliminiamo un record in un database moderno, spesso usiamo la clausola
+ * "ON DELETE CASCADE". Questo significa che se eliminiamo il piatto, il database 
+ * pulirà automaticamente anche i riferimenti a quel piatto negli ordini passati.
  */
 
-// Configurazione e Sicurezza
+// --- 1. CONFIGURAZIONE E SICUREZZA ---
 session_start();
 include "../../include/conn.php";
 
-// Verifica che l'utente sia un Manager (fondamentale per non far cancellare piatti a chiunque)
+// Verifica che l'utente sia un Manager (fondamentale per la sicurezza).
 if (!isset($_SESSION['ruolo']) || $_SESSION['ruolo'] != 'manager') {
     header("Location: ../../index.php");
     exit;
 }
 
-// Accettiamo solo richieste POST (dal form che ti ho dato prima)
+// Accettiamo solo richieste POST (invio form).
 if ($_SERVER["REQUEST_METHOD"] != "POST") {
-    die("Metodo non consentito");
+    die("Azione non consentita via URL.");
 }
 
-// Recupero Dati
-// Prendiamo l'ID del piatto che vogliamo eliminare
+// --- 2. RECUPERO DATI E ESECUZIONE ---
 if (isset($_POST['id_alimento'])) {
     $id_alimento = intval($_POST['id_alimento']);
-    
-    // Eliminazione dal Database
-    // Grazie a "ON DELETE CASCADE" nel database, questo cancellerà 
-    // automaticamente anche il piatto dagli ordini storici.
+
+    // Query di eliminazione.
     $sql = "DELETE FROM alimenti WHERE id_alimento = ?";
-    
+
     if ($stmt = $conn->prepare($sql)) {
         $stmt->bind_param("i", $id_alimento);
-        
+
         if ($stmt->execute()) {
-            // Successo: Torniamo alla dashboard
+            // SUCCESSO: Torniamo alla dashboard con un messaggio di conferma.
             header("Location: ../../dashboards/manager.php?msg=deleted");
             exit;
-        } else {
-            echo "Errore durante l'eliminazione: " . $stmt->error;
+        }
+        else {
+            echo "Errore del database durante l'eliminazione: " . $stmt->error;
         }
         $stmt->close();
-    } else {
-        echo "Errore nella query: " . $conn->error;
     }
-} else {
-    echo "ID alimento mancante.";
+    else {
+        echo "Errore tecnico nella query: " . $conn->error;
+    }
+}
+else {
+    echo "Errore: ID piatto mancante.";
 }
 
 $conn->close();

@@ -2,15 +2,18 @@
   =========================================
   FILE: include/footer.php
   =========================================
-  Questo è il file di chiusura standard condiviso in tutte le pagine web.
-  Chiude i contenitori aperti nell'header e carica i file JavaScript (es. Bootstrap)
-  necessari per le animazioni, i menu a tendina e i pop-up.
+  Questo file chiude i tag aperti nell'header e carica i componenti interattivi.
+  
+  Per uno sviluppatore Junior:
+  È buona norma caricare i file JavaScript alla fine della pagina, così il browser 
+  può mostrare il contenuto visivo velocemente mentre scarica il codice logico.
 -->
-</div> <!-- Chiude eventuali contenitori principali aperti nelle pagine -->
 
-<!-- Caricamento della libreria JavaScript di Bootstrap per le funzionalità dinamiche dell'interfaccia UI -->
+</div> <!-- Chiude il contenitore principale della pagina (se presente). -->
+
+<!-- Caricamento della libreria JS di Bootstrap: serve per menu a tendina, modali e pop-up. -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-</body> <!-- Fine del corpo visibile della pagina web -->
+</body> <!-- Fine della sezione visibile. -->
 
-</html> <!-- Fine del documento HTML -->
+</html> <!-- Fine definitiva del file HTML. -->

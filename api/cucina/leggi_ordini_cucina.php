@@ -3,27 +3,32 @@
  * =========================================
  * API: Leggi Ordini Cucina
  * =========================================
- * Restituisce tutti gli ordini attivi (in_attesa e in_preparazione) per la dashboard della cucina.
- * La cucina chiama questa API ogni 3 secondi per aggiornare il kanban board in tempo reale.
+ * Fornisce alla dashboard della cucina la lista di tutti gli ordini da preparare.
+ * La cucina "interroga" (polling) questa API ogni pochi secondi per vedere se ci sono nuovi ordini.
  * 
- * Ritorna un array JSON con ogni ordine contenente:
- * - id_ordine, tavolo (nome del tavolo), stato, ora
- * - piatti: lista dei piatti con nome, quantità e note
+ * Per uno sviluppatore Junior:
+ * Questo è un esempio di query complessa (JOIN) che unisce tre tabelle diverse 
+ * per ottenere tutti i dati necessari (nome piatto, quantità, note) in un colpo solo.
  */
 
 session_start();
 include "../../include/conn.php";
 header('Content-Type: application/json');
 
-// Controllo connessione al database
+// Controllo connessione al database.
 if ($conn->connect_error) {
-    echo json_encode(["error" => "Connessione DB fallita: " . $conn->connect_error]);
+    echo json_encode(["error" => "Il database non risponde: " . $conn->connect_error]);
     exit;
 }
 
-// Query: recupera ordini attivi con i dettagli dei piatti e il nome del tavolo
-// LEFT JOIN su tavoli: se il tavolo è stato cancellato, l'ordine si vede comunque
-// Filtriamo solo ordini 'in_attesa' e 'in_preparazione' (non quelli già pronti)
+/**
+ * QUERY CON JOIN
+ * Stiamo unendo le tabelle:
+ * - ordini (o): i dati generali (stato, ora)
+ * - tavoli (t): per sapere chi ha ordinato
+ * - dettaglio_ordini (d): per sapere quali piatti ci sono nell'ordine
+ * - alimenti (a): per sapere come si chiamano quei piatti
+ */
 $sql = "SELECT o.id_ordine, o.id_tavolo, t.nome_tavolo, o.stato, o.data_ora, 
                d.quantita, a.nome_piatto, d.note
         FROM ordini o
@@ -35,34 +40,34 @@ $sql = "SELECT o.id_ordine, o.id_tavolo, t.nome_tavolo, o.stato, o.data_ora,
 
 $res = $conn->query($sql);
 
-// Gestione errore query
 if (!$res) {
-    echo json_encode(["error" => "Errore SQL: " . $conn->error]);
+    echo json_encode(["error" => "Errore nella lettura degli ordini: " . $conn->error]);
     exit;
 }
 
-// Raggruppa i risultati per ordine (come in leggi_ordini_tavolo.php)
+/**
+ * RAGGRUPPAMENTO RISULTATI
+ * Dato che la query restituisce una riga per ogni PIATTO, ma noi vogliamo una lista di ORDINI,
+ * dobbiamo raggruppare i dati in un array associativo usando l'ID dell'ordine.
+ */
 $ordini = [];
 
 if ($res->num_rows > 0) {
     while ($row = $res->fetch_assoc()) {
         $id = $row['id_ordine'];
 
-        // Se il tavolo è stato cancellato dal DB, mostra l'ID grezzo con "(?)"
-        $nomeTavolo = !empty($row['nome_tavolo']) ? $row['nome_tavolo'] : "Tavolo " . $row['id_tavolo'] . " (?)";
-
-        // Crea la struttura base dell'ordine se non esiste ancora
+        // Se è la prima volta che incontriamo questo ID ordine, creiamo la sua "scatola".
         if (!isset($ordini[$id])) {
             $ordini[$id] = [
                 'id_ordine' => $id,
-                'tavolo' => $nomeTavolo,
+                'tavolo' => !empty($row['nome_tavolo']) ? $row['nome_tavolo'] : "Tavolo " . $row['id_tavolo'],
                 'stato' => $row['stato'],
                 'ora' => date('H:i', strtotime($row['data_ora'])),
                 'piatti' => []
             ];
         }
 
-        // Aggiungi il piatto alla lista dell'ordine
+        // Aggiungiamo il piatto specifico alla lista dell'ordine corrispondente.
         $ordini[$id]['piatti'][] = [
             'nome' => $row['nome_piatto'],
             'qta' => $row['quantita'],
@@ -71,6 +76,6 @@ if ($res->num_rows > 0) {
     }
 }
 
-// Restituisce l'array come JSON
+// Trasformiamo l'array associativo in un array semplice (senza chiavi ID) prima di inviarlo.
 echo json_encode(array_values($ordini));
 ?>

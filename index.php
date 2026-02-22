@@ -3,64 +3,67 @@
  * =========================================
  * FILE: index.php
  * =========================================
- * Pagina di login dell'applicazione Orderly.
- * Gestisce l'autenticazione per tre ruoli: Manager, Cuoco, Tavolo.
- * In base alle credenziali, reindirizza alla dashboard appropriata.
+ * Questa è la porta d'ingresso dell'intera applicazione (Landing/Login Page).
+ * 
+ * Il file ha due responsabilità principali:
+ * 1. Visualizzare l'interfaccia di login.
+ * 2. Ricevere le credenziali via POST, verificare il ruolo nel database e 
+ *    reindirizzare l'utente nella dashboard corretta.
+ * 
+ * Per uno sviluppatore Junior: 
+ * L'uso di session_start() è fondamentale qui perché "registriamo" chi è l'utente 
+ * che sta entrando, permettendo al server di ricordarselo nelle pagine successive.
  */
 
-session_start(); // Avvia la sessione per tenere traccia dell'utente loggato
-include "include/conn.php"; // Connessione al database MySQL
+session_start(); // Avvia il motore delle sessioni. Senza questo, $_SESSION non funzionerebbe.
+include "include/conn.php"; // Collega questo file al database tramite la connessione definita centralmente.
 
-// Controlla se l'utente ha inviato il form di login (cliccato su "Accedi")
+// Questo blocco scatta solo quando l'utente preme il pulsante "Accedi" inviando il form.
 if (isset($_POST['username'])) {
-    $user = $_POST['username']; // Recupera lo username inserito
-    $pass = $_POST['password']; // Recupera la password inserita
+    $user = $_POST['username']; // Prendiamo il nome utente digitato.
+    $pass = $_POST['password']; // Prendiamo la password digitata.
 
-    // --- Verifica se l'utente è un Manager ---
-    // Cerca nel database se esiste un manager con queste credenziali
+    /**
+     * LOGICA DI AUTENTICAZIONE MULTI-RUOLO
+     * L'app Orderly serve tre tipologie di utenti. Controlliamo in ordine di importanza.
+     */
+
+    // --- 1. Verifica se l'utente è un Manager (Amministratore) ---
     $sql = "SELECT * FROM manager WHERE username='$user' AND password='$pass'";
     if ($conn->query($sql)->num_rows > 0) {
-        // Trovato! Salva il ruolo in sessione
         $_SESSION['ruolo'] = 'manager';
         $_SESSION['username'] = $user;
-        // Reindirizza alla dashboard del Manager
-        header("Location: dashboards/manager.php");
-        exit;
+        header("Location: dashboards/manager.php"); // Reindirizzamento immediato.
+        exit; // Blocca l'esecuzione per evitare che il resto del codice venga letto.
     }
 
-    // --- Verifica se l'utente è un Cuoco ---
-    // Cerca nel database se esiste un cuoco con queste credenziali
+    // --- 2. Verifica se l'utente è un Cuoco (Cucina) ---
     $sql = "SELECT * FROM cuochi WHERE username='$user' AND password='$pass'";
     if ($conn->query($sql)->num_rows > 0) {
-        // Trovato! Salva il ruolo in sessione
         $_SESSION['ruolo'] = 'cuoco';
         $_SESSION['username'] = $user;
-        // Reindirizza alla dashboard della Cucina
         header("Location: dashboards/cucina.php");
         exit;
     }
 
-    // --- Verifica se l'utente è un Tavolo (Cliente) ---
-    // Cerca nel database se esiste un tavolo con queste credenziali
+    // --- 3. Verifica se l'utente è un Tavolo (Cliente al ristorante) ---
     $sql = "SELECT * FROM tavoli WHERE nome_tavolo='$user' AND password='$pass'";
     $res = $conn->query($sql);
     if ($res->num_rows > 0) {
-        // Trovato! Recupera i dati del tavolo
-        $row = $res->fetch_assoc();
-        // Salva il ruolo e l'ID del tavolo in sessione
+        $row = $res->fetch_assoc(); // Estraiamo i dati del tavolo trovato.
         $_SESSION['ruolo'] = 'tavolo';
-        $_SESSION['id_tavolo'] = $row['id_tavolo'];
+        $_SESSION['id_tavolo'] = $row['id_tavolo']; // Salviamo l'ID univoco per gli ordini futuri.
         $_SESSION['username'] = $user;
-        // Reindirizza alla dashboard del Tavolo (menu digitale)
+        // Portiamo il cliente direttamente al menu del suo tavolo.
         header("Location: dashboards/tavolo.php?id=" . $row['id_tavolo']);
         exit;
     }
 
-    // Se arriviamo qui, le credenziali non corrispondono a nessun ruolo
-    $error = "Inserire il username o password corretto";
+    // Se arriviamo qui, nessuna delle ricerche sopra ha dato frutti.
+    $error = "Nome utente o password errati. Riprova.";
 }
 
-include "include/header.php"; // Carica l'header HTML condiviso (Bootstrap, meta tags)
+include "include/header.php"; // Include lo scheletro HTML (head, bootstrap, etc.)
 ?>
 
 <link href="css/common.css" rel="stylesheet">
@@ -207,14 +210,14 @@ include "include/header.php"; // Carica l'header HTML condiviso (Bootstrap, meta
         <p class="subtitle">Inserisci le tue credenziali per accedere</p>
 
         <?php
-        // Mostra il messaggio di errore se le credenziali sono sbagliate
-        if (isset($error)) {
-            echo '<div class="alert alert-custom mb-4" role="alert">
+// Mostra il messaggio di errore se le credenziali sono sbagliate
+if (isset($error)) {
+    echo '<div class="alert alert-custom mb-4" role="alert">
                     <i class="fas fa-exclamation-circle"></i>
                     <span>' . $error . '</span>
                   </div>';
-        }
-        ?>
+}
+?>
 
         <form method="post">
             <div class="form-group">

@@ -4,21 +4,25 @@
   =========================================
   FILE: include/header.php
   =========================================
-  Questo è il file "intestazione" standard condiviso in tutte le pagine web del progetto.
-  Contiene la struttura base HTML (head), imposta la lingua italiana e carica la libreria Bootstrap 
-  per la grafica e il layout responsivo (adatto anche ai dispositivi mobili).
+  Questo è il file "scheletro" superiore condiviso da tutte le pagine del sito.
+  Invece di riscrivere le stesse righe in ogni file, usiamo 'include' per 
+  inserire questo pezzo di codice ovunque serva.
+  
+  Per uno sviluppatore Junior:
+  L'header contiene i metadati (head) che dicono al browser come comportarsi
+  e caricano le librerie esterne (come Bootstrap per lo stile).
 -->
 
 <head>
-    <meta charset="UTF-8"> <!-- Imposta la codifica dei caratteri su UTF-8 (supporta accenti, ecc.) -->
+    <meta charset="UTF-8"> <!-- Definisce il set di caratteri (UTF-8 supporta lettere accentate). -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Rende il sito responsivo (mobile-friendly) -->
+    <!-- Meta tag fondamentale per rendere il sito "Mobile Friendly" (Responsive). -->
 
-    <!-- Carica i file CSS di Bootstrap da una rete esterna (CDN) per la grafica standard -->
+    <!-- Bootstrap 5: La libreria CSS più usata al mondo per creare layout moderni velocemente. -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
-    <!-- Titolo della scheda del browser web -->
-    <title>Orderly</title>
+    <!-- Titolo che appare nella linguetta del browser. -->
+    <title>Orderly - Gestione Ristorante</title>
 </head>
 
-<body> <!-- L'inizio visibile della pagina inizia da qui -->
+<body> <!-- Da qui inizia il contenuto che l'utente vedrà effettivamente. -->
