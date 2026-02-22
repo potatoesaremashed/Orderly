@@ -11,7 +11,7 @@
  */
 
 session_start();
-include "../include/conn.php";
+include "../../include/conn.php";
 header('Content-Type: application/json');
 
 // Verifica permessi: solo cuochi, manager e admin possono cambiare lo stato

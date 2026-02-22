@@ -11,7 +11,7 @@ if (!isset($_SESSION['ruolo']) || $_SESSION['ruolo'] != 'manager') {
     exit;
 }
 
-include "../../include/conn.php";
+include "../../../include/conn.php";
 header('Content-Type: application/json');
 
 $nome = trim($_POST['nome_tavolo'] ?? '');

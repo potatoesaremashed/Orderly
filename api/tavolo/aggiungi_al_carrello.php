@@ -9,7 +9,7 @@
  * 3. Inserisce o aggiorna la quantità del piatto nella tabella 'dettaglio_ordini'.
  */
 session_start();
-include "../../include/conn.php";
+include "../../../include/conn.php";
 header('Content-Type: application/json');
 
 // 1. Verifica Sicurezza

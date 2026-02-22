@@ -5,11 +5,11 @@
  */
 
 session_start();
-include "../include/conn.php";
+include "../../include/conn.php";
 
 // Configurazione e Sicurezza
 if (!isset($_SESSION['ruolo']) || $_SESSION['ruolo'] != 'manager') {
-    header("Location: ../index.php");
+    header("Location: ../../index.php");
     exit;
 }
 
@@ -30,7 +30,7 @@ if (isset($_POST['id_categoria'])) {
         try {
             if ($stmt->execute()) {
                 // Successo
-                header("Location: ../dashboards/manager.php?msg=cat_deleted");
+                header("Location: ../../dashboards/manager.php?msg=cat_deleted");
                 exit;
             } else {
                 throw new Exception($stmt->error);
@@ -41,7 +41,7 @@ if (isset($_POST['id_categoria'])) {
             echo "<h2>Impossibile eliminare la categoria!</h2>";
             echo "<p>Molto probabilmente questa categoria contiene ancora dei piatti.</p>";
             echo "<p>Devi prima eliminare o spostare i piatti collegati a questa categoria.</p>";
-            echo "<a href='../dashboards/manager.php'>Torna indietro</a>";
+            echo "<a href='../../dashboards/manager.php'>Torna indietro</a>";
             echo "</div>";
         }
         $stmt->close();

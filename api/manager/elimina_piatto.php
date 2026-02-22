@@ -6,11 +6,11 @@
 
 // Configurazione e Sicurezza
 session_start();
-include "../include/conn.php";
+include "../../include/conn.php";
 
 // Verifica che l'utente sia un Manager (fondamentale per non far cancellare piatti a chiunque)
 if (!isset($_SESSION['ruolo']) || $_SESSION['ruolo'] != 'manager') {
-    header("Location: ../index.php");
+    header("Location: ../../index.php");
     exit;
 }
 
@@ -34,7 +34,7 @@ if (isset($_POST['id_alimento'])) {
         
         if ($stmt->execute()) {
             // Successo: Torniamo alla dashboard
-            header("Location: ../dashboards/manager.php?msg=deleted");
+            header("Location: ../../dashboards/manager.php?msg=deleted");
             exit;
         } else {
             echo "Errore durante l'eliminazione: " . $stmt->error;

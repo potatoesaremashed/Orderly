@@ -10,11 +10,11 @@
 
 // Avvia la sessione per accedere ai dati dell'utente loggato
 session_start();
-include "../include/conn.php";
+include "../../include/conn.php";
 
 // Verifica permessi: solo il manager può modificare i piatti
 if (!isset($_SESSION['ruolo']) || $_SESSION['ruolo'] != 'manager') {
-    header("Location: ../index.php");
+    header("Location: ../../index.php");
     exit;
 }
 
@@ -41,7 +41,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Se l'utente carica una nuova immagine, la salviamo e aggiorniamo il percorso nel DB
     $query_img = "";
     if (isset($_FILES['immagine']) && $_FILES['immagine']['error'] == 0) {
-        $target_dir = "../imgs/prodotti/";
+        $target_dir = "../../imgs/prodotti/";
         // Genera un nome file unico usando il timestamp per evitare conflitti
         $filename = time() . "_" . basename($_FILES["immagine"]["name"]);
         $target_file = $target_dir . $filename;
@@ -64,7 +64,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     // Esecuzione query e redirect alla dashboard
     if ($conn->query($sql) === TRUE) {
-        header("Location: ../dashboards/manager.php?msg=success");
+        header("Location: ../../dashboards/manager.php?msg=success");
     } else {
         echo "Errore modifica: " . $conn->error;
     }

@@ -12,7 +12,7 @@
  */
 
 session_start();
-include "../include/conn.php";
+include "../../include/conn.php";
 header('Content-Type: application/json');
 
 // Controllo connessione al database

@@ -13,11 +13,11 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
 session_start();
-include "../include/conn.php";
+include "../../include/conn.php";
 
 // Verifica permessi Manager
 if (!isset($_SESSION['ruolo']) || $_SESSION['ruolo'] != 'manager') {
-    header("Location: ../index.php");
+    header("Location: ../../index.php");
     exit;
 }
 
@@ -40,7 +40,7 @@ if (isset($_POST['allergeni']) && is_array($_POST['allergeni'])) {
 }
 
 // GESTIONE IMMAGINE 
-$target_dir = "../imgs/prodotti/";
+$target_dir = "../../imgs/prodotti/";
 if (!file_exists($target_dir)) {
     mkdir($target_dir, 0777, true);
 }
@@ -108,7 +108,7 @@ $sql = "INSERT INTO alimenti (nome_piatto, descrizione, prezzo, id_categoria, im
         VALUES ('$nome', '$desc', $prezzo, $id_categoria, '$nuovo_nome_img', '$stringa_allergeni')";
 
 if ($conn->query($sql) === TRUE) {
-    header("Location: ../dashboards/manager.php?msg=success");
+    header("Location: ../../dashboards/manager.php?msg=success");
 } else {
     echo "Errore SQL: " . $conn->error;
 }

@@ -6,11 +6,11 @@
 
 // Configurazione e Sicurezza
 session_start();
-include "../include/conn.php";
+include "../../include/conn.php";
 
 // Verifica che l'utente sia loggato come Manager
 if (!isset($_SESSION['ruolo']) || $_SESSION['ruolo'] != 'manager') {
-    header("Location: ../index.php");
+    header("Location: ../../index.php");
     exit;
 }
 
@@ -39,7 +39,7 @@ if ($stmt = $conn->prepare($sql)) {
 
     if ($stmt->execute()) {
         // SUCCESSO: Torniamo alla dashboard con un messaggio positivo
-        header("Location: ../dashboards/manager.php?msg=cat_success");
+        header("Location: ../../dashboards/manager.php?msg=cat_success");
         exit;
     } else {
         // ERRORE SQL
