@@ -241,6 +241,7 @@ function apriModalModificaTavolo(id) {
     document.getElementById('mod_nome_tavolo').value = t.nome_tavolo;
     document.getElementById('mod_password_tavolo').value = t.password;
     document.getElementById('mod_posti_tavolo').value = t.posti || 4;
+    document.getElementById('mod_stato_tavolo').value = t.stato || 'libero';
 
     new bootstrap.Modal(document.getElementById('modalModificaTavolo')).show();
 }
@@ -256,11 +257,14 @@ function modificaTavolo() {
         return;
     }
 
+    const stato = document.getElementById('mod_stato_tavolo').value;
+
     const formData = new FormData();
     formData.append('id_tavolo', id);
     formData.append('nome_tavolo', nome);
     formData.append('password', password);
     formData.append('posti', posti);
+    formData.append('stato', stato);
 
     fetch('../api/manager/modifica_tavolo.php', { method: 'POST', body: formData })
         .then(r => r.json())

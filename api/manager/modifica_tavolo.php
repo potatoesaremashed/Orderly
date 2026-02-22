@@ -18,6 +18,13 @@ $id = intval($_POST['id_tavolo'] ?? 0);
 $nome = trim($_POST['nome_tavolo'] ?? '');
 $password = trim($_POST['password'] ?? '');
 $posti = intval($_POST['posti'] ?? 4);
+$stato = trim($_POST['stato'] ?? 'libero');
+
+// Validazione stato
+$stati_validi = ['libero', 'occupato', 'riservato'];
+if (!in_array($stato, $stati_validi)) {
+    $stato = 'libero';
+}
 
 if ($id <= 0 || empty($nome) || empty($password)) {
     echo json_encode(['success' => false, 'error' => 'Tutti i campi sono obbligatori']);
@@ -33,12 +40,13 @@ if ($check->get_result()->num_rows > 0) {
     exit;
 }
 
-$stmt = $conn->prepare("UPDATE tavoli SET nome_tavolo = ?, password = ?, posti = ? WHERE id_tavolo = ?");
-$stmt->bind_param("ssii", $nome, $password, $posti, $id);
+$stmt = $conn->prepare("UPDATE tavoli SET nome_tavolo = ?, password = ?, posti = ?, stato = ? WHERE id_tavolo = ?");
+$stmt->bind_param("ssisi", $nome, $password, $posti, $stato, $id);
 
 if ($stmt->execute()) {
     echo json_encode(['success' => true]);
-} else {
+}
+else {
     echo json_encode(['success' => false, 'error' => 'Errore durante la modifica']);
 }
 ?>

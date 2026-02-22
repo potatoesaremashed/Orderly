@@ -126,7 +126,8 @@ $tavoli = $conn->query("SELECT * FROM tavoli ORDER BY nome_tavolo ASC");
                         <div class="alert alert-success border-0 shadow-sm rounded-3 mb-4">
                             <i class="fas fa-check-circle me-2"></i> Operazione completata!
                         </div>
-                    <?php endif; ?>
+                    <?php
+endif; ?>
 
                     <div class="row g-4">
                         <div class="col-lg-8">
@@ -147,11 +148,11 @@ $tavoli = $conn->query("SELECT * FROM tavoli ORDER BY nome_tavolo ASC");
                                             <select name="id_categoria" class="form-select" required>
                                                 <option value="" selected disabled>Seleziona Categoria</option>
                                                 <?php
-                                                $res = $conn->query("SELECT * FROM categorie");
-                                                while ($cat = $res->fetch_assoc()) {
-                                                    echo "<option value='" . $cat['id_categoria'] . "'>" . $cat['nome_categoria'] . "</option>";
-                                                }
-                                                ?>
+$res = $conn->query("SELECT * FROM categorie");
+while ($cat = $res->fetch_assoc()) {
+    echo "<option value='" . $cat['id_categoria'] . "'>" . $cat['nome_categoria'] . "</option>";
+}
+?>
                                             </select>
                                         </div>
                                         <div class="col-12">
@@ -163,14 +164,14 @@ $tavoli = $conn->query("SELECT * FROM tavoli ORDER BY nome_tavolo ASC");
                                             <label class="small text-muted fw-bold mb-2">ALLERGENI</label>
                                             <div class="d-flex flex-wrap gap-2 p-3 rounded allergeni-box">
                                                 <?php
-                                                $allergeni = ["Glutine", "Crostacei", "Uova", "Pesce", "Arachidi", "Soia", "Latte", "Frutta a guscio", "Sedano", "Senape", "Sesamo", "Solfiti", "Molluschi"];
-                                                foreach ($allergeni as $a) {
-                                                    echo "<div class='form-check form-check-inline m-0 me-3'>
+$allergeni = ["Glutine", "Crostacei", "Uova", "Pesce", "Arachidi", "Soia", "Latte", "Frutta a guscio", "Sedano", "Senape", "Sesamo", "Solfiti", "Molluschi"];
+foreach ($allergeni as $a) {
+    echo "<div class='form-check form-check-inline m-0 me-3'>
                                                             <input class='form-check-input' type='checkbox' name='allergeni[]' value='$a' id='al_$a'>
                                                             <label class='form-check-label small' for='al_$a'>$a</label>
                                                           </div>";
-                                                }
-                                                ?>
+}
+?>
                                             </div>
                                         </div>
 
@@ -206,9 +207,9 @@ $tavoli = $conn->query("SELECT * FROM tavoli ORDER BY nome_tavolo ASC");
                                     <table class="table-custom">
                                         <tbody>
                                             <?php
-                                            $res_cat = $conn->query("SELECT * FROM categorie ORDER BY nome_categoria");
-                                            while ($row = $res_cat->fetch_assoc()) {
-                                                echo "<tr>
+$res_cat = $conn->query("SELECT * FROM categorie ORDER BY nome_categoria");
+while ($row = $res_cat->fetch_assoc()) {
+    echo "<tr>
                                                         <td><strong>" . $row['nome_categoria'] . "</strong></td>
                                                         <td class='text-end'>
                                                             <form action='../api/manager/elimina_categoria.php' method='POST' onsubmit='return confirm(\"Eliminare questa categoria?\");'>
@@ -217,8 +218,8 @@ $tavoli = $conn->query("SELECT * FROM tavoli ORDER BY nome_tavolo ASC");
                                                             </form>
                                                         </td>
                                                       </tr>";
-                                            }
-                                            ?>
+}
+?>
                                         </tbody>
                                     </table>
                                 </div>
@@ -242,14 +243,14 @@ $tavoli = $conn->query("SELECT * FROM tavoli ORDER BY nome_tavolo ASC");
                                         </thead>
                                         <tbody>
                                             <?php
-                                            $result = $conn->query("SELECT * FROM alimenti ORDER BY nome_piatto ASC");
-                                            if ($result->num_rows > 0) {
-                                                while ($row = $result->fetch_assoc()) {
-                                                    $allergeniSafe = htmlspecialchars($row['lista_allergeni'], ENT_QUOTES);
-                                                    $descSafe = htmlspecialchars($row['descrizione'], ENT_QUOTES);
-                                                    $nomeSafe = htmlspecialchars($row['nome_piatto'], ENT_QUOTES);
+$result = $conn->query("SELECT * FROM alimenti ORDER BY nome_piatto ASC");
+if ($result->num_rows > 0) {
+    while ($row = $result->fetch_assoc()) {
+        $allergeniSafe = htmlspecialchars($row['lista_allergeni'], ENT_QUOTES);
+        $descSafe = htmlspecialchars($row['descrizione'], ENT_QUOTES);
+        $nomeSafe = htmlspecialchars($row['nome_piatto'], ENT_QUOTES);
 
-                                                    echo "<tr>
+        echo "<tr>
                                                             <td class='fw-bold'>" . $row['nome_piatto'] . "</td>
                                                             <td class='col-desc small text-muted'>" . substr($row['descrizione'], 0, 40) . "...</td>
                                                             <td style='color: var(--primary); font-weight:bold;'>" . number_format($row['prezzo'], 2) . " €</td>
@@ -276,11 +277,12 @@ $tavoli = $conn->query("SELECT * FROM tavoli ORDER BY nome_tavolo ASC");
                                                                 </div>
                                                             </td>
                                                         </tr>";
-                                                }
-                                            } else {
-                                                echo "<tr><td colspan='4' class='text-center py-4 text-muted'>Nessun piatto inserito.</td></tr>";
-                                            }
-                                            ?>
+    }
+}
+else {
+    echo "<tr><td colspan='4' class='text-center py-4 text-muted'>Nessun piatto inserito.</td></tr>";
+}
+?>
                                         </tbody>
                                     </table>
                                 </div>
@@ -357,6 +359,14 @@ $tavoli = $conn->query("SELECT * FROM tavoli ORDER BY nome_tavolo ASC");
                         <label class="small text-muted fw-bold mb-1">Posti</label>
                         <input type="number" id="mod_posti_tavolo" class="form-control" min="1" max="20">
                     </div>
+                    <div class="col-12">
+                        <label class="small text-muted fw-bold mb-1">Stato</label>
+                        <select id="mod_stato_tavolo" class="form-select">
+                            <option value="libero">🟢 Libero</option>
+                            <option value="occupato">🔴 Occupato</option>
+                            <option value="riservato">🟡 Riservato</option>
+                        </select>
+                    </div>
                 </div>
             </div>
             <div class="modal-footer border-0 p-4 bg-light-custom">
@@ -397,11 +407,11 @@ $tavoli = $conn->query("SELECT * FROM tavoli ORDER BY nome_tavolo ASC");
                             <label class="small text-muted">Categoria</label>
                             <select name="id_categoria" id="mod_cat" class="form-select" required>
                                 <?php
-                                $res_mod = $conn->query("SELECT * FROM categorie");
-                                while ($cat = $res_mod->fetch_assoc()) {
-                                    echo "<option value='" . $cat['id_categoria'] . "'>" . $cat['nome_categoria'] . "</option>";
-                                }
-                                ?>
+$res_mod = $conn->query("SELECT * FROM categorie");
+while ($cat = $res_mod->fetch_assoc()) {
+    echo "<option value='" . $cat['id_categoria'] . "'>" . $cat['nome_categoria'] . "</option>";
+}
+?>
                             </select>
                         </div>
                         <div class="col-12">
@@ -414,14 +424,14 @@ $tavoli = $conn->query("SELECT * FROM tavoli ORDER BY nome_tavolo ASC");
                             <label class="small text-muted fw-bold mb-2">ALLERGENI</label>
                             <div class="d-flex flex-wrap gap-2 p-3 rounded bg-allergeni-custom">
                                 <?php
-                                $allergeniList = ["Glutine", "Crostacei", "Uova", "Pesce", "Arachidi", "Soia", "Latte", "Frutta a guscio", "Sedano", "Senape", "Sesamo", "Solfiti", "Molluschi"];
-                                foreach ($allergeniList as $a) {
-                                    echo "<div class='form-check form-check-inline m-0 me-3'>
+$allergeniList = ["Glutine", "Crostacei", "Uova", "Pesce", "Arachidi", "Soia", "Latte", "Frutta a guscio", "Sedano", "Senape", "Sesamo", "Solfiti", "Molluschi"];
+foreach ($allergeniList as $a) {
+    echo "<div class='form-check form-check-inline m-0 me-3'>
                                     <input class='form-check-input mod-allergeni' type='checkbox' name='allergeni[]' value='$a' id='mod_al_$a'>
                                     <label class='form-check-label small' for='mod_al_$a'>$a</label>
                                 </div>";
-                                }
-                                ?>
+}
+?>
                             </div>
                         </div>
 
