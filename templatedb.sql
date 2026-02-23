@@ -43,14 +43,13 @@ CREATE TABLE categorie (
     FOREIGN KEY (id_menu) REFERENCES menu(id_menu)
 );
 
--- TABELLA ALIMENTI (Aggiornata con le colonne nuove)
 CREATE TABLE alimenti (
     id_alimento INT AUTO_INCREMENT PRIMARY KEY,
     nome_piatto VARCHAR(100) NOT NULL,
     prezzo DECIMAL(10,2) NOT NULL,
     descrizione TEXT,
     lista_allergeni TEXT, 
-    immagine VARCHAR(255) DEFAULT 'default.jpg',
+    immagine MEDIUMBLOB, 
     id_categoria INT,
     FOREIGN KEY (id_categoria) REFERENCES categorie(id_categoria)
 );
@@ -92,9 +91,9 @@ INSERT INTO categorie (nome_categoria, id_menu) VALUES
 ('Secondi', 1),
 ('Dolci', 1);
 
--- Piatto di test (Completo con descrizione e allergeni formattati)
+-- Piatto di test (Il campo immagine è NULL di default nel test script)
 INSERT INTO alimenti (nome_piatto, prezzo, descrizione, lista_allergeni, immagine, id_categoria) 
-VALUES ('Carbonara', 12.50, 'Classica pasta alla carbonara con guanciale croccante, uova fresche, pecorino romano DOP e pepe nero macinato al momento.', 'Glutine,Uova,Lattosio', 'default.jpg', 2); 
+VALUES ('Carbonara', 12.50, 'Classica pasta alla carbonara con guanciale croccante, uova fresche, pecorino romano DOP e pepe nero macinato al momento.', 'Glutine,Uova,Lattosio', NULL, 2); 
    
 -- Tavoli di test
 INSERT INTO tavoli (nome_tavolo, password, stato, posti, id_menu) VALUES ('tavolotest', 'test', 'libero', 4, 1);
