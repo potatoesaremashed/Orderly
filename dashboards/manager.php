@@ -134,7 +134,8 @@ $tavoli = $conn->query("SELECT * FROM tavoli ORDER BY nome_tavolo ASC");
                         <div id="success-alert" class="alert alert-success border-0 shadow-sm rounded-3 mb-4 text-center fw-bold text-success">
                             Menu aggiornato correttamente!
                         </div>
-                    <?php endif; ?>
+                    <?php
+endif; ?>
 
                     <div class="row g-4">
                         <!-- COLONNA AGGIUNTA PIATTO -->
@@ -231,8 +232,28 @@ while ($row = $res_cat->fetch_assoc()) {
                         </div>
                     </div>
 
+                    <!-- SEZIONE DRAG E DROP: CSV e IMMAGINI -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="card-custom text-center dropzone-card h-100" id="dropzone-csv" onclick="document.getElementById('input-csv').click()">
+                                <h5><i class="fas fa-file-csv text-success mb-2" style="font-size: 2rem;"></i></h5>
+                                <h6 class="fw-bold">Carica Menu da CSV</h6>
+                                <p class="small text-muted mb-0">Trascina qui il tuo file <b>menu.csv</b> per aggiornare massivamente i piatti.</p>
+                                <input type="file" id="input-csv" accept=".csv" style="display: none;">
+                            </div>
+                        </div>
+                        <div class="col-md-6 mt-3 mt-md-0">
+                            <div class="card-custom text-center dropzone-card h-100" id="dropzone-img" onclick="document.getElementById('input-img').click()">
+                                <h5><i class="fas fa-images text-primary mb-2" style="font-size: 2rem;"></i></h5>
+                                <h6 class="fw-bold">Carica Immagini Piatti</h6>
+                                <p class="small text-muted mb-0">Trascina foto (es. <b>1.jpg</b> o <b>Carbonara.jpg</b>) o clicca per collegarle rapidamente.</p>
+                                <input type="file" id="input-img" accept="image/*" multiple style="display: none;">
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- TABELLA MENU COMPLETO -->
-                    <div class="row mt-4">
+                    <div class="row">
                         <div class="col-12">
                             <div class="card-custom">
                                 <h5 class="card-title"><i class="fas fa-book-open me-2 text-info"></i>Lista Piatti Attivi</h5>

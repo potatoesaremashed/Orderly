@@ -228,4 +228,109 @@ document.addEventListener('DOMContentLoaded', () => {
             }, 500);
         }, 1000);
     }
+
+    inizializzaDropzones();
 });
+
+// --- Drag & Drop Gestione CSV e Immagini ---
+function inizializzaDropzones() {
+    const csvZone = document.getElementById('dropzone-csv');
+    const imgZone = document.getElementById('dropzone-img');
+    const inputCsv = document.getElementById('input-csv');
+    const inputImg = document.getElementById('input-img');
+
+    if (!csvZone || !imgZone) return;
+
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        csvZone.addEventListener(eventName, preventDefaults, false);
+        imgZone.addEventListener(eventName, preventDefaults, false);
+        document.body.addEventListener(eventName, preventDefaults, false);
+    });
+
+    function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+
+    ['dragenter', 'dragover'].forEach(eventName => {
+        csvZone.addEventListener(eventName, () => csvZone.classList.add('dragover'), false);
+        imgZone.addEventListener(eventName, () => imgZone.classList.add('dragover'), false);
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+        csvZone.addEventListener(eventName, () => csvZone.classList.remove('dragover'), false);
+        imgZone.addEventListener(eventName, () => imgZone.classList.remove('dragover'), false);
+    });
+
+    csvZone.addEventListener('drop', (e) => handleDropCsv(e.dataTransfer.files), false);
+    inputCsv.addEventListener('change', function () { handleDropCsv(this.files); });
+
+    imgZone.addEventListener('drop', (e) => handleDropImg(e.dataTransfer.files), false);
+    inputImg.addEventListener('change', function () { handleDropImg(this.files); });
+}
+
+function handleDropCsv(files) {
+    if (!files || files.length === 0) return;
+    const file = files[0];
+    if (file.type !== "text/csv" && !file.name.endsWith('.csv')) {
+        return mostraToast("Per favore carica un file CSV valido.", true);
+    }
+
+    const formData = new FormData();
+    formData.append('file_csv', file);
+
+    const zone = document.getElementById('dropzone-csv');
+    zone.classList.add('loading');
+
+    fetch('../api/manager/upload_csv.php', { method: 'POST', body: formData })
+        .then(r => r.json())
+        .then(data => {
+            zone.classList.remove('loading');
+            if (data.success) {
+                mostraToast(data.message);
+                setTimeout(() => window.location.reload(), 1500);
+            } else {
+                mostraToast("Errore: " + data.error, true);
+            }
+        })
+        .catch(err => {
+            zone.classList.remove('loading');
+            mostraToast("Errore di rete durante il caricamento CSV", true);
+        });
+}
+
+function handleDropImg(files) {
+    if (!files || files.length === 0) return;
+
+    const formData = new FormData();
+    Array.from(files).forEach(file => {
+        if (file.type.startsWith('image/')) {
+            formData.append('immagini[]', file);
+        }
+    });
+
+    if (!formData.has('immagini[]')) {
+        return mostraToast("Per favore carica solo file immagine.", true);
+    }
+
+    const zone = document.getElementById('dropzone-img');
+    zone.classList.add('loading');
+
+    fetch('../api/manager/upload_immagini.php', { method: 'POST', body: formData })
+        .then(r => r.json())
+        .then(data => {
+            zone.classList.remove('loading');
+            if (data.success) {
+                const msg = data.message.replace(/\n/g, ' - ');
+                mostraToast(msg);
+                setTimeout(() => window.location.reload(), 2000);
+            } else {
+                mostraToast("Errore: " + data.error, true);
+            }
+        })
+        .catch(err => {
+            zone.classList.remove('loading');
+            mostraToast("Errore di rete caricamento Immagini", true);
+        });
+}
+
