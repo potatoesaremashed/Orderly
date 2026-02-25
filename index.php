@@ -22,11 +22,6 @@ if (isset($_POST['username'])) {
     $user = $_POST['username']; // Prendiamo il nome utente digitato.
     $pass = $_POST['password']; // Prendiamo la password digitata.
 
-    /**
-     * LOGICA DI AUTENTICAZIONE MULTI-RUOLO
-     * L'app Orderly serve tre tipologie di utenti. Controlliamo in ordine di importanza.
-     */
-
     // --- 1. Verifica se l'utente è un Manager (Amministratore) ---
     $sql = "SELECT * FROM manager WHERE username='$user' AND password='$pass'";
     if ($conn->query($sql)->num_rows > 0) {

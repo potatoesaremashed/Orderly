@@ -20,11 +20,11 @@ if (!isset($_SESSION['ruolo']) || $_SESSION['ruolo'] != 'manager') {
 // Accettiamo solo richieste POST
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
-    // --- 1. RECUPERO E PULIZIA DATI ---
+    // --- 1. RECUPERO DATI ---
     $id_alimento = intval($_POST['id_alimento']);
-    $nome = $conn->real_escape_string($_POST['nome_piatto']);
+    $nome = $_POST['nome_piatto'];
     $prezzo = floatval($_POST['prezzo']);
-    $desc = $conn->real_escape_string($_POST['descrizione']);
+    $desc = $_POST['descrizione'];
     $id_cat = intval($_POST['id_categoria']);
 
     // GESTIONE ALLERGENI
@@ -32,42 +32,55 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (isset($_POST['allergeni']) && is_array($_POST['allergeni'])) {
         $lista_allergeni = implode(", ", $_POST['allergeni']);
     }
-    $lista_allergeni = $conn->real_escape_string($lista_allergeni);
 
     // --- 2. GESTIONE IMMAGINE BLOB (OPZIONALE) ---
-    // Di base la stringa aggiuntiva per la query è vuota
-    $query_img = "";
+    $imgData = null;
+    $aggiorna_immagine = false;
     
-    // Se è stata caricata una nuova foto...
+    // Se è stata caricata una nuova foto:
     if (isset($_FILES['immagine']) && $_FILES['immagine']['error'] == 0) {
-        
-        // Legge l'intero file immagine e lo trasforma in dati grezzi
-        $dati_grezzi = file_get_contents($_FILES["immagine"]["tmp_name"]);
-        
-        // Lo "protegge" per non rompere la sintassi SQL
-        $imgData = $conn->real_escape_string($dati_grezzi);
-        
-        // Crea il pezzo di query per aggiornare l'immagine
-        $query_img = ", immagine = '$imgData'";
+        $imgData = file_get_contents($_FILES["immagine"]["tmp_name"]);
+        $aggiorna_immagine = true;
     }
 
-    // --- 3. AGGIORNAMENTO DATABASE ---
-    // Se $query_img è vuota, l'immagine non viene toccata.
-    // Se contiene i dati, aggiorna anche la colonna immagine.
-    $sql = "UPDATE alimenti SET 
-            nome_piatto = '$nome', 
-            prezzo = $prezzo, 
-            descrizione = '$desc', 
-            id_categoria = $id_cat,
-            lista_allergeni = '$lista_allergeni' 
-            $query_img 
-            WHERE id_alimento = $id_alimento";
-
-    if ($conn->query($sql) === TRUE) {
-        // SUCCESSO: Torna alla lista dei piatti.
-        header("Location: ../../dashboards/manager.php?msg=success");
+    // --- 3. AGGIORNAMENTO DATABASE CON PREPARED STATEMENTS ---
+    if ($aggiorna_immagine) {
+        $sql = "UPDATE alimenti SET 
+                nome_piatto = ?, 
+                prezzo = ?, 
+                descrizione = ?, 
+                id_categoria = ?,
+                lista_allergeni = ?,
+                immagine = ?
+                WHERE id_alimento = ?";
+        $stmt = $conn->prepare($sql);
+        if ($stmt) {
+            $stmt->bind_param("sdsissi", $nome, $prezzo, $desc, $id_cat, $lista_allergeni, $imgData, $id_alimento);
+        }
     } else {
-        echo "Errore del database durante la modifica: " . $conn->error;
+        $sql = "UPDATE alimenti SET 
+                nome_piatto = ?, 
+                prezzo = ?, 
+                descrizione = ?, 
+                id_categoria = ?,
+                lista_allergeni = ? 
+                WHERE id_alimento = ?";
+        $stmt = $conn->prepare($sql);
+        if ($stmt) {
+            $stmt->bind_param("sdsisi", $nome, $prezzo, $desc, $id_cat, $lista_allergeni, $id_alimento);
+        }
+    }
+
+    if ($stmt) {
+        if ($stmt->execute()) {
+            // SUCCESSO: Torna alla lista dei piatti.
+            header("Location: ../../dashboards/manager.php?msg=success");
+        } else {
+            echo "Errore del database durante la modifica: " . $stmt->error;
+        }
+        $stmt->close();
+    } else {
+        echo "Errore preparazione query: " . $conn->error;
     }
 }
 ?>
