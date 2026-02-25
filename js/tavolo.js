@@ -452,7 +452,7 @@ function apriStorico() {
 
                 // Card dell'ordine con header (ora + badge stato), lista piatti e totale
                 html += `
-                    <div class="ordine-card mb-3 p-3 rounded-4 border" style="background: var(--card-bg, #fff);">
+                    <div class="ordine-card mb-3 p-3 rounded-4 border bg-light-custom">
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <div class="d-flex align-items-center gap-2">
                                 <span class="fw-bold text-muted small"><i class="fas fa-clock me-1"></i>${ordine.ora}</span>
@@ -511,7 +511,9 @@ function apriZoom(e, card) {
     document.getElementById('zoom-nome').innerText = d.nome;
     document.getElementById('zoom-desc').innerText = d.desc;
     document.getElementById('zoom-prezzo-unitario').innerText = d.prezzo;
-    document.getElementById('zoom-img').src = d.img;
+
+    // Se d.img è vuoto imposta uno spazio trasparente o niente
+    document.getElementById('zoom-img').src = d.img || '';
 
     // Renderizza i badge degli allergeni
     const divAlg = document.getElementById('zoom-allergeni');

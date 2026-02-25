@@ -74,7 +74,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if ($stmt) {
         if ($stmt->execute()) {
             // SUCCESSO: Torna alla lista dei piatti.
-            header("Location: ../../dashboards/manager.php?msg=success");
+            header("Location: ../../dashboards/manager.php?msg=success#menu");
         } else {
             echo "Errore del database durante la modifica: " . $stmt->error;
         }

@@ -303,7 +303,7 @@ function apriModalModifica(btn) {
 
     // Preview immagine
     const preview = document.getElementById('preview_img');
-    preview.src = img ? "../imgs/prodotti/" + img : '';
+    preview.src = img ? img : '';
     preview.style.display = img ? 'block' : 'none';
 
     // Gestione checkbox Allergeni
@@ -321,7 +321,29 @@ function apriModalModifica(btn) {
 // INIT
 // =============================================
 document.addEventListener('DOMContentLoaded', () => {
-    // Al caricamento, se siamo nella dashboard manager, carichiamo subito i tavoli
-    if (document.getElementById('tavoli-grid')) caricaTavoli();
+    // Gestione re-indirizzamento da salvataggio Piatto
+    if (window.location.hash === '#menu') {
+        const btnMenu = document.querySelectorAll('.btn-sidebar')[1]; // L'indice 1 è il menu
+        if (btnMenu) switchPage('menu', btnMenu);
+        else switchPage('menu', null);
+    } else {
+        // Al caricamento, se siamo nella dashboard manager e non si va in menu, vengono caricati i tavoli
+        if (document.getElementById('tavoli-grid')) caricaTavoli();
+    }
+
+    // Auto-hiding dell'avviso di successo
+    const successAlert = document.getElementById('success-alert');
+    if (successAlert) {
+        setTimeout(() => {
+            successAlert.style.transition = 'opacity 0.5s ease';
+            successAlert.style.opacity = '0';
+            setTimeout(() => {
+                successAlert.style.display = 'none';
+                const url = new URL(window.location);
+                url.searchParams.delete('msg');
+                window.history.replaceState({}, '', url);
+            }, 500);
+        }, 1000);
+    }
 });
 

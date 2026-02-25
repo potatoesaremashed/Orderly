@@ -125,17 +125,16 @@ $tavoli = $conn->query("SELECT * FROM tavoli ORDER BY nome_tavolo ASC");
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <div>
                             <h2 class="fw-bold m-0">Gestione Menu</h2>
-                            <p class="text-muted m-0 small">Aggiungi, modifica o elimina piatti dal menu digitale</p>
+                            <p class="text-muted m-0 small">Aggiungi, modifica o elimina piatti dal menu</p>
                         </div>
                     </div>
 
                     <!-- Messaggio di successo dopo un'operazione -->
                     <?php if (isset($_GET['msg']) && $_GET['msg'] == 'success'): ?>
-                        <div class="alert alert-success border-0 shadow-sm rounded-3 mb-4">
-                            <i class="fas fa-check-circle me-2"></i> Ottimo! Menu aggiornato correttamente.
+                        <div id="success-alert" class="alert alert-success border-0 shadow-sm rounded-3 mb-4 text-center fw-bold text-success">
+                            Menu aggiornato correttamente!
                         </div>
-                    <?php
-endif; ?>
+                    <?php endif; ?>
 
                     <div class="row g-4">
                         <!-- COLONNA AGGIUNTA PIATTO -->
@@ -183,12 +182,12 @@ foreach ($allergeni as $a) {
                                         </div>
 
                                         <div class="col-12">
-                                            <label class="small text-muted fw-bold">FOTO DEL PIATTO (Verrà ridimensionata a 800px)</label>
+                                            <label class="small text-muted fw-bold">FOTO DEL PIATTO</label>
                                             <input type="file" name="immagine" class="form-control" accept="image/*" required>
                                         </div>
 
                                         <div class="col-12 mt-3">
-                                            <button type="submit" class="btn-main">💾 Conferma e Aggiungi</button>
+                                            <button type="submit" class="btn-main">Aggiungi Piatto</button>
                                         </div>
                                     </div>
                                 </form>
@@ -271,7 +270,7 @@ if ($result->num_rows > 0) {
                                                                         data-desc='" . $descSafe . "'
                                                                         data-prezzo='" . $row['prezzo'] . "'
                                                                         data-cat='" . $row['id_categoria'] . "'
-                                                                        data-img='" . $row['immagine'] . "'
+                                                                        data-img='" . ($row['immagine'] ? 'data:image/jpeg;base64,' . base64_encode($row['immagine']) : '') . "'
                                                                         data-allergeni='" . $allergeniSafe . "'>
                                                                         <i class='fas fa-edit'></i>
                                                                     </button>
@@ -424,9 +423,9 @@ while ($cat = $res_mod->fetch_assoc()) {
 
                         <div class="col-12">
                             <label class="small text-muted fw-bold mb-2">MODIFICA ALLERGENI</label>
-                            <div class="d-flex flex-wrap gap-2 p-3 rounded bg-light">
+                            <div class="d-flex flex-wrap gap-2 p-3 rounded bg-light-custom">
                                 <?php
-foreach ($allergeniList as $a) {
+foreach ($allergeni as $a) {
     echo "<div class='form-check form-check-inline m-0 me-3'>
                                             <input class='form-check-input mod-allergeni' type='checkbox' name='allergeni[]' value='$a' id='mod_al_$a'>
                                             <label class='form-check-label small' for='mod_al_$a'>$a</label>
@@ -440,7 +439,7 @@ foreach ($allergeniList as $a) {
                             <div class="d-flex align-items-center gap-3">
                                 <img id="preview_img" src="" style="width: 80px; height: 80px; object-fit: cover; border-radius: 12px; border: 1px solid #ddd;">
                                 <div class="w-100">
-                                    <label class="small text-muted">Sostituisci Immagine (Opzionale)</label>
+                                    <label class="small text-muted">Sostituisci Immagine</label>
                                     <input type="file" name="immagine" class="form-control" accept="image/*">
                                 </div>
                             </div>
@@ -449,7 +448,7 @@ foreach ($allergeniList as $a) {
 
                     <div class="modal-footer border-0 px-0 mt-3">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
-                        <button type="submit" class="btn btn-primary fw-bold px-4">Salva Modifiche 💾</button>
+                        <button type="submit" class="btn btn-primary fw-bold px-4">Salva Modifiche</button>
                     </div>
                 </form>
             </div>

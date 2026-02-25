@@ -39,7 +39,7 @@ if ($stmt) {
     $stmt->bind_param("ssdiss", $nome, $desc, $prezzo, $id_categoria, $imgData, $stringa_allergeni);
     
     if ($stmt->execute()) {
-        header("Location: ../../dashboards/manager.php?msg=success");
+        header("Location: ../../dashboards/manager.php?msg=success#menu");
     } else {
         echo "Errore salvataggio: " . $stmt->error;
     }
