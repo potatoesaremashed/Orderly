@@ -23,22 +23,7 @@ body {
     z-index: 100;
 }
 
-/* When a modal is open, switch sidebar to fixed so it stays visible
-   even when the page is scrolled to the bottom */
-body.modal-open .sidebar-custom {
-    position: fixed;
-    left: 0;
-    top: 0;
-    width: 25%;
-    /* matches col-md-3 */
-}
 
-@media (min-width: 992px) {
-    body.modal-open .sidebar-custom {
-        width: 16.666667%;
-        /* matches col-lg-2 */
-    }
-}
 
 .sidebar-custom::-webkit-scrollbar {
     width: 4px;

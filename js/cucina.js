@@ -161,6 +161,9 @@ function caricaOrdini() {
                     cPrep++;
                 }
             });
+            // Aggiorniamo le dashboard html
+            colNew.innerHTML = htmlNew;
+            colPrep.innerHTML = htmlPrep;
 
             // Aggiorniamo i numeretti sopra le colonne
             document.getElementById('count-new').innerText = cNew;

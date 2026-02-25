@@ -85,6 +85,12 @@ body {
     transition: background 0.3s, color 0.3s;
 }
 
+/* Evita che l'apertura della modale faccia "shiftare" tutto a sinistra/destra */
+body.modal-open {
+    padding-right: 0 !important;
+    overflow-y: scroll !important;
+}
+
 /* --- COMPONENTI --- */
 .sticky-header {
     background: rgba(var(--surface-color), 0.95);
