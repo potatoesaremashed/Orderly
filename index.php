@@ -1,63 +1,62 @@
 <?php
-/**
- * =========================================
- * FILE: index.php
- * =========================================
- * Questa è la porta d'ingresso dell'intera applicazione (Landing/Login Page).
- * 
- * Il file ha due responsabilità principali:
- * 1. Visualizzare l'interfaccia di login.
- * 2. Ricevere le credenziali via POST, verificare il ruolo nel database e 
- *    reindirizzare l'utente nella dashboard corretta.
- * 
- * L'uso di session_start() è fondamentale qui perché "registriamo" chi è l'utente 
- * che sta entrando, permettendo al server di ricordarselo nelle pagine successive.
- */
+// Avvia il blocco di memoria utente per ricordarti di lui nelle varie dashboard
+session_start();
 
-session_start(); // Avvia il motore delle sessioni. Senza questo, $_SESSION non funzionerebbe.
-include "include/conn.php"; // Collega questo file al database tramite la connessione definita centralmente.
+// Importa i parametri di aggancio al database
+include "include/conn.php";
 
-// Questo blocco scatta solo quando l'utente preme il pulsante "Accedi" inviando il form.
+// Esegui la validazione di login solo se l'utente ha premuto Invia sul form
 if (isset($_POST['username'])) {
-    $user = $_POST['username']; // Prendiamo il nome utente digitato.
-    $pass = $_POST['password']; // Prendiamo la password digitata.
+    
+    // Leggi e salva il nome utente e la password inseriti
+    $user = $_POST['username'];
+    $pass = $_POST['password'];
 
-    // --- 1. Verifica se l'utente è un Manager (Amministratore) ---
+    // Cerca una corrispondenza esatta nella tabella dei Manager
     $sql = "SELECT * FROM manager WHERE username='$user' AND password='$pass'";
     if ($conn->query($sql)->num_rows > 0) {
+        
+        // Assegna il ruolo e teletrasporta al pannello di amministrazione
         $_SESSION['ruolo'] = 'manager';
         $_SESSION['username'] = $user;
-        header("Location: dashboards/manager.php"); // Reindirizzamento immediato.
-        exit; // Blocca l'esecuzione per evitare che il resto del codice venga letto.
+        header("Location: dashboards/manager.php");
+        exit;
     }
 
-    // --- 2. Verifica se l'utente è un Cuoco (Cucina) ---
+    // Cerca una corrispondenza esatta nella tabella Cocina/Cuochi
     $sql = "SELECT * FROM cuochi WHERE username='$user' AND password='$pass'";
     if ($conn->query($sql)->num_rows > 0) {
+        
+        // Assegna il profilo cuoco e sposta alla dashboard delle ordinazioni
         $_SESSION['ruolo'] = 'cuoco';
         $_SESSION['username'] = $user;
         header("Location: dashboards/cucina.php");
         exit;
     }
 
-    // --- 3. Verifica se l'utente è un Tavolo (Cliente al ristorante) ---
+    // Cerca una corrispondenza tra i tavoli abilitati nella sala
     $sql = "SELECT * FROM tavoli WHERE nome_tavolo='$user' AND password='$pass'";
     $res = $conn->query($sql);
     if ($res->num_rows > 0) {
-        $row = $res->fetch_assoc(); // Estraiamo i dati del tavolo trovato.
+        
+        // Estrai l'ID vero e proprio del tavolo per gli ordini futuri
+        $row = $res->fetch_assoc();
+        
+        // Attiva la sessione ospite e portalo al frontend cliente (tavolo.php)
         $_SESSION['ruolo'] = 'tavolo';
-        $_SESSION['id_tavolo'] = $row['id_tavolo']; // Salviamo l'ID univoco per gli ordini futuri.
+        $_SESSION['id_tavolo'] = $row['id_tavolo'];
         $_SESSION['username'] = $user;
-        // Portiamo il cliente direttamente al menu del suo tavolo.
+        
         header("Location: dashboards/tavolo.php?id=" . $row['id_tavolo']);
         exit;
     }
 
-    // Se arriviamo qui, nessuna delle ricerche sopra ha dato frutti.
+    // Salva l'errore per mostrarlo nell'HTML sottostante se nessuno dei 3 match funziona
     $error = "Nome utente o password errati. Riprova.";
 }
 
-include "include/header.php"; // Include lo scheletro HTML (head, bootstrap, etc.)
+// Stampa lo scheletro HTML di testa (font, css)
+include "include/header.php";
 ?>
 
 <link href="css/common.css" rel="stylesheet">

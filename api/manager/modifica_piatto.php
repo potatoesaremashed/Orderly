@@ -1,86 +1,42 @@
 <?php
-/**
- * =========================================
- * API: Modifica Piatto (Versione BLOB)
- * =========================================
- * Permette al manager di aggiornare i dati di un piatto esistente.
- * Se viene caricata una nuova immagine, viene salvata direttamente
- * nel database come BLOB.
- */
+require_once "../../include/auth/manager_auth.php";
 
-session_start();
-include "../../include/conn.php";
+// Ferma lo script se l'utente cerca di accedere alla pagina direttamente dall'URL
+if ($_SERVER["REQUEST_METHOD"] !== "POST") die("Accesso negato.");
 
-// Verifica permessi: solo il manager può modificare i piatti.
-if (!isset($_SESSION['ruolo']) || $_SESSION['ruolo'] != 'manager') {
-    header("Location: ../../index.php");
-    exit;
+// Prendi i dati testuali dal form e assicurati che siano del tipo giusto (numeri o testo)
+$idPiatto = intval($_POST['id_alimento']);
+$nomePiatto = $_POST['nome_piatto'] ?? '';
+$prezzo = floatval($_POST['prezzo'] ?? 0);
+$descrizione = $_POST['descrizione'] ?? '';
+$idCategoria = intval($_POST['id_categoria'] ?? 0);
+
+// Unisci le spunte degli allergeni in una sola riga di testo separata da virgole
+$allergeni = empty($_POST['allergeni']) ? "" : implode(", ", $_POST['allergeni']);
+
+$aggiornaImmagine = false;
+$immagineBinaria = null;
+
+// Controlla se l'utente ha caricato una nuova foto e in quel caso trasformala in dati grezzi
+if (isset($_FILES['immagine']) && $_FILES['immagine']['error'] === 0) {
+    $immagineBinaria = file_get_contents($_FILES["immagine"]["tmp_name"]);
+    $aggiornaImmagine = true;
 }
 
-// Accettiamo solo richieste POST
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
+// Prepara la richiesta di modifica per il database usando due strade diverse: con o senza foto
+if ($aggiornaImmagine) {
+    $aggiornamento = $conn->prepare("UPDATE alimenti SET nome_piatto = ?, prezzo = ?, descrizione = ?, id_categoria = ?, lista_allergeni = ?, immagine = ? WHERE id_alimento = ?");
+    $aggiornamento->bind_param("sdsissi", $nomePiatto, $prezzo, $descrizione, $idCategoria, $allergeni, $immagineBinaria, $idPiatto);
+} else {
+    $aggiornamento = $conn->prepare("UPDATE alimenti SET nome_piatto = ?, prezzo = ?, descrizione = ?, id_categoria = ?, lista_allergeni = ? WHERE id_alimento = ?");
+    $aggiornamento->bind_param("sdsisi", $nomePiatto, $prezzo, $descrizione, $idCategoria, $allergeni, $idPiatto);
+}
 
-    // --- 1. RECUPERO DATI ---
-    $id_alimento = intval($_POST['id_alimento']);
-    $nome = $_POST['nome_piatto'];
-    $prezzo = floatval($_POST['prezzo']);
-    $desc = $_POST['descrizione'];
-    $id_cat = intval($_POST['id_categoria']);
-
-    // GESTIONE ALLERGENI
-    $lista_allergeni = "";
-    if (isset($_POST['allergeni']) && is_array($_POST['allergeni'])) {
-        $lista_allergeni = implode(", ", $_POST['allergeni']);
-    }
-
-    // --- 2. GESTIONE IMMAGINE BLOB (OPZIONALE) ---
-    $imgData = null;
-    $aggiorna_immagine = false;
-    
-    // Se è stata caricata una nuova foto:
-    if (isset($_FILES['immagine']) && $_FILES['immagine']['error'] == 0) {
-        $imgData = file_get_contents($_FILES["immagine"]["tmp_name"]);
-        $aggiorna_immagine = true;
-    }
-
-    // --- 3. AGGIORNAMENTO DATABASE CON PREPARED STATEMENTS ---
-    if ($aggiorna_immagine) {
-        $sql = "UPDATE alimenti SET 
-                nome_piatto = ?, 
-                prezzo = ?, 
-                descrizione = ?, 
-                id_categoria = ?,
-                lista_allergeni = ?,
-                immagine = ?
-                WHERE id_alimento = ?";
-        $stmt = $conn->prepare($sql);
-        if ($stmt) {
-            $stmt->bind_param("sdsissi", $nome, $prezzo, $desc, $id_cat, $lista_allergeni, $imgData, $id_alimento);
-        }
-    } else {
-        $sql = "UPDATE alimenti SET 
-                nome_piatto = ?, 
-                prezzo = ?, 
-                descrizione = ?, 
-                id_categoria = ?,
-                lista_allergeni = ? 
-                WHERE id_alimento = ?";
-        $stmt = $conn->prepare($sql);
-        if ($stmt) {
-            $stmt->bind_param("sdsisi", $nome, $prezzo, $desc, $id_cat, $lista_allergeni, $id_alimento);
-        }
-    }
-
-    if ($stmt) {
-        if ($stmt->execute()) {
-            // SUCCESSO: Torna alla lista dei piatti.
-            header("Location: ../../dashboards/manager.php?msg=success#menu");
-        } else {
-            echo "Errore del database durante la modifica: " . $stmt->error;
-        }
-        $stmt->close();
-    } else {
-        echo "Errore preparazione query: " . $conn->error;
-    }
+// Lancia il comando sul database e rimanda il manager al menu in caso di vittoria
+if ($aggiornamento->execute()) {
+    header("Location: ../../dashboards/manager.php?msg=success#menu");
+} else {
+    // Altrimenti stampa l'errore nudo e crudo a schermo
+    echo "Errore aggiornamento: " . $aggiornamento->error;
 }
 ?>

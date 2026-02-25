@@ -1,63 +1,42 @@
 <?php
-/**
- * =========================================
- * API: Cambia Stato Ordine
- * =========================================
- * Questo file viene chiamato (via AJAX/Fetch) ogni volta che un cuoco 
- * preme un pulsante per cambiare lo stato di un ordine (es. da "In Attesa" a "Pronto").
- * 
- * Le API non mostrano HTML, ma scambiano dati (spesso in formato JSON).
- * Qui usiamo i "Prepared Statements" per proteggere il database da attacchi SQL Injection.
- */
-
 session_start();
 include "../../include/conn.php";
-header('Content-Type: application/json'); // Comunica al browser che la risposta sarà un oggetto JSON.
+header('Content-Type: application/json');
 
-/**
- * SICUREZZA E PERMESSI
- * Solo chi lavora nel ristorante (cuoco, manager, admin) può modificare gli ordini.
- */
+// Definisci chi ha il diritto di fare queste modifiche (solo cuochi, manager e admin)
 $ruoli_ammessi = ['cuoco', 'manager', 'admin'];
+
+// Ferma tutto se chi sta cliccando non ha fatto il login oppure non è nel gruppo autorizzato
 if (!isset($_SESSION['ruolo']) || !in_array($_SESSION['ruolo'], $ruoli_ammessi)) {
     echo json_encode(['success' => false, 'message' => 'Non hai i permessi per questa operazione.']);
     exit;
 }
 
-/**
- * RICEZIONE DATI JSON
- * Dato che inviamo dati come JSON dal frontend, dobbiamo leggerli dal "flusso" (stream) di PHP.
- */
+// Intercetta e decodifica i dati JSON che arrivano da Javascript
 $input = json_decode(file_get_contents('php://input'), true);
 $id_ordine = $input['id_ordine'] ?? null;
 $nuovo_stato = $input['nuovo_stato'] ?? null;
 
-// Gli stati devono corrispondere esattamente a quelli definiti nel database (ENUM).
+// Stabilisci il recinto di sicurezza con gli stati validi previsti
 $stati_validi = ['in_attesa', 'in_preparazione', 'pronto'];
 
+// Nega il salvataggio al database se mancano i dati chiave o se lo stato è roba inventata
 if (!$id_ordine || !in_array($nuovo_stato, $stati_validi)) {
     echo json_encode(['success' => false, 'message' => 'Dati ordine mancanti o non validi.']);
     exit;
 }
 
-/**
- * AGGIORNAMENTO DATABASE
- * Prepariamo la query con i segnaposto (?) per la massima sicurezza.
- */
+// Invia l'istruzione di aggiornamento tabella con i segnaposti sql
 $sql = "UPDATE ordini SET stato = ? WHERE id_ordine = ?";
 $stmt = $conn->prepare($sql);
 
-/**
- * bind_param associa le variabili ai punti di domanda:
- * "s" -> stringa (per nuovo_stato)
- * "i" -> intero (per id_ordine)
- */
+// Associa la stringa (stato) e il numero (id ordine) per sanificare l'inserimento
 $stmt->bind_param("si", $nuovo_stato, $id_ordine);
 
+// Restituisci via json l'esito della chiamata a fine processo
 if ($stmt->execute()) {
     echo json_encode(['success' => true]);
-}
-else {
+} else {
     echo json_encode(['success' => false, 'message' => 'Errore nel salvataggio dei dati: ' . $conn->error]);
 }
 ?>

@@ -1,22 +1,10 @@
 <?php
-/**
- * =========================================
- * DASHBOARD: Cucina (Kitchen)
- * =========================================
- * Questo file è il "cuore" operativo per lo staff in cucina.
- * Mostra in tempo reale gli ordini che arrivano dai tavoli e permette 
- * di gestire l'avanzamento della preparazione.
- * 
- * Ruoli autorizzati: Cuoco, Admin/Manager.
- */
+// Carica la schermata operativa live per la gestione coda dei cuochi.
 
 session_start();
 include '../include/conn.php';
 
-/**
- * SICUREZZA
- * Se l'utente non è un cuoco o un admin, lo rispediamo al login.
- */
+// Caccia chiunque non abbia la dicitura 'cuoco' o 'admin' nei permessi sessione
 if (!isset($_SESSION['ruolo']) || ($_SESSION['ruolo'] != 'cuoco' && $_SESSION['ruolo'] != 'admin')) {
     header("Location: ../index.php");
     exit;
