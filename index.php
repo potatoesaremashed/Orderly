@@ -47,6 +47,10 @@ if (isset($_POST['username'])) {
         $_SESSION['id_tavolo'] = $row['id_tavolo'];
         $_SESSION['username'] = $user;
         
+        // Registra il momento esatto in cui il cliente si è seduto/loggato
+        // Questo serve per non mostrargli gli ordini dei clienti precedenti a questo tavolo
+        $_SESSION['login_time'] = date('Y-m-d H:i:s');
+        
         header("Location: dashboards/tavolo.php?id=" . $row['id_tavolo']);
         exit;
     }

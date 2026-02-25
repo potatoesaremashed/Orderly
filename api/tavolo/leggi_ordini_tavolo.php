@@ -3,16 +3,18 @@ require_once "../../include/auth/tavolo_auth.php";
 header('Content-Type: application/json');
 
 $idTavolo = $_SESSION['id_tavolo'];
+// Recupera il momento in cui il tavolo ha fatto il login
+$orarioLogin = $_SESSION['login_time'] ?? '1970-01-01 00:00:00'; 
 
 $queryOrdini = "SELECT o.id_ordine, o.stato, o.data_ora, d.quantita, a.nome_piatto, a.prezzo, d.note
         FROM ordini o
         JOIN dettaglio_ordini d ON o.id_ordine = d.id_ordine
         JOIN alimenti a ON d.id_alimento = a.id_alimento
-        WHERE o.id_tavolo = ?
+        WHERE o.id_tavolo = ? AND o.data_ora >= ?
         ORDER BY o.data_ora DESC";
 
 $stmt = $conn->prepare($queryOrdini);
-$stmt->bind_param("i", $idTavolo);
+$stmt->bind_param("is", $idTavolo, $orarioLogin);
 $stmt->execute();
 $risultato = $stmt->get_result();
 
