@@ -386,6 +386,31 @@ body {
     color: var(--text-main);
 }
 
+/* Dropzone Styles */
+.dropzone-card {
+    border: 2px dashed var(--border-color);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 30px 20px;
+    background-color: var(--input-bg);
+}
+
+.dropzone-card:hover, .dropzone-card.dragover {
+    background-color: rgba(255, 71, 87, 0.05);
+    border-color: var(--primary);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(255, 71, 87, 0.15);
+}
+
+.dropzone-card.loading {
+    opacity: 0.7;
+    pointer-events: none;
+}
+
 /* Inputs */
 .form-control,
 .form-select {
