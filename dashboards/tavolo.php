@@ -73,7 +73,7 @@ endwhile; ?>
 
                     <button class="btn btn-dark rounded-pill px-3 py-2 px-md-4 py-md-3 shadow-sm d-flex align-items-center" onclick="apriStorico()">
                         <i class="fas fa-receipt"></i>
-                        <span class="d-none d-lg-inline fw-bold ms-2">I miei Ordini</span>
+                        <span class="d-none d-lg-inline fw-bold ms-2">Storico Ordini</span>
                     </button>
 
                     <button class="btn btn-dark rounded-pill px-3 py-2 px-md-4 py-md-3 shadow-sm d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#modalFiltri">
@@ -83,7 +83,7 @@ endwhile; ?>
 
                     <button class="btn btn-dark rounded-pill px-3 py-2 px-md-4 py-md-3 shadow-sm d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#modalCarrello" onclick="aggiornaModale()">
                         <i class="fas fa-shopping-bag fa-lg"></i>
-                        <span class="d-none d-lg-inline fw-bold ms-2">Vai al Carrello</span>
+                        <span class="d-none d-lg-inline fw-bold ms-2">Carrello</span>
                         <span id="pezzi-header" class="ms-1">0</span>
                     </button>
                 </div>

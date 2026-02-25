@@ -2,7 +2,6 @@ DROP DATABASE IF EXISTS ristorante_db;
 CREATE DATABASE ristorante_db;
 USE ristorante_db;
 
--- TABELLA MANAGER
 CREATE TABLE manager (
     id_manager INT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(50) NOT NULL,

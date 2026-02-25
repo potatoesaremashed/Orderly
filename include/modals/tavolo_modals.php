@@ -9,7 +9,7 @@
         <div class="modal-content modal-content-custom shadow-lg">
             <div class="modal-header border-0 p-4 pb-2">
                 <div>
-                    <h3 class="modal-title fw-bold">I tuoi Piatti in Arrivo 📋</h3>
+                    <h3 class="modal-title fw-bold">I tuoi ordini</h3>
                     <p class="m-0 text-muted">Controlla lo stato delle tue ordinazioni</p>
                 </div>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -34,8 +34,8 @@
         <div class="modal-content modal-content-custom shadow-lg">
             <div class="modal-header border-0 p-4 pb-2">
                 <div>
-                    <h3 class="modal-title fw-bold">Cosa desideri ordinare? 🧾</h3>
-                    <p class="m-0 text-muted">Manda questi piatti in cucina</p>
+                    <h3 class="modal-title fw-bold">Riepilogo ordine</h3>
+                    <p class="m-0 text-muted">Controlla il tuo ordine prima di inviarlo</p>
                 </div>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
@@ -47,7 +47,7 @@
                     <small class="text-uppercase fw-bold text-muted">Costo attuale</small>
                     <h2 class="m-0 fw-bold text-price price-stable"><span id="totale-modale">0.00</span>€</h2>
                 </div>
-                <button id="btn-invia-ordine" class="btn btn-dark rounded-pill px-5 py-3 fs-5 fw-bold shadow" disabled>ORDINATE ORA! <i class="fas fa-paper-plane ms-2"></i></button>
+                <button id="btn-invia-ordine" class="btn btn-dark rounded-pill px-5 py-3 fs-5 fw-bold shadow" disabled>Invia ordine <i class="fas fa-paper-plane ms-2"></i></button>
             </div>
         </div>
     </div>
@@ -111,7 +111,7 @@
         <div class="modal-content modal-content-custom shadow-lg">
             <div class="modal-header border-0 p-4 pb-2">
                 <div>
-                    <h3 class="modal-title fw-bold">Gestione Intolleranze 🚫</h3>
+                    <h3 class="modal-title fw-bold">Gestione Intolleranze</h3>
                     <p class="m-0 text-muted">Seleziona cosa NON puoi mangiare</p>
                 </div>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -148,6 +148,21 @@ foreach ($allergeni as $a) {
                 <i class="fas fa-check-circle me-2"></i> <span id="toast-msg">Operazione riuscita!</span>
             </div>
             <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Conferma Invio Ordine -->
+<div class="modal fade" id="modalConfermaOrdine" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content modal-content-custom shadow-lg text-center p-4">
+            <div class="mb-3"><i class="fas fa-question-circle fa-4x text-warning"></i></div>
+            <h3 class="fw-bold mb-2">Confermi l'ordine?</h3>
+            <p class="text-muted mb-4">L'ordine verrà inviato in cucina e non potrà essere annullato.</p>
+            <div class="d-flex justify-content-center gap-3">
+                <button type="button" class="btn btn-light rounded-pill px-4 py-2 fw-bold shadow-sm" data-bs-dismiss="modal">Annulla</button>
+                <button type="button" class="btn btn-dark rounded-pill px-4 py-2 fw-bold shadow-sm" id="confirm-send-btn">SÌ, ORDINA!</button>
+            </div>
         </div>
     </div>
 </div>

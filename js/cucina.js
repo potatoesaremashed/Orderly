@@ -162,10 +162,6 @@ function caricaOrdini() {
                 }
             });
 
-            // Inseriamo l'HTML generato nelle rispettive colonne
-            colNew.innerHTML = htmlNew || '<div class="text-center text-muted p-4">In attesa di ordini...</div>';
-            colPrep.innerHTML = htmlPrep || '<div class="text-center text-muted p-4">Nessun piatto sul fuoco</div>';
-
             // Aggiorniamo i numeretti sopra le colonne
             document.getElementById('count-new').innerText = cNew;
             document.getElementById('count-prep').innerText = cPrep;
