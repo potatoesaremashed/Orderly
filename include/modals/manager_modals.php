@@ -1,4 +1,5 @@
-<!-- Modal: Add Table -->
+<!-- MODALE: AGGIUNGI TAVOLO -->
+<!-- Finestra in sovrimpressione per registrare una nuova postazione nel ristorante -->
 <div class="modal fade" id="modalAggiungiTavolo" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content modal-content-custom shadow-lg">
@@ -26,8 +27,10 @@
                 </div>
             </div>
             <div class="modal-footer border-0 p-4 bg-light-custom">
+                <!-- Bottone che chiude la modale senza fare nulla -->
                 <button type="button" class="btn btn-light rounded-pill px-4 fw-bold"
                     data-bs-dismiss="modal">Annulla</button>
+                <!-- Bottone che richiama la funzione JS aggiungiTavolo() per salvare nel DB via AJAX -->
                 <button type="button" class="btn btn-dark rounded-pill px-5 fw-bold" onclick="aggiungiTavolo()">
                     <i class="fas fa-plus me-2"></i>Registra Tavolo
                 </button>
@@ -36,7 +39,8 @@
     </div>
 </div>
 
-<!-- Modal: Edit Table -->
+<!-- MODALE: MODIFICA TAVOLO -->
+<!-- Finestra per cambiare nome, password, posti o forzare uno stato (es: da libero a riservato) -->
 <div class="modal fade" id="modalModificaTavolo" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content modal-content-custom shadow-lg">
@@ -71,6 +75,7 @@
             <div class="modal-footer border-0 p-4">
                 <button type="button" class="btn btn-light rounded-pill px-4 fw-bold"
                     data-bs-dismiss="modal">Chiudi</button>
+                <!-- Salva le modifiche richiamando JS -> PHP API -->
                 <button type="button" class="btn btn-dark rounded-pill px-5 fw-bold" onclick="modificaTavolo()">Salva
                     Modifiche</button>
             </div>
@@ -78,7 +83,9 @@
     </div>
 </div>
 
-<!-- Modal: Edit Dish -->
+<!-- MODALE: MODIFICA PIATTO -->
+<!-- Finestra complessa che precarica i dati del piatto selezionato (nome, prezzo, allergeni, immagine) -->
+<!-- A differenza dei tavoli, questo salva modifiche ricaricando la pagina via POST invece di usare AJAX -->
 <div class="modal fade" id="modalModifica" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -118,6 +125,7 @@
                         <div class="col-12">
                             <label class="small text-muted fw-bold mb-2">ALLERGENI</label>
                             <div class="d-flex flex-wrap gap-2 p-3 rounded bg-light-custom">
+                                <!-- Viene riempito e selezionato automaticamente dai data-attributes presenti nel bottone di modifica -->
                                 <?php
                                 foreach ($allergeni as $a) {
                                     echo "<div class='form-check form-check-inline m-0 me-3'>
@@ -130,6 +138,7 @@
                         </div>
                         <div class="col-12">
                             <div class="d-flex align-items-center gap-3">
+                                <!-- Anteprima dell'immagine esistente nel DB -->
                                 <img id="preview_img" src=""
                                     style="width: 80px; height: 80px; object-fit: cover; border-radius: 12px; border: 1px solid #ddd;">
                                 <div class="w-100">
@@ -149,7 +158,8 @@
     </div>
 </div>
 
-<!-- Toast -->
+<!-- TOAST (Notifica a comparsa) -->
+<!-- Piccolo box in basso che esce per 3 secondi per dare un feedback visivo di successo o errore al manager -->
 <div class="toast-container position-fixed bottom-0 start-50 translate-middle-x p-3">
     <div id="managerToast" class="toast align-items-center text-white bg-success border-0 shadow-lg" role="alert">
         <div class="d-flex">

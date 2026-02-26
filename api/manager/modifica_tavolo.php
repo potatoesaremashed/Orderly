@@ -1,4 +1,6 @@
 <?php
+// Script chiamato asincronamente dalla modale Modifica (Tavoli) 
+
 require_once "../../include/auth/manager_auth.php";
 header('Content-Type: application/json');
 
@@ -13,6 +15,7 @@ if ($id <= 0 || empty($nome) || empty($password)) {
     exit;
 }
 
+// Riscrive tutto ciò che compone staticamente l'anagrafica del posto a sedere
 $stmt = $conn->prepare("UPDATE tavoli SET nome_tavolo=?, password=?, posti=?, stato=? WHERE id_tavolo=?");
 $stmt->bind_param("ssisi", $nome, $password, $posti, $stato, $id);
 
