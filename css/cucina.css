@@ -1,11 +1,9 @@
 /* =========================================
-   FILE: css/cucina.css
-   Descrizione: Stili specifici Monitor Cucina
+   Kitchen Dashboard Styles
    ========================================= */
 
 body {
     overflow: hidden;
-    /* Blocca scroll pagina intera su cucina */
 }
 
 .sticky-header {
@@ -24,6 +22,7 @@ body {
     font-weight: 400;
 }
 
+/* Kanban Board */
 .kanban-board {
     display: flex;
     height: calc(100vh - 80px);
@@ -68,6 +67,16 @@ body {
     padding: 1.5rem;
 }
 
+.k-body::-webkit-scrollbar {
+    width: 6px;
+}
+
+.k-body::-webkit-scrollbar-thumb {
+    background-color: var(--border-color);
+    border-radius: 10px;
+}
+
+/* Order Cards */
 .order-card {
     background: var(--surface-color);
     border-radius: var(--card-radius);
@@ -121,7 +130,7 @@ body {
     color: var(--text-main);
 }
 
-/* Override specifico cucina per qty */
+/* Kitchen qty capsule override */
 .qty-capsule {
     background: var(--capsule-bg);
     color: var(--text-main);
@@ -136,10 +145,9 @@ body {
     border: 1px solid var(--border-color);
     width: auto;
     max-width: none;
-    /* Reset del tavolo */
 }
 
-/* Buttons specifici */
+/* Action Buttons */
 .btn-action {
     width: 100%;
     border: none;
@@ -178,18 +186,7 @@ body {
     }
 }
 
-.k-body::-webkit-scrollbar {
-    width: 6px;
-}
-
-.k-body::-webkit-scrollbar-thumb {
-    background-color: var(--border-color);
-    border-radius: 10px;
-}
-
-/* =========================================
-   RESPONSIVE — Tablet (< 992px)
-   ========================================= */
+/* Responsive */
 @media (max-width: 991.98px) {
     .kanban-board {
         padding: 1rem;
@@ -201,9 +198,6 @@ body {
     }
 }
 
-/* =========================================
-   RESPONSIVE — Mobile (< 768px)
-   ========================================= */
 @media (max-width: 767.98px) {
     body {
         overflow: auto;

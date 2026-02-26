@@ -8,15 +8,11 @@ if (!isset($_SESSION['id_tavolo'])) {
 }
 
 $idTavolo = intval($_SESSION['id_tavolo']);
+$result = $conn->query("SELECT d.id_alimento, d.quantita, a.nome_piatto, a.prezzo
+    FROM dettaglio_ordini d
+    JOIN ordini o ON d.id_ordine = o.id_ordine
+    JOIN alimenti a ON d.id_alimento = a.id_alimento
+    WHERE o.id_tavolo = $idTavolo AND o.stato = 'in_attesa'");
 
-$queryCarrello = "SELECT d.id_alimento, d.quantita, a.nome_piatto, a.prezzo
-        FROM dettaglio_ordini d
-        JOIN ordini o ON d.id_ordine = o.id_ordine
-        JOIN alimenti a ON d.id_alimento = a.id_alimento
-        WHERE o.id_tavolo = $idTavolo AND o.stato = 'in_attesa'";
-
-$risultato = $conn->query($queryCarrello);
-$prodottiCarrello = $risultato ? $risultato->fetch_all(MYSQLI_ASSOC) : [];
-
-echo json_encode($prodottiCarrello);
+echo json_encode($result ? $result->fetch_all(MYSQLI_ASSOC) : []);
 ?>

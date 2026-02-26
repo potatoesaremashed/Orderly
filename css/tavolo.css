@@ -1,38 +1,6 @@
 /* =========================================
-   FILE: css/tavolo.css
-   Descrizione: Stili specifici Menu Cliente (Tavolo)
+   Table (Customer) Dashboard Styles
    ========================================= */
-
-html,
-body {
-    overflow-x: clip;
-    width: 100%;
-    margin: 0;
-    padding: 0;
-}
-
-.sidebar-custom {
-    background: var(--surface-color);
-    height: 100vh;
-    border-right: 1px solid var(--border-color);
-    padding-top: 2rem;
-    transition: background 0.3s;
-    position: sticky;
-    top: 0;
-    overflow-y: auto;
-    z-index: 100;
-}
-
-
-
-.sidebar-custom::-webkit-scrollbar {
-    width: 4px;
-}
-
-.sidebar-custom::-webkit-scrollbar-thumb {
-    background: var(--border-color);
-    border-radius: 10px;
-}
 
 /* Search Bar */
 .search-wrapper {
@@ -73,6 +41,7 @@ body {
     opacity: 0.7;
 }
 
+/* Category Sidebar Buttons */
 .btn-categoria {
     display: flex;
     align-items: center;
@@ -101,29 +70,7 @@ body {
     color: white !important;
 }
 
-.theme-toggle-sidebar {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    background: var(--input-bg);
-    color: var(--text-muted);
-    transition: 0.2s;
-    border: 1px solid var(--border-color);
-    text-decoration: none;
-}
-
-.theme-toggle-sidebar:hover {
-    background: var(--surface-color);
-    color: var(--text-main);
-    transform: translateY(-2px);
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-/* Card Prodotto */
+/* Product Card */
 .card-prodotto {
     background: var(--surface-color);
     border-radius: var(--card-radius);
@@ -137,7 +84,6 @@ body {
 }
 
 .card-prodotto:hover {
-    /* transform: translateY(-5px); Rimosso per tablet */
     border-color: var(--price-color);
 }
 
@@ -188,7 +134,7 @@ body {
     -webkit-box-orient: vertical;
 }
 
-/* Controlli Quantità */
+/* Quantity Controls */
 .qty-capsule {
     background: var(--capsule-bg);
     border-radius: 50px;
@@ -267,6 +213,7 @@ body {
     color: var(--text-main);
 }
 
+/* Price */
 .text-price {
     color: var(--price-color) !important;
 }
@@ -335,9 +282,7 @@ body {
     box-shadow: 0 2px 8px rgba(255, 159, 67, 0.3);
 }
 
-/* =========================================
-   RESPONSIVE — Tablet (< 992px)
-   ========================================= */
+/* Responsive */
 @media (max-width: 991.98px) {
     .card-prodotto .card-body {
         padding: 1rem;
@@ -348,9 +293,6 @@ body {
     }
 }
 
-/* =========================================
-   RESPONSIVE — Mobile (< 768px)
-   ========================================= */
 @media (max-width: 767.98px) {
     .p-4.pb-5 {
         padding: 0.75rem !important;
@@ -394,7 +336,6 @@ body {
         font-size: 1.1rem;
     }
 
-    /* Search bar full width on mobile */
     .search-wrapper {
         max-width: 100%;
         flex: 1;
@@ -406,13 +347,11 @@ body {
         font-size: 0.85rem;
     }
 
-    /* Btn sizing on mobile header */
     .sticky-header .btn {
         padding: 8px 12px !important;
         font-size: 0.8rem;
     }
 
-    /* Card qty buttons mobile touch targets */
     .btn-card-qty {
         width: 42px;
         height: 38px;
@@ -426,21 +365,16 @@ body {
         margin-bottom: 3px;
     }
 
-    /* Zoom modal image smaller on mobile */
     #modalZoom .col-lg-6.position-relative {
         min-height: 220px !important;
     }
 
-    /* Mobile cat bar */
     .mobile-cat-btn {
         padding: 6px 14px;
         font-size: 0.8rem;
     }
 }
 
-/* =========================================
-   RESPONSIVE — Small phones (< 400px)
-   ========================================= */
 @media (max-width: 399.98px) {
     .search-input {
         padding: 8px 12px 8px 34px;

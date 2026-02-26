@@ -1,0 +1,125 @@
+body {
+    background-color: var(--bg-body);
+    font-family: 'Poppins', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    transition: background 0.3s, color 0.3s;
+}
+
+.login-container {
+    width: 100%;
+    max-width: 420px;
+    padding: 20px;
+}
+
+.card-login {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 24px;
+    padding: 40px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
+    text-align: center;
+    position: relative;
+}
+
+.theme-toggle-pos {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+}
+
+.brand-logo {
+    width: 90px;
+    height: auto;
+    margin-bottom: 25px;
+}
+
+h3 {
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 5px;
+    font-size: 1.75rem;
+}
+
+p.subtitle {
+    color: var(--text-muted);
+    margin-bottom: 30px;
+    font-size: 0.95rem;
+}
+
+.form-group {
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.form-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+    display: block;
+}
+
+.form-control-custom {
+    width: 100%;
+    background-color: var(--input-bg);
+    border: 1px solid var(--input-border);
+    color: var(--text-main);
+    border-radius: 12px;
+    padding: 14px 18px;
+    font-size: 1rem;
+    transition: all 0.2s;
+}
+
+.form-control-custom:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 4px rgba(255, 71, 87, 0.15);
+    background-color: var(--input-bg);
+}
+
+.form-control-custom::placeholder {
+    color: var(--text-muted);
+    opacity: 0.7;
+}
+
+.btn-main-lg {
+    background-color: var(--primary);
+    color: white;
+    border: none;
+    width: 100%;
+    padding: 16px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 1.1rem;
+    transition: 0.2s;
+    margin-top: 10px;
+    box-shadow: 0 4px 15px rgba(255, 71, 87, 0.3);
+}
+
+.btn-main-lg:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(255, 71, 87, 0.4);
+    color: white;
+}
+
+.alert-custom {
+    border-radius: 12px;
+    font-size: 0.9rem;
+    background-color: var(--danger-soft);
+    color: var(--danger);
+    border: 1px solid rgba(255, 71, 87, 0.2);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 15px;
+}
+
+.footer-text {
+    margin-top: 30px;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}

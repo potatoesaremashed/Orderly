@@ -1,9 +1,4 @@
-<?php
-// Carica in memoria i template delle finestre a comparsa per la dashboard Manager 
-// (Aggiungi/Modifica Tavoli, Modifica Piatti e Toasts di conferma)
-?>
-
-<!-- MODAL: Aggiungi Tavolo -->
+<!-- Modal: Add Table -->
 <div class="modal fade" id="modalAggiungiTavolo" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content modal-content-custom shadow-lg">
@@ -17,15 +12,15 @@
             <div class="modal-body p-4">
                 <div class="row g-3">
                     <div class="col-12">
-                        <label class="small text-muted fw-bold mb-1">Nome Tavolo (es. Tavolo 1)</label>
+                        <label class="small text-muted fw-bold mb-1">Nome Tavolo</label>
                         <input type="text" id="nuovo_nome_tavolo" class="form-control" placeholder="Es: Tavolo 1">
                     </div>
                     <div class="col-6">
-                        <label class="small text-muted fw-bold mb-1">Password Accesso</label>
+                        <label class="small text-muted fw-bold mb-1">Password</label>
                         <input type="text" id="nuovo_password_tavolo" class="form-control" placeholder="Es: 1234">
                     </div>
                     <div class="col-6">
-                        <label class="small text-muted fw-bold mb-1">Capienza (Posti)</label>
+                        <label class="small text-muted fw-bold mb-1">Posti</label>
                         <input type="number" id="nuovo_posti_tavolo" class="form-control" value="4" min="1" max="20">
                     </div>
                 </div>
@@ -41,14 +36,12 @@
     </div>
 </div>
 
-<!-- MODAL: Modifica Tavolo -->
+<!-- Modal: Edit Table -->
 <div class="modal fade" id="modalModificaTavolo" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content modal-content-custom shadow-lg">
             <div class="modal-header border-0 p-4 pb-2">
-                <div>
-                    <h3 class="modal-title fw-bold">Modifica Tavolo ✏️</h3>
-                </div>
+                <h3 class="modal-title fw-bold">Modifica Tavolo ✏️</h3>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body p-4">
@@ -67,7 +60,7 @@
                         <input type="number" id="mod_posti" class="form-control" min="1" max="20">
                     </div>
                     <div class="col-12">
-                        <label class="small text-muted fw-bold mb-1">Stato Tavolo</label>
+                        <label class="small text-muted fw-bold mb-1">Stato</label>
                         <select id="mod_stato" class="form-select">
                             <option value="libero">🟢 Libero</option>
                             <option value="riservato">🟡 Riservato</option>
@@ -85,7 +78,7 @@
     </div>
 </div>
 
-<!-- MODAL: Modifica Piatto -->
+<!-- Modal: Edit Dish -->
 <div class="modal fade" id="modalModifica" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -96,7 +89,6 @@
             <div class="modal-body">
                 <form action="../api/manager/modifica_piatto.php" method="POST" enctype="multipart/form-data">
                     <input type="hidden" name="id_alimento" id="mod_id">
-
                     <div class="row g-3">
                         <div class="col-md-8">
                             <label class="small text-muted">Nome</label>
@@ -108,7 +100,7 @@
                                 required>
                         </div>
                         <div class="col-12">
-                            <label class="small text-muted">Sposta in Categoria</label>
+                            <label class="small text-muted">Categoria</label>
                             <select name="id_categoria" id="mod_cat" class="form-select" required>
                                 <?php
                                 $res_mod = $conn->query("SELECT * FROM categorie");
@@ -123,9 +115,8 @@
                             <textarea name="descrizione" id="mod_desc" class="form-control" rows="3"
                                 style="resize: none;"></textarea>
                         </div>
-
                         <div class="col-12">
-                            <label class="small text-muted fw-bold mb-2">MODIFICA ALLERGENI</label>
+                            <label class="small text-muted fw-bold mb-2">ALLERGENI</label>
                             <div class="d-flex flex-wrap gap-2 p-3 rounded bg-light-custom">
                                 <?php
                                 foreach ($allergeni as $a) {
@@ -137,7 +128,6 @@
                                 ?>
                             </div>
                         </div>
-
                         <div class="col-12">
                             <div class="d-flex align-items-center gap-3">
                                 <img id="preview_img" src=""
@@ -149,7 +139,6 @@
                             </div>
                         </div>
                     </div>
-
                     <div class="modal-footer border-0 px-0 mt-3">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
                         <button type="submit" class="btn btn-primary fw-bold px-4">Salva Modifiche</button>
@@ -160,7 +149,7 @@
     </div>
 </div>
 
-<!-- Toast: Notifiche a comparsa -->
+<!-- Toast -->
 <div class="toast-container position-fixed bottom-0 start-50 translate-middle-x p-3">
     <div id="managerToast" class="toast align-items-center text-white bg-success border-0 shadow-lg" role="alert">
         <div class="d-flex">

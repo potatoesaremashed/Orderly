@@ -1,280 +1,312 @@
-let carrello = {}, totaleSoldi = 0, totalePezzi = 0;
-let zoomState = { id: null, nome: '', prezzo: 0, qtyAttuale: 1, note: '' };
-let filtri = { categoria: 'all', allergeni: [] };
+// Table (Customer) Dashboard JS
 
-function toggleTheme() {
-    const isDark = document.body.getAttribute('data-theme') === 'dark';
-    document.body.setAttribute('data-theme', isDark ? 'light' : 'dark');
-    document.getElementById('theme-icon')?.classList.replace(isDark ? 'fa-sun' : 'fa-moon', isDark ? 'fa-moon' : 'fa-sun');
-    localStorage.setItem('theme', isDark ? 'light' : 'dark');
+let carrello = {};
+let filtriAllergeni = [];
+let categoriaAttiva = 'all';
+
+document.addEventListener('DOMContentLoaded', function () {
+    // Init theme icon
+    if (localStorage.getItem('theme') === 'dark') {
+        document.querySelectorAll('[id="theme-icon"]').forEach(icon => {
+            icon.classList.replace('fa-moon', 'fa-sun');
+        });
+    }
+
+    sincronizzaCarrello();
+    renderProdotti();
+
+    // Poll every 5s — if admin terminated session, auto-logout
+    setInterval(verificaSessione, 5000);
+
+    document.getElementById('btn-invia-ordine').addEventListener('click', () => {
+        new bootstrap.Modal(document.getElementById('modalConfermaOrdine')).show();
+    });
+    document.getElementById('confirm-send-btn').addEventListener('click', inviaOrdine);
+});
+
+// --- Cart Sync ---
+function sincronizzaCarrello() {
+    fetch('../api/tavolo/get_carrello.php')
+        .then(r => r.json())
+        .then(data => {
+            carrello = {};
+            data.forEach(item => {
+                carrello[item.id_alimento] = {
+                    nome: item.nome_piatto,
+                    qta: parseInt(item.quantita),
+                    prezzo: parseFloat(item.prezzo)
+                };
+            });
+            aggiornaUI();
+        });
 }
 
-if (localStorage.getItem('theme') === 'dark') {
-    document.body.setAttribute('data-theme', 'dark');
-    document.getElementById('theme-icon')?.classList.replace('fa-moon', 'fa-sun');
+// --- Product Rendering & Filtering ---
+function renderProdotti() {
+    const search = document.getElementById('search-bar').value.toLowerCase();
+    document.querySelectorAll('.item-prodotto').forEach(item => {
+        const card = item.querySelector('.card-prodotto');
+        const nome = card.dataset.nome.toLowerCase();
+        const desc = card.dataset.desc.toLowerCase();
+        const cat = card.dataset.cat;
+        const allergeniPiatto = card.dataset.allergeni.split(',').map(a => a.trim().toLowerCase());
+        const matchSearch = nome.includes(search) || desc.includes(search);
+        const matchCat = categoriaAttiva === 'all' || cat == categoriaAttiva;
+        const matchAllergeni = filtriAllergeni.length === 0 || !filtriAllergeni.some(f => allergeniPiatto.includes(f.toLowerCase()));
+        item.style.display = (matchSearch && matchCat && matchAllergeni) ? '' : 'none';
+    });
 }
 
-function filtraCategoria(idCat, el) {
+function filtraCategoria(catId, btn) {
+    categoriaAttiva = catId;
     document.querySelectorAll('.btn-categoria, .mobile-cat-btn').forEach(b => b.classList.remove('active'));
-    if (el) el.classList.add('active');
-    filtri.categoria = idCat;
+    btn.classList.add('active');
     renderProdotti();
 }
 
 function applicaFiltriAllergeni() {
-    filtri.allergeni = Array.from(document.querySelectorAll('#modalFiltri input[type="checkbox"]:checked')).map(cb => cb.value);
+    filtriAllergeni = [];
+    document.querySelectorAll('#lista-allergeni-filtro input[type="checkbox"]:checked').forEach(cb => {
+        filtriAllergeni.push(cb.value);
+    });
     renderProdotti();
 }
 
 function resettaFiltriAllergeni() {
-    document.querySelectorAll('#modalFiltri input[type="checkbox"]').forEach(cb => cb.checked = false);
-    filtri.allergeni = [];
+    document.querySelectorAll('#lista-allergeni-filtro input[type="checkbox"]').forEach(cb => cb.checked = false);
+    filtriAllergeni = [];
     renderProdotti();
 }
 
-function renderProdotti() {
-    const search = (document.getElementById('search-bar')?.value || '').toLowerCase().trim();
-    document.querySelectorAll('.item-prodotto').forEach(piatto => {
-        const d = piatto.querySelector('.card-prodotto')?.dataset || {};
-        const allergeniPiatto = (d.allergeni || '').toLowerCase().split(',').map(s => s.trim());
-        const nomePiatto = (d.nome || '').toLowerCase();
+// --- Quantity Controls (Card) ---
+function btnCardQty(event, id, delta, prezzo, nome) {
+    event.stopPropagation();
+    if (!carrello[id]) carrello[id] = { nome, qta: 0, prezzo };
+    carrello[id].qta = Math.max(0, carrello[id].qta + delta);
 
-        let mostra = (filtri.categoria === 'all' || piatto.dataset.cat == filtri.categoria)
-            && (!filtri.allergeni.length || !filtri.allergeni.some(a => allergeniPiatto.includes(a.toLowerCase())))
-            && (!search || nomePiatto.includes(search));
+    const endpoint = delta > 0 ? 'aggiungi_al_carrello.php' : 'rimuovi_dal_carrello.php';
+    const fd = new FormData();
+    fd.append('id_alimento', id);
+    if (delta > 0) fd.append('quantita', 1);
 
-        piatto.style.display = mostra ? 'block' : 'none';
-    });
+    fetch('../api/tavolo/' + endpoint, { method: 'POST', body: fd });
+
+    if (carrello[id].qta <= 0) delete carrello[id];
+    aggiornaUI();
 }
 
-function gestisciCarrello(id, delta, prezzo, nome, note = null) {
-    const input = document.getElementById(`q-${id}`);
-    if (!input) return;
+// --- Zoom Modal ---
+let zoomState = { id: 0, prezzo: 0, qta: 1, nome: '', note: '' };
 
-    let qta = (parseInt(input.innerText) || 0) + delta;
-    if (qta >= 0) {
-        input.innerText = qta;
-        totaleSoldi += (delta * prezzo);
-        totalePezzi += delta;
+function apriZoom(event, card) {
+    if (event.target.closest('.btn-card-qty')) return;
 
-        const soldiHeader = document.getElementById('soldi-header');
-        const pezziHeader = document.getElementById('pezzi-header');
-        if (soldiHeader) soldiHeader.innerText = Math.max(0, totaleSoldi).toFixed(2);
-        if (pezziHeader) pezziHeader.innerText = Math.max(0, totalePezzi);
+    zoomState = {
+        id: parseInt(card.dataset.id),
+        prezzo: parseFloat(card.dataset.prezzo),
+        qta: 1,
+        nome: card.dataset.nome,
+        note: ''
+    };
 
-        if (!carrello[id]) carrello[id] = { id, nome, qta: 0, prezzo, note: '' };
-        carrello[id].qta = qta;
-        if (note !== null) carrello[id].note = note;
+    document.getElementById('zoom-img').src = card.dataset.img;
+    document.getElementById('zoom-nome').textContent = card.dataset.nome;
+    document.getElementById('zoom-desc').textContent = card.dataset.desc;
+    document.getElementById('zoom-prezzo-unitario').textContent = card.dataset.prezzo;
+    document.getElementById('zoom-note').value = '';
 
-        updateCardQtyUI(id, qta);
-        if (qta === 0) delete carrello[id];
+    // Render allergens
+    const allergeni = card.dataset.allergeni.split(',').filter(a => a.trim());
+    document.getElementById('zoom-allergeni').innerHTML = allergeni.length
+        ? allergeni.map(a => `<span class="badge-alg">${a.trim()}</span>`).join('')
+        : '<small class="text-muted">Nessun allergene dichiarato</small>';
 
-        const btnInvia = document.getElementById('btn-invia-ordine');
-        if (btnInvia) {
-            btnInvia.disabled = totalePezzi === 0;
-            btnInvia.classList.toggle('btn-dark', totalePezzi > 0);
-            btnInvia.classList.toggle('btn-secondary', totalePezzi === 0);
-        }
+    aggiornaZoomUI();
+    new bootstrap.Modal(document.getElementById('modalZoom')).show();
+}
 
-        if (document.getElementById('modalCarrello')?.classList.contains('show')) aggiornaModale();
+function updateZoomQty(delta) {
+    zoomState.qta = Math.max(1, zoomState.qta + delta);
+    aggiornaZoomUI();
+}
+
+function aggiornaZoomUI() {
+    document.getElementById('zoom-qty-display').textContent = zoomState.qta;
+    document.getElementById('zoom-btn-totale').textContent = (zoomState.prezzo * zoomState.qta).toFixed(2) + '€';
+}
+
+function confermaZoom() {
+    if (!carrello[zoomState.id]) carrello[zoomState.id] = { nome: zoomState.nome, qta: 0, prezzo: zoomState.prezzo };
+    carrello[zoomState.id].qta += zoomState.qta;
+
+    const fd = new FormData();
+    fd.append('id_alimento', zoomState.id);
+    fd.append('quantita', zoomState.qta);
+    fetch('../api/tavolo/aggiungi_al_carrello.php', { method: 'POST', body: fd });
+
+    aggiornaUI();
+    bootstrap.Modal.getInstance(document.getElementById('modalZoom')).hide();
+    mostraToast(`${zoomState.nome} aggiunto!`);
+}
+
+// --- UI Updates ---
+function aggiornaUI() {
+    let totale = 0, pezzi = 0;
+    for (const id in carrello) {
+        const item = carrello[id];
+        totale += item.qta * item.prezzo;
+        pezzi += item.qta;
+        const el = document.getElementById('q-' + id);
+        if (el) el.textContent = item.qta;
     }
+
+    // Reset quantities for items not in cart
+    document.querySelectorAll('[id^="q-"]').forEach(el => {
+        const id = el.id.replace('q-', '');
+        if (!carrello[id]) el.textContent = '0';
+    });
+
+    document.getElementById('soldi-header').textContent = totale.toFixed(2);
+    document.getElementById('pezzi-header').textContent = pezzi;
 }
 
+// --- Cart Modal ---
 function aggiornaModale() {
-    const container = document.getElementById('corpo-carrello');
-    const totaleSpan = document.getElementById('totale-modale');
+    const body = document.getElementById('corpo-carrello');
+    const keys = Object.keys(carrello).filter(id => carrello[id].qta > 0);
+    let totale = 0;
 
-    if (!Object.keys(carrello).length) {
-        container.innerHTML = `<div class="d-flex flex-column align-items-center justify-content-center h-100 py-5">
-            <div class="display-1 mb-3" style="opacity:0.3">🍽️</div><h5 class="fw-bold text-muted">Il carrello è vuoto</h5></div>`;
-        totaleSpan.innerText = '0.00';
+    if (!keys.length) {
+        body.innerHTML = `<div class="text-center py-5 text-muted">
+            <i class="fas fa-shopping-bag fa-3x mb-3" style="opacity:.3"></i>
+            <h5>Il carrello è vuoto</h5><p class="small">Aggiungi piatti per iniziare</p></div>`;
+        document.getElementById('totale-modale').textContent = '0.00';
+        document.getElementById('btn-invia-ordine').disabled = true;
         return;
     }
 
-    let html = '<div class="list-group list-group-flush w-100 px-3 py-2">';
-    Object.entries(carrello).forEach(([id, item]) => {
-        let notaStr = item.note ? `<div class="small text-muted fst-italic"><i class="fas fa-comment-alt me-1"></i>${item.note}</div>` : '';
-        let btnMinus = `<button class="btn-circle btn-minus" style="width: 32px; height: 32px;" onclick="gestisciCarrello(${id}, -1, ${item.prezzo}, '${item.nome.replace(/'/g, "\\'")}')"><i class="fas fa-minus small"></i></button>`;
-        let btnPlus = `<button class="btn-circle btn-plus" style="width: 32px; height: 32px;" onclick="gestisciCarrello(${id}, 1, ${item.prezzo}, '${item.nome.replace(/'/g, "\\'")}')"><i class="fas fa-plus small"></i></button>`;
+    body.innerHTML = '<ul class="list-group list-group-flush px-3">' + keys.map(id => {
+        const item = carrello[id];
+        const sub = (item.qta * item.prezzo).toFixed(2);
+        totale += item.qta * item.prezzo;
+        return `<li class="list-group-item d-flex justify-content-between align-items-center px-2 py-3">
+            <div>
+                <strong>${item.nome}</strong><br>
+                <small class="text-muted">${item.prezzo.toFixed(2)}€ cad.</small>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <div class="qty-capsule" style="width:120px;">
+                    <button class="btn-circle btn-minus" onclick="modificaQtaModale(${id}, -1)"><i class="fas fa-minus"></i></button>
+                    <span class="qty-input">${item.qta}</span>
+                    <button class="btn-circle btn-plus" onclick="modificaQtaModale(${id}, 1)"><i class="fas fa-plus"></i></button>
+                </div>
+                <strong class="text-price">${sub}€</strong>
+            </div>
+        </li>`;
+    }).join('') + '</ul>';
 
-        html += `
-            <div class="cart-item list-group-item d-flex align-items-center border-0 mb-3 px-0" style="background: transparent;">
-                <div style="flex: 1; min-width: 0;">
-                    <h5 class="m-0 fw-bold text-truncate">${item.nome}</h5>${notaStr}
-                    <small class="text-muted">${item.prezzo}€ cad.</small>
-                </div>
-                <div class="qty-capsule d-flex align-items-center justify-content-center mx-2" style="background: var(--capsule-bg); border-radius: 50px; width: 110px; height: 45px; flex-shrink: 0;">
-                    ${btnMinus}<span class="text-center fw-bold" style="width: 35px; font-size: 1.1rem;">${item.qta}</span>${btnPlus}
-                </div>
-                <div style="width: 80px; flex-shrink: 0;" class="text-end">
-                    <span class="fw-bold fs-5 text-price" style="color: var(--primary);">${(item.qta * item.prezzo).toFixed(2)}€</span>
-                </div>
-            </div>`;
-    });
-
-    container.innerHTML = html + '</div>';
-    totaleSpan.innerText = Math.max(0, totaleSoldi).toFixed(2);
+    document.getElementById('totale-modale').textContent = totale.toFixed(2);
+    document.getElementById('btn-invia-ordine').disabled = false;
 }
 
-function resettaOrdineDopoInvio() {
-    carrello = {};
-    totaleSoldi = 0;
-    totalePezzi = 0;
+function modificaQtaModale(id, delta) {
+    if (!carrello[id]) return;
+    carrello[id].qta = Math.max(0, carrello[id].qta + delta);
 
-    const soldiHeader = document.getElementById('soldi-header');
-    const pezziHeader = document.getElementById('pezzi-header');
-    if (soldiHeader) soldiHeader.innerText = '0.00';
-    if (pezziHeader) pezziHeader.innerText = '0';
+    const endpoint = delta > 0 ? 'aggiungi_al_carrello.php' : 'rimuovi_dal_carrello.php';
+    const fd = new FormData();
+    fd.append('id_alimento', id);
+    if (delta > 0) fd.append('quantita', 1);
+    fetch('../api/tavolo/' + endpoint, { method: 'POST', body: fd });
 
-    document.querySelectorAll('[id^="q-"]').forEach(el => el.innerText = '0');
-
-    const btnInvia = document.getElementById('btn-invia-ordine');
-    if (btnInvia) {
-        btnInvia.disabled = true;
-        btnInvia.classList.replace('btn-dark', 'btn-secondary');
-    }
+    if (carrello[id].qta <= 0) delete carrello[id];
+    aggiornaUI();
+    aggiornaModale();
 }
 
-document.getElementById('btn-invia-ordine')?.addEventListener('click', () => {
-    bootstrap.Modal.getInstance(document.getElementById('modalCarrello'))?.hide();
-    new bootstrap.Modal(document.getElementById('modalConfermaOrdine')).show();
-});
+// --- Order Submission ---
+function inviaOrdine() {
+    const prodotti = Object.keys(carrello).map(id => ({
+        id: parseInt(id),
+        qta: carrello[id].qta,
+        note: ''
+    })).filter(p => p.qta > 0);
 
-document.getElementById('confirm-send-btn') && (document.getElementById('confirm-send-btn').onclick = function () {
-    const btn = this;
-    btn.disabled = true;
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Invio...';
+    if (!prodotti.length) return;
 
-    const prodotti = Object.values(carrello).map(i => ({ id: i.id, qta: i.qta, note: i.note }));
+    bootstrap.Modal.getInstance(document.getElementById('modalConfermaOrdine')).hide();
 
     fetch('../api/tavolo/invia_ordine.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ prodotti })
-    }).then(r => r.json()).then(res => {
-        bootstrap.Modal.getInstance(document.getElementById('modalConfermaOrdine'))?.hide();
+    })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                carrello = {};
+                aggiornaUI();
+                bootstrap.Modal.getInstance(document.getElementById('modalCarrello'))?.hide();
+                new bootstrap.Modal(document.getElementById('modalSuccesso')).show();
+            } else {
+                mostraToast(data.message || 'Errore', true);
+            }
+        });
+}
 
-        if (res.success) {
-            const modalSuccesso = new bootstrap.Modal(document.getElementById('modalSuccesso'));
-            modalSuccesso.show();
-            resettaOrdineDopoInvio();
-            setTimeout(() => {
-                modalSuccesso.hide();
-                btn.disabled = false;
-                btn.innerHTML = 'SÌ, ORDINA!';
-            }, 2000);
-        } else {
-            alert(res.message);
-            btn.disabled = false;
-            btn.innerHTML = 'SÌ, ORDINA!';
-        }
-    }).catch(() => {
-        bootstrap.Modal.getInstance(document.getElementById('modalConfermaOrdine'))?.hide();
-        btn.disabled = false;
-        btn.innerHTML = 'SÌ, ORDINA!';
-        alert("Errore di connessione. Riprova.");
-    });
-});
-
+// --- Order History ---
 function apriStorico() {
-    const container = document.getElementById('corpo-ordini');
-    const totaleSpan = document.getElementById('totale-storico');
-    if (totaleSpan) totaleSpan.innerText = '0.00';
-    container.innerHTML = '<div class="text-center py-5"><i class="fas fa-spinner fa-spin fa-2x text-muted"></i></div>';
-
     fetch('../api/tavolo/leggi_ordini_tavolo.php')
-        .then(res => res.json())
-        .then(ordini => {
-            if (!ordini?.length) {
-                container.innerHTML = `<div class="d-flex flex-column align-items-center justify-content-center py-5">
-                    <div class="display-1 mb-3" style="opacity:0.3">📋</div><h5 class="fw-bold text-muted">Nessun ordine</h5></div>`;
-                new bootstrap.Modal(document.getElementById('modalOrdini')).show();
-                return;
+        .then(r => r.json())
+        .then(data => {
+            const body = document.getElementById('corpo-ordini');
+            let totaleSommato = 0;
+
+            if (!data.length) {
+                body.innerHTML = `<div class="text-center text-muted py-5">
+                    <i class="fas fa-receipt fa-3x mb-3 opacity-25"></i>
+                    <h5>Nessun ordine</h5><p class="small">Non hai ancora inviato ordini.</p></div>`;
+            } else {
+                body.innerHTML = data.map(o => {
+                    totaleSommato += parseFloat(o.totale);
+                    const badgeClass = o.stato === 'in_attesa' ? 'bg-warning text-dark' : o.stato === 'in_preparazione' ? 'bg-info text-white' : 'bg-success';
+                    const labels = { in_attesa: 'In attesa', in_preparazione: 'In preparazione', pronto: 'Pronto' };
+                    return `<div class="border rounded-4 p-3 mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="badge ${badgeClass} rounded-pill px-3 py-2">${labels[o.stato] || o.stato}</span>
+                            <small class="text-muted"><i class="fas fa-clock me-1"></i>${o.ora} • ${o.data}</small>
+                        </div>
+                        ${o.piatti.map(p => `<div class="d-flex justify-content-between small py-1 border-bottom">
+                            <span>${p.qta}x <strong>${p.nome}</strong></span>
+                            <span class="text-muted">${p.prezzo}€</span>
+                        </div>`).join('')}
+                        <div class="text-end mt-2 fw-bold text-price">${o.totale}€</div>
+                    </div>`;
+                }).join('');
             }
 
-            const statusMap = {
-                'in_attesa': { str: 'In Attesa', cl: 'bg-warning text-dark', ic: 'fa-clock' },
-                'in_preparazione': { str: 'In Preparazione', cl: 'bg-primary text-white', ic: 'fa-fire-burner' },
-                'pronto': { str: 'Pronto', cl: 'bg-success text-white', ic: 'fa-check-circle' }
-            };
-
-            let html = '', grandTotal = 0;
-            ordini.forEach(o => {
-                const st = statusMap[o.stato] || statusMap['in_attesa'];
-                grandTotal += parseFloat(o.totale);
-
-                let piattiHtml = o.piatti.map((p, i) => `
-                    <div class="d-flex justify-content-between align-items-start py-2 ${i < o.piatti.length - 1 ? 'border-bottom' : ''}">
-                        <div style="flex:1; min-width:0;"><span class="fw-semibold">${p.nome}</span>
-                        ${p.note ? `<div class="small text-muted fst-italic"><i class="fas fa-comment-alt me-1"></i>${p.note}</div>` : ''}</div>
-                        <div class="text-end ms-3 flex-shrink-0"><span class="text-muted small">x${p.qta}</span>
-                        <span class="fw-bold ms-2">${(parseFloat(p.prezzo)).toFixed(2)}€</span></div>
-                    </div>`).join('');
-
-                html += `
-                    <div class="ordine-card mb-3 p-3 rounded-4 border bg-light-custom">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <div class="d-flex align-items-center gap-2"><span class="fw-bold text-muted small"><i class="fas fa-clock me-1"></i>${o.ora}</span></div>
-                            <span class="badge ${st.cl} rounded-pill px-3 py-2"><i class="fas ${st.ic} me-1"></i>${st.str}</span>
-                        </div>
-                        <div class="px-1">${piattiHtml}</div>
-                        <div class="d-flex justify-content-between align-items-center mt-3 pt-2 border-top">
-                            <span class="text-muted small fw-bold">Ordine #${o.id_ordine}</span>
-                            <span class="fw-bold fs-5" style="color: var(--primary);">${o.totale}€</span>
-                        </div>
-                    </div>`;
-            });
-
-            container.innerHTML = html;
-            if (totaleSpan) totaleSpan.innerText = grandTotal.toFixed(2);
-            new bootstrap.Modal(document.getElementById('modalOrdini')).show();
-        }).catch(() => {
-            container.innerHTML = `<div class="d-flex flex-column align-items-center justify-content-center py-5">
-                <div class="display-1 mb-3" style="opacity:0.3">⚠️</div><h5 class="fw-bold text-muted">Errore</h5></div>`;
+            document.getElementById('totale-storico').textContent = totaleSommato.toFixed(2);
             new bootstrap.Modal(document.getElementById('modalOrdini')).show();
         });
 }
 
-function apriZoom(e, card) {
-    if (e?.target?.closest('.btn-card-qty, .qty-capsule-card')) return;
-
-    const d = card.dataset;
-    document.getElementById('zoom-nome').innerText = d.nome;
-    document.getElementById('zoom-desc').innerText = d.desc;
-    document.getElementById('zoom-prezzo-unitario').innerText = d.prezzo;
-    document.getElementById('zoom-img').src = d.img || '';
-    document.getElementById('zoom-allergeni').innerHTML = d.allergeni ? d.allergeni.split(',').map(a => `<span class="badge-alg">${a.trim()}</span>`).join('') : '<small>Nessuno</small>';
-    document.getElementById('zoom-note').value = carrello[d.id]?.note || '';
-
-    zoomState = { id: d.id, nome: d.nome, prezzo: parseFloat(d.prezzo), qtyAttuale: 1, note: document.getElementById('zoom-note').value };
-    refreshZoomUI();
-    new bootstrap.Modal(document.getElementById('modalZoom')).show();
+// --- Toast ---
+function mostraToast(msg, isError = false) {
+    const el = document.getElementById('liveToast');
+    el.className = `toast align-items-center text-white border-0 shadow-lg ${isError ? 'bg-danger' : 'bg-success'}`;
+    document.getElementById('toast-msg').textContent = msg;
+    new bootstrap.Toast(el, { delay: 3000 }).show();
 }
 
-function updateZoomQty(delta) {
-    zoomState.qtyAttuale = Math.max(1, zoomState.qtyAttuale + delta);
-    refreshZoomUI();
-}
-
-function refreshZoomUI() {
-    document.getElementById('zoom-qty-display').innerText = zoomState.qtyAttuale;
-    document.getElementById('zoom-btn-totale').innerText = (zoomState.qtyAttuale * zoomState.prezzo).toFixed(2) + '€';
-}
-
-function confermaZoom() {
-    gestisciCarrello(zoomState.id, zoomState.qtyAttuale, zoomState.prezzo, zoomState.nome, document.getElementById('zoom-note').value);
-
-    document.getElementById('toast-msg').innerText = `${zoomState.nome} aggiunto!`;
-    new bootstrap.Toast(document.getElementById('liveToast')).show();
-    bootstrap.Modal.getInstance(document.getElementById('modalZoom'))?.hide();
-}
-
-function btnCardQty(event, id, delta, prezzo, nome) {
-    event.stopPropagation();
-    gestisciCarrello(id, delta, prezzo, nome, null);
-}
-
-function updateCardQtyUI(id, val) {
-    const el = document.getElementById(`q-${id}`);
-    if (el) el.innerText = val;
+// --- Session Check ---
+function verificaSessione() {
+    fetch('../api/tavolo/verifica_sessione.php')
+        .then(r => r.json())
+        .then(data => {
+            if (!data.valida) {
+                alert('La sessione è stata terminata dal gestore.');
+                window.location.href = '../logout.php';
+            }
+        })
+        .catch(() => { }); // Ignore network errors
 }

@@ -2,32 +2,25 @@
 require_once "../../include/auth/manager_auth.php";
 header('Content-Type: application/json');
 
-$nomeTavolo = trim($_POST['nome_tavolo'] ?? '');
-$passwordTavolo = trim($_POST['password'] ?? '');
-$numeroPosti = intval($_POST['posti'] ?? 4);
+$nome = trim($_POST['nome_tavolo'] ?? '');
+$password = trim($_POST['password'] ?? '');
+$posti = intval($_POST['posti'] ?? 4);
 
-if (empty($nomeTavolo) || empty($passwordTavolo)) {
+if (empty($nome) || empty($password)) {
     echo json_encode(['success' => false, 'error' => 'Nome e Password sono obbligatori.']);
     exit;
 }
 
-// Verifica che il nome non sia già in uso da un altro tavolo
-$checkEsistenza = $conn->prepare("SELECT id_tavolo FROM tavoli WHERE nome_tavolo = ?");
-$checkEsistenza->bind_param("s", $nomeTavolo);
-$checkEsistenza->execute();
-
-if ($checkEsistenza->get_result()->num_rows > 0) {
+$check = $conn->prepare("SELECT id_tavolo FROM tavoli WHERE nome_tavolo = ?");
+$check->bind_param("s", $nome);
+$check->execute();
+if ($check->get_result()->num_rows > 0) {
     echo json_encode(['success' => false, 'error' => 'Esiste già un tavolo con questo nome.']);
     exit;
 }
 
-// Inserisce il nuovo tavolo assegnandolo al Menu Principale (id_menu = 1)
-$inserimento = $conn->prepare("INSERT INTO tavoli (nome_tavolo, password, posti, id_menu) VALUES (?, ?, ?, 1)");
-$inserimento->bind_param("ssi", $nomeTavolo, $passwordTavolo, $numeroPosti);
+$stmt = $conn->prepare("INSERT INTO tavoli (nome_tavolo, password, posti, id_menu) VALUES (?, ?, ?, 1)");
+$stmt->bind_param("ssi", $nome, $password, $posti);
 
-if ($inserimento->execute()) {
-    echo json_encode(['success' => true, 'id' => $inserimento->insert_id]);
-} else {
-    echo json_encode(['success' => false, 'error' => 'Errore durante il salvataggio.']);
-}
+echo json_encode($stmt->execute() ? ['success' => true, 'id' => $stmt->insert_id] : ['success' => false, 'error' => 'Errore durante il salvataggio.']);
 ?>

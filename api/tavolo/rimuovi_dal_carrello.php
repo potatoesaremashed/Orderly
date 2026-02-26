@@ -15,31 +15,20 @@ if ($idPiatto <= 0) {
     exit;
 }
 
-// Trova il carrello aperto
-$queryOrdine = $conn->query("SELECT id_ordine FROM ordini WHERE id_tavolo = $idTavolo AND stato = 'in_attesa' LIMIT 1");
+$res = $conn->query("SELECT id_ordine FROM ordini WHERE id_tavolo = $idTavolo AND stato = 'in_attesa' LIMIT 1");
+if ($res->num_rows > 0) {
+    $idOrdine = $res->fetch_assoc()['id_ordine'];
+    $qRes = $conn->query("SELECT quantita FROM dettaglio_ordini WHERE id_ordine = $idOrdine AND id_alimento = $idPiatto");
 
-if ($queryOrdine->num_rows > 0) {
-    $idOrdine = $queryOrdine->fetch_assoc()['id_ordine'];
+    if ($qRes->num_rows > 0) {
+        $qta = $qRes->fetch_assoc()['quantita'];
+        $sql = ($qta > 1)
+            ? "UPDATE dettaglio_ordini SET quantita = quantita - 1 WHERE id_ordine = $idOrdine AND id_alimento = $idPiatto"
+            : "DELETE FROM dettaglio_ordini WHERE id_ordine = $idOrdine AND id_alimento = $idPiatto";
 
-    // Controlla quantità attuale del piatto nel carrello
-    $queryQuantita = $conn->query("SELECT quantita FROM dettaglio_ordini WHERE id_ordine = $idOrdine AND id_alimento = $idPiatto");
-
-    if ($queryQuantita->num_rows > 0) {
-        $quantitaAttuale = $queryQuantita->fetch_assoc()['quantita'];
-
-        if ($quantitaAttuale > 1) {
-            $sqlAzione = "UPDATE dettaglio_ordini SET quantita = quantita - 1 WHERE id_ordine = $idOrdine AND id_alimento = $idPiatto";
-        } else {
-            $sqlAzione = "DELETE FROM dettaglio_ordini WHERE id_ordine = $idOrdine AND id_alimento = $idPiatto";
-        }
-
-        if ($conn->query($sqlAzione)) {
-            echo json_encode(['success' => true, 'message' => 'Carrello aggiornato.']);
-        } else {
-            echo json_encode(['success' => false, 'message' => 'Errore: ' . $conn->error]);
-        }
+        echo json_encode($conn->query($sql) ? ['success' => true] : ['success' => false, 'message' => $conn->error]);
     } else {
-        echo json_encode(['success' => false, 'message' => 'Piatto non trovato nel carrello.']);
+        echo json_encode(['success' => false, 'message' => 'Piatto non nel carrello.']);
     }
 } else {
     echo json_encode(['success' => false, 'message' => 'Nessun carrello attivo.']);

@@ -1,5 +1,8 @@
+/* =========================================
+   Common Styles — Shared across all pages
+   ========================================= */
+
 :root {
-    /* Palette */
     --primary: #ff2235;
     --dark: #2d3436;
     --bg-body: #f4f6f9;
@@ -15,17 +18,15 @@
     --price-color: #00a8ff;
     --card-radius: 20px;
     --shadow-soft: 0 4px 15px rgba(0, 0, 0, 0.05);
-
     --capsule-bg: #f1f2f6;
     --col-bg: #eaeff2;
-
     --new-order-bg: #fff0f0;
     --new-order-text: #ff6b6b;
     --prep-order-bg: #f0f8ff;
     --prep-order-text: #00a8ff;
 }
 
-/* --- MODALITA' SCURA --- */
+/* Dark Theme */
 [data-theme="dark"] {
     --bg-body: #121212;
     --bg-card: #1e1e1e;
@@ -37,7 +38,6 @@
     --input-border: #444444;
     --capsule-bg: #2d3436;
     --col-bg: #181818;
-
     --new-order-bg: #4a2b2b;
     --prep-order-bg: #2b3a4a;
 }
@@ -77,7 +77,19 @@
     filter: invert(1);
 }
 
-/* --- BASE --- */
+[data-theme="dark"] .sticky-header {
+    background: rgba(30, 30, 30, 0.95);
+}
+
+/* Base */
+html,
+body {
+    overflow-x: clip;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+}
+
 body {
     background-color: var(--bg-body);
     color: var(--text-main);
@@ -85,13 +97,57 @@ body {
     transition: background 0.3s, color 0.3s;
 }
 
-/* Evita che l'apertura della modale faccia "shiftare" tutto a sinistra/destra */
 body.modal-open {
     padding-right: 0 !important;
     overflow-y: scroll !important;
 }
 
-/* --- COMPONENTI --- */
+/* Sidebar (shared between manager and tavolo) */
+.sidebar-custom {
+    background: var(--surface-color);
+    height: 100vh;
+    border-right: 1px solid var(--border-color);
+    padding-top: 2rem;
+    transition: background 0.3s;
+    position: sticky;
+    top: 0;
+    overflow-y: auto;
+    z-index: 100;
+}
+
+.sidebar-custom::-webkit-scrollbar {
+    width: 4px;
+}
+
+.sidebar-custom::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 10px;
+}
+
+/* Theme Toggle (shared) */
+.theme-toggle-sidebar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    background: var(--input-bg);
+    color: var(--text-muted);
+    transition: 0.2s;
+    border: 1px solid var(--border-color);
+    text-decoration: none;
+}
+
+.theme-toggle-sidebar:hover {
+    background: var(--surface-color);
+    color: var(--text-main);
+    transform: translateY(-2px);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Sticky Header */
 .sticky-header {
     background: rgba(var(--surface-color), 0.95);
     backdrop-filter: blur(12px);
@@ -104,10 +160,6 @@ body.modal-open {
     justify-content: space-between;
     align-items: center;
     transition: background 0.3s;
-}
-
-[data-theme="dark"] .sticky-header {
-    background: rgba(30, 30, 30, 0.95);
 }
 
 .theme-toggle {
@@ -124,7 +176,7 @@ body.modal-open {
     transition: 0.3s;
 }
 
-/* Bottoni */
+/* Buttons */
 .btn-main {
     background-color: var(--primary);
     color: white;
@@ -199,9 +251,7 @@ body.modal-open {
     display: inline-block;
 }
 
-/* =========================================
-   RESPONSIVE — Mobile (< 768px)
-   ========================================= */
+/* Responsive — Mobile */
 @media (max-width: 767.98px) {
     .sticky-header {
         padding: 0.6rem 0.75rem;
@@ -238,9 +288,6 @@ body.modal-open {
     }
 }
 
-/* =========================================
-   RESPONSIVE — Small phones (< 400px)
-   ========================================= */
 @media (max-width: 399.98px) {
     .sticky-header {
         padding: 0.5rem;

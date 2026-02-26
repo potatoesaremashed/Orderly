@@ -1,22 +1,28 @@
 <!DOCTYPE html>
 <html lang="it">
-<!-- 
-  Carica lo scheletro superiore HTML (metadati, librerie CSS, titolo) per tutte le dashboard.
-  Includi questo file per non ripetere in ogni pagina lo stesso codice di setup.
--->
 
 <head>
-    <!-- Definisci il set di caratteri per supportare le lettere accentate -->
-    <meta charset="UTF-8">
-    
-    <!-- Rendi il sito Responsive per adattarsi automaticamente agli schermi dei cellulari -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <!-- Collega la libreria Bootstrap 5 per impostare il layout ed i colori di base -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-
-    <!-- Imposta il titolo visualizzato sulla linguetta del browser -->
-    <title>Orderly</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <title>Orderly</title>
 </head>
 
 <body>
+  <script>
+    // Shared theme toggle — loaded once via header.php
+    function toggleTheme() {
+      const isDark = document.body.getAttribute('data-theme') === 'dark';
+      const newTheme = isDark ? 'light' : 'dark';
+      document.body.setAttribute('data-theme', newTheme);
+      document.querySelectorAll('[id="theme-icon"]').forEach(icon => {
+        icon.classList.replace(isDark ? 'fa-sun' : 'fa-moon', isDark ? 'fa-moon' : 'fa-sun');
+      });
+      localStorage.setItem('theme', newTheme);
+    }
+    (function () {
+      if (localStorage.getItem('theme') === 'dark') {
+        document.body.setAttribute('data-theme', 'dark');
+      }
+    })();
+  </script>

@@ -1,40 +1,8 @@
 /* =========================================
-   FILE: css/manager.css
-   Stili per la Dashboard Manager (Admin)
+   Manager Dashboard Styles
    ========================================= */
 
-html,
-body {
-    overflow-x: clip;
-    width: 100%;
-    margin: 0;
-    padding: 0;
-}
-
-/* =========================================
-   SIDEBAR
-   ========================================= */
-.sidebar-custom {
-    background: var(--surface-color);
-    height: 100vh;
-    border-right: 1px solid var(--border-color);
-    padding-top: 2rem;
-    transition: background 0.3s;
-    position: sticky;
-    top: 0;
-    overflow-y: auto;
-    z-index: 100;
-}
-
-.sidebar-custom::-webkit-scrollbar {
-    width: 4px;
-}
-
-.sidebar-custom::-webkit-scrollbar-thumb {
-    background: var(--border-color);
-    border-radius: 10px;
-}
-
+/* Sidebar Buttons */
 .btn-sidebar {
     display: flex;
     align-items: center;
@@ -59,31 +27,7 @@ body {
     box-shadow: 0 4px 15px rgba(255, 71, 87, 0.4);
 }
 
-.theme-toggle-sidebar {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    background: var(--input-bg);
-    color: var(--text-muted);
-    transition: 0.2s;
-    border: 1px solid var(--border-color);
-    text-decoration: none;
-}
-
-.theme-toggle-sidebar:hover {
-    background: var(--surface-color);
-    color: var(--text-main);
-    transform: translateY(-2px);
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-/* =========================================
-   PAGE HEADER
-   ========================================= */
+/* Page Header */
 .page-header {
     display: flex;
     justify-content: space-between;
@@ -96,9 +40,7 @@ body {
     z-index: 50;
 }
 
-/* =========================================
-   FILTER TABS
-   ========================================= */
+/* Filter Tabs */
 .filter-tabs {
     display: flex;
     gap: 8px;
@@ -156,9 +98,7 @@ body {
     text-align: center;
 }
 
-/* =========================================
-   STATUS DOTS
-   ========================================= */
+/* Status Dots */
 .status-dot {
     width: 10px;
     height: 10px;
@@ -182,9 +122,7 @@ body {
     box-shadow: 0 0 6px rgba(243, 156, 18, 0.5);
 }
 
-/* =========================================
-   TABLE GRID — Square-style cards
-   ========================================= */
+/* Table Grid */
 .tavoli-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
@@ -336,9 +274,7 @@ body {
     color: #e74c3c;
 }
 
-/* =========================================
-   MOBILE NAV BAR
-   ========================================= */
+/* Mobile Nav */
 .mobile-nav-bar {
     display: flex;
     gap: 8px;
@@ -368,9 +304,7 @@ body {
     border-color: var(--primary);
 }
 
-/* =========================================
-   EXISTING MANAGER STYLES
-   ========================================= */
+/* Cards & Forms */
 .card-custom {
     background: var(--bg-card);
     border-radius: 15px;
@@ -386,33 +320,6 @@ body {
     color: var(--text-main);
 }
 
-/* Dropzone Styles */
-.dropzone-card {
-    border: 2px dashed var(--border-color);
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding: 30px 20px;
-    background-color: var(--input-bg);
-}
-
-.dropzone-card:hover,
-.dropzone-card.dragover {
-    background-color: rgba(255, 71, 87, 0.05);
-    border-color: var(--primary);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(255, 71, 87, 0.15);
-}
-
-.dropzone-card.loading {
-    opacity: 0.7;
-    pointer-events: none;
-}
-
-/* Inputs */
 .form-control,
 .form-select {
     background-color: var(--input-bg);
@@ -435,7 +342,7 @@ body {
     opacity: 0.7;
 }
 
-/* Tabelle */
+/* Table */
 .table-custom {
     width: 100%;
     color: var(--text-main);
@@ -465,7 +372,7 @@ body {
     border: 1px solid var(--input-border);
 }
 
-/* Empty state */
+/* Empty State */
 .tavoli-empty {
     display: flex;
     flex-direction: column;
@@ -487,9 +394,7 @@ body {
     margin-bottom: 0.5rem;
 }
 
-/* =========================================
-   RESPONSIVE — Tablet (< 992px)
-   ========================================= */
+/* Responsive */
 @media (max-width: 991.98px) {
     .tavoli-grid {
         grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
@@ -498,9 +403,6 @@ body {
     }
 }
 
-/* =========================================
-   RESPONSIVE — Mobile (< 768px)
-   ========================================= */
 @media (max-width: 767.98px) {
     .page-header {
         padding: 1rem;
@@ -584,7 +486,6 @@ body {
         padding: 1px 6px;
     }
 
-    /* Mobile nav: ensure icons visible */
     .mobile-nav-bar {
         justify-content: center;
     }
@@ -608,24 +509,8 @@ body {
         padding: 10px;
         font-size: 0.9rem;
     }
-
-    /* Dropzones stack better */
-    .dropzone-card {
-        padding: 20px 15px;
-    }
-
-    .dropzone-card h6 {
-        font-size: 0.9rem;
-    }
-
-    .dropzone-card p {
-        font-size: 0.75rem !important;
-    }
 }
 
-/* =========================================
-   RESPONSIVE — Small phones (< 400px)
-   ========================================= */
 @media (max-width: 399.98px) {
     .tavoli-grid {
         grid-template-columns: repeat(2, 1fr);

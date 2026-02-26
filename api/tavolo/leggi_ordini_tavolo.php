@@ -4,58 +4,47 @@ header('Content-Type: application/json');
 
 $idTavolo = $_SESSION['id_tavolo'];
 
-// Recupera sessione_inizio dal DB (persistente, resettato solo dall'admin)
+// Get session start time (reset only by admin)
 $stmtSess = $conn->prepare("SELECT sessione_inizio FROM tavoli WHERE id_tavolo = ?");
 $stmtSess->bind_param("i", $idTavolo);
 $stmtSess->execute();
 $resSess = $stmtSess->get_result()->fetch_assoc();
 $orarioLogin = $resSess['sessione_inizio'] ?? '1970-01-01 00:00:00';
 
-$queryOrdini = "SELECT o.id_ordine, o.stato, o.data_ora, d.quantita, a.nome_piatto, a.prezzo, d.note
-        FROM ordini o
-        JOIN dettaglio_ordini d ON o.id_ordine = d.id_ordine
-        JOIN alimenti a ON d.id_alimento = a.id_alimento
-        WHERE o.id_tavolo = ? AND o.data_ora >= ?
-        ORDER BY o.data_ora DESC";
-
-$stmt = $conn->prepare($queryOrdini);
+$stmt = $conn->prepare("SELECT o.id_ordine, o.stato, o.data_ora, d.quantita, a.nome_piatto, a.prezzo, d.note
+    FROM ordini o
+    JOIN dettaglio_ordini d ON o.id_ordine = d.id_ordine
+    JOIN alimenti a ON d.id_alimento = a.id_alimento
+    WHERE o.id_tavolo = ? AND o.data_ora >= ?
+    ORDER BY o.data_ora DESC");
 $stmt->bind_param("is", $idTavolo, $orarioLogin);
 $stmt->execute();
-$risultato = $stmt->get_result();
+$result = $stmt->get_result();
 
-$storicoOrdini = [];
-
-while ($datiPiatto = $risultato->fetch_assoc()) {
-    $idOrdine = $datiPiatto['id_ordine'];
-
-    // Inizializza l'ordine se è il primo piatto che processiamo per questo ID
-    if (!isset($storicoOrdini[$idOrdine])) {
-        $storicoOrdini[$idOrdine] = [
-            'id_ordine' => $idOrdine,
-            'stato' => $datiPiatto['stato'],
-            'ora' => date('H:i', strtotime($datiPiatto['data_ora'])),
-            'data' => date('d/m/Y', strtotime($datiPiatto['data_ora'])),
+$ordini = [];
+while ($row = $result->fetch_assoc()) {
+    $id = $row['id_ordine'];
+    if (!isset($ordini[$id])) {
+        $ordini[$id] = [
+            'id_ordine' => $id,
+            'stato' => $row['stato'],
+            'ora' => date('H:i', strtotime($row['data_ora'])),
+            'data' => date('d/m/Y', strtotime($row['data_ora'])),
             'piatti' => [],
             'totale' => 0
         ];
     }
-
-    $costoTotalePiatto = $datiPiatto['quantita'] * $datiPiatto['prezzo'];
-
-    $storicoOrdini[$idOrdine]['piatti'][] = [
-        'nome' => $datiPiatto['nome_piatto'],
-        'qta' => $datiPiatto['quantita'],
-        'prezzo' => number_format($datiPiatto['prezzo'], 2),
-        'note' => $datiPiatto['note'] ?? ''
+    $ordini[$id]['piatti'][] = [
+        'nome' => $row['nome_piatto'],
+        'qta' => $row['quantita'],
+        'prezzo' => number_format($row['prezzo'], 2),
+        'note' => $row['note'] ?? ''
     ];
-
-    $storicoOrdini[$idOrdine]['totale'] += $costoTotalePiatto;
+    $ordini[$id]['totale'] += $row['quantita'] * $row['prezzo'];
 }
 
-// Formatta i totali di ogni ordine in euro
-foreach ($storicoOrdini as &$ordine) {
-    $ordine['totale'] = number_format($ordine['totale'], 2);
-}
+foreach ($ordini as &$o)
+    $o['totale'] = number_format($o['totale'], 2);
 
-echo json_encode(array_values($storicoOrdini));
+echo json_encode(array_values($ordini));
 ?>

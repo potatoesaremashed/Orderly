@@ -1,18 +1,11 @@
 <?php
-// Mostra il menu digitale e gestisci gli incasellamenti (categorie, allergeni, carrello).
-
 session_start();
 include "../include/conn.php";
-
-// Nega il passaggio a chiunque non provenga da un login cliente autorizzato (tavolo)
 if (!isset($_SESSION['ruolo']) || $_SESSION['ruolo'] != 'tavolo') {
     header("Location: ../index.php");
     exit;
 }
-
 include "../include/header.php";
-
-// Precarica dal database categorie ed alimenti per servirli al JavaScript
 $categorie = $conn->query("SELECT * FROM categorie");
 $prodotti = $conn->query("SELECT * FROM alimenti");
 ?>
@@ -24,15 +17,13 @@ $prodotti = $conn->query("SELECT * FROM alimenti");
 
 <div class="container-fluid p-0">
     <div class="row g-0">
-        <!-- ========== SIDEBAR: FILTRI CATEGORIA ========== -->
+        <!-- SIDEBAR: Category Filters -->
         <div class="col-md-3 col-lg-2 d-none d-md-block">
             <div class="sidebar-custom d-flex flex-column">
                 <div class="text-center mb-5 mt-3"><img src="../imgs/ordlogo.png" width="100"></div>
-
                 <div class="px-3 flex-grow-1 overflow-auto">
                     <small class="text-uppercase fw-bold ps-3 mb-2 d-block text-muted" style="font-size: 11px;">Esplora
                         il Menu</small>
-                    <!-- Filtro 'Tutto': richiama filtraCategoria con 'all' -->
                     <div class="btn-categoria active" onclick="filtraCategoria('all', this)">
                         <i class="fas fa-utensils me-3"></i> Tutto
                     </div>
@@ -40,10 +31,8 @@ $prodotti = $conn->query("SELECT * FROM alimenti");
                         <div class="btn-categoria" onclick="filtraCategoria(<?php echo $cat['id_categoria']; ?>, this)">
                             <i class="fas fa-bookmark me-3"></i> <?php echo $cat['nome_categoria']; ?>
                         </div>
-                        <?php
-                    endwhile; ?>
+                    <?php endwhile; ?>
                 </div>
-
                 <div class="p-4 mt-auto">
                     <div class="d-flex justify-content-center gap-3">
                         <div class="theme-toggle-sidebar" onclick="toggleTheme()" title="Cambia Tema">
@@ -57,16 +46,15 @@ $prodotti = $conn->query("SELECT * FROM alimenti");
             </div>
         </div>
 
-        <!-- ========== CONTENUTO PRINCIPALE ========== -->
+        <!-- MAIN CONTENT -->
         <div class="col-md-9 col-lg-10">
-            <!-- HEADER STICKY: Cerca e Stato Carrello -->
+            <!-- STICKY HEADER -->
             <div class="sticky-header d-flex justify-content-between align-items-center">
                 <div class="search-wrapper">
                     <i class="fas fa-search search-icon"></i>
                     <input type="text" id="search-bar" class="search-input" placeholder="Cerca un piatto..."
                         oninput="renderProdotti()">
                 </div>
-
                 <div class="d-flex align-items-center justify-content-end gap-2">
                     <div
                         class="d-none d-sm-flex align-items-center me-2 bg-surface rounded-pill px-3 py-2 border shadow-sm">
@@ -74,21 +62,18 @@ $prodotti = $conn->query("SELECT * FROM alimenti");
                             Stimato</small>
                         <div class="fw-bold fs-5 text-price price-stable"><span id="soldi-header">0.00</span>€</div>
                     </div>
-
                     <button
                         class="btn btn-dark rounded-pill px-3 py-2 px-md-4 py-md-3 shadow-sm d-flex align-items-center"
                         onclick="apriStorico()">
                         <i class="fas fa-receipt"></i>
                         <span class="d-none d-lg-inline fw-bold ms-2">Storico Ordini</span>
                     </button>
-
                     <button
                         class="btn btn-dark rounded-pill px-3 py-2 px-md-4 py-md-3 shadow-sm d-flex align-items-center"
                         data-bs-toggle="modal" data-bs-target="#modalFiltri">
                         <i class="fas fa-filter"></i>
                         <span class="d-none d-lg-inline fw-bold ms-2">Filtra</span>
                     </button>
-
                     <button
                         class="btn btn-dark rounded-pill px-3 py-2 px-md-4 py-md-3 shadow-sm d-flex align-items-center"
                         data-bs-toggle="modal" data-bs-target="#modalCarrello" onclick="aggiornaModale()">
@@ -96,8 +81,7 @@ $prodotti = $conn->query("SELECT * FROM alimenti");
                         <span class="d-none d-lg-inline fw-bold ms-2">Carrello</span>
                         <span id="pezzi-header" class="ms-1">0</span>
                     </button>
-
-                    <!-- Mobile only: dark mode + logout -->
+                    <!-- Mobile: theme + logout -->
                     <div class="d-md-none" onclick="toggleTheme()"
                         style="width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;background:var(--input-bg);border:1px solid var(--border-color);color:var(--text-muted);">
                         <i class="fas fa-moon" style="font-size:0.85rem;"></i>
@@ -110,7 +94,7 @@ $prodotti = $conn->query("SELECT * FROM alimenti");
             </div>
 
             <div class="p-4 pb-5">
-                <!-- Mobile Category Bar (per schermi piccoli) -->
+                <!-- Mobile Category Bar -->
                 <div class="mobile-cat-bar d-md-none mb-3">
                     <div class="mobile-cat-btn active" onclick="filtraCategoria('all', this)">Tutto</div>
                     <?php
@@ -119,16 +103,14 @@ $prodotti = $conn->query("SELECT * FROM alimenti");
                         <div class="mobile-cat-btn" onclick="filtraCategoria(<?php echo $cm['id_categoria']; ?>, this)">
                             <?php echo $cm['nome_categoria']; ?>
                         </div>
-                        <?php
-                    endwhile; ?>
+                    <?php endwhile; ?>
                 </div>
 
-                <!-- GRIGLIA PRODOTTI -->
+                <!-- PRODUCT GRID -->
                 <div class="row g-4">
                     <?php while ($p = $prodotti->fetch_assoc()): ?>
                         <div class="col-sm-6 col-md-6 col-lg-4 col-xl-3 item-prodotto"
                             data-cat="<?php echo $p['id_categoria']; ?>">
-                            <!-- La "Card" del prodotto scatta l'apertura dello Zoom se cliccata -->
                             <div class="card-prodotto" onclick="apriZoom(event, this)"
                                 data-id="<?php echo $p['id_alimento']; ?>"
                                 data-nome="<?php echo htmlspecialchars($p['nome_piatto']); ?>"
@@ -142,13 +124,11 @@ $prodotti = $conn->query("SELECT * FROM alimenti");
                                         class="img-prodotto" loading="lazy">
                                     <div class="price-tag"><?php echo $p['prezzo']; ?>€</div>
                                 </div>
-
                                 <div class="card-body">
                                     <h5 class="piatto-title"><?php echo $p['nome_piatto']; ?></h5>
                                     <p class="piatto-desc"><?php echo $p['descrizione']; ?></p>
                                     <div class="mb-4" style="min-height: 25px;">
                                         <?php
-                                        // Esplodiamo la stringa degli allergeni salvata nel DB per creare i piccoli badge.
                                         $allergeni = explode(',', $p['lista_allergeni']);
                                         foreach ($allergeni as $a) {
                                             if (trim($a) != "")
@@ -156,8 +136,6 @@ $prodotti = $conn->query("SELECT * FROM alimenti");
                                         }
                                         ?>
                                     </div>
-
-                                    <!-- Controller di quantità rapido sotto ogni card -->
                                     <div class="mt-auto d-flex justify-content-center align-items-center pt-3"
                                         style="border-top: 1px solid var(--border-color);">
                                         <div class="qty-capsule-card d-flex align-items-center justify-content-between"
@@ -177,18 +155,13 @@ $prodotti = $conn->query("SELECT * FROM alimenti");
                                 </div>
                             </div>
                         </div>
-                        <?php
-                    endwhile; ?>
+                    <?php endwhile; ?>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- ================= MODALI (FINESTRE POPUP) ================= -->
 <?php include "../include/modals/tavolo_modals.php"; ?>
-
-<!-- Carichiamo il file JS che gestisce il menu lato cliente -->
 <script src="../js/tavolo.js?v=<?php echo time(); ?>"></script>
-
 <?php include "../include/footer.php"; ?>
