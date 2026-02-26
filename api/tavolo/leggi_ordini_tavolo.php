@@ -3,8 +3,13 @@ require_once "../../include/auth/tavolo_auth.php";
 header('Content-Type: application/json');
 
 $idTavolo = $_SESSION['id_tavolo'];
-// Recupera il momento in cui il tavolo ha fatto il login
-$orarioLogin = $_SESSION['login_time'] ?? '1970-01-01 00:00:00'; 
+
+// Recupera sessione_inizio dal DB (persistente, resettato solo dall'admin)
+$stmtSess = $conn->prepare("SELECT sessione_inizio FROM tavoli WHERE id_tavolo = ?");
+$stmtSess->bind_param("i", $idTavolo);
+$stmtSess->execute();
+$resSess = $stmtSess->get_result()->fetch_assoc();
+$orarioLogin = $resSess['sessione_inizio'] ?? '1970-01-01 00:00:00';
 
 $queryOrdini = "SELECT o.id_ordine, o.stato, o.data_ora, d.quantita, a.nome_piatto, a.prezzo, d.note
         FROM ordini o

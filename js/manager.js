@@ -1,6 +1,9 @@
 let tavoli = [];
 let filtroCorrente = 'tutti';
 
+// Auto-refresh: aggiorna lo stato dei tavoli ogni 5 secondi
+setInterval(() => { caricaTavoli(); }, 5000);
+
 function toggleTheme() {
     const isDark = document.body.getAttribute('data-theme') === 'dark';
     document.body.setAttribute('data-theme', isDark ? 'light' : 'dark');
@@ -59,7 +62,7 @@ function renderTavoli() {
     grid.innerHTML = filtrati.map(t => {
         const stato = t.stato || 'libero';
         const icona = stato === 'libero' ? 'fa-check-circle' : (stato === 'occupato' ? 'fa-utensils' : 'fa-clock');
-        const nextStato = { 'libero': 'occupato', 'occupato': 'riservato', 'riservato': 'libero' }[stato];
+        const nextStato = { 'libero': 'riservato', 'riservato': 'libero' }[stato];
 
         return `
             <div class="tavolo-card" data-id="${t.id_tavolo}">
@@ -69,11 +72,12 @@ function renderTavoli() {
                     <div class="tavolo-seats"><i class="fas fa-users"></i> ${t.posti || 4} posti</div>
                 </div>
                 <div class="tavolo-card-footer">
-                    <div class="tavolo-status-badge badge-${stato}" onclick="cambiaStatoTavolo(${t.id_tavolo}, '${nextStato}')">
+                    <div class="tavolo-status-badge badge-${stato}" ${stato !== 'occupato' ? `onclick="cambiaStatoTavolo(${t.id_tavolo}, '${nextStato}')"` : ''} ${stato === 'occupato' ? 'style="cursor: default; opacity: 0.8;"' : ''}>
                         <span class="status-dot dot-${stato}"></span> ${stato.toUpperCase()}
                     </div>
                     <div class="tavolo-actions">
                         <button class="btn-act" onclick="apriModalModificaTavolo(${t.id_tavolo})"><i class="fas fa-pen"></i></button>
+                        <button class="btn-act btn-delete-t" onclick="terminaSessione(${t.id_tavolo})" title="Termina sessione"><i class="fas fa-ban"></i></button>
                         <button class="btn-act btn-delete-t" onclick="eliminaTavolo(${t.id_tavolo}, '${t.nome_tavolo}')"><i class="fas fa-trash"></i></button>
                     </div>
                 </div>
@@ -147,8 +151,8 @@ function apriModalModificaTavolo(id) {
 
 function modificaTavolo() {
     const formData = new FormData();
-    ['mod_id_tavolo', 'mod_nome_tavolo', 'mod_password_tavolo', 'mod_posti_tavolo', 'mod_stato_tavolo'].forEach(id => {
-        formData.append(id.replace('mod_', ''), document.getElementById(id).value);
+    ['id_tavolo', 'nome_tavolo', 'password', 'posti', 'stato'].forEach(k => {
+        formData.append(k, document.getElementById(`mod_${k}`).value);
     });
 
     fetch('../api/manager/modifica_tavolo.php', { method: 'POST', body: formData })
@@ -184,6 +188,24 @@ function mostraToast(messaggio, isError = false) {
     toastEl.classList.toggle('bg-success', !isError);
     toastEl.classList.toggle('bg-danger', isError);
     new bootstrap.Toast(toastEl, { delay: 3000 }).show();
+}
+
+function terminaSessione(id) {
+    if (!confirm('Vuoi terminare la sessione per questo tavolo? Lo storico ordini verrà resettato.')) return;
+
+    const formData = new FormData();
+    formData.append('id_tavolo', id);
+
+    fetch('../api/manager/termina_sessione.php', { method: 'POST', body: formData })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                mostraToast('Sessione terminata!');
+                caricaTavoli();
+            } else {
+                mostraToast(data.error || 'Errore', true);
+            }
+        });
 }
 
 function apriModalModifica(btn) {

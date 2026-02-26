@@ -31,7 +31,8 @@
                 </div>
             </div>
             <div class="modal-footer border-0 p-4 bg-light-custom">
-                <button type="button" class="btn btn-light rounded-pill px-4 fw-bold" data-bs-dismiss="modal">Annulla</button>
+                <button type="button" class="btn btn-light rounded-pill px-4 fw-bold"
+                    data-bs-dismiss="modal">Annulla</button>
                 <button type="button" class="btn btn-dark rounded-pill px-5 fw-bold" onclick="aggiungiTavolo()">
                     <i class="fas fa-plus me-2"></i>Registra Tavolo
                 </button>
@@ -59,25 +60,26 @@
                     </div>
                     <div class="col-6">
                         <label class="small text-muted fw-bold mb-1">Password</label>
-                        <input type="text" id="mod_password_tavolo" class="form-control">
+                        <input type="text" id="mod_password" class="form-control">
                     </div>
                     <div class="col-6">
                         <label class="small text-muted fw-bold mb-1">Posti</label>
-                        <input type="number" id="mod_posti_tavolo" class="form-control" min="1" max="20">
+                        <input type="number" id="mod_posti" class="form-control" min="1" max="20">
                     </div>
                     <div class="col-12">
                         <label class="small text-muted fw-bold mb-1">Stato Tavolo</label>
-                        <select id="mod_stato_tavolo" class="form-select">
+                        <select id="mod_stato" class="form-select">
                             <option value="libero">🟢 Libero</option>
-                            <option value="occupato">🔴 Occupato</option>
                             <option value="riservato">🟡 Riservato</option>
                         </select>
                     </div>
                 </div>
             </div>
             <div class="modal-footer border-0 p-4">
-                <button type="button" class="btn btn-light rounded-pill px-4 fw-bold" data-bs-dismiss="modal">Chiudi</button>
-                <button type="button" class="btn btn-dark rounded-pill px-5 fw-bold" onclick="modificaTavolo()">Salva Modifiche</button>
+                <button type="button" class="btn btn-light rounded-pill px-4 fw-bold"
+                    data-bs-dismiss="modal">Chiudi</button>
+                <button type="button" class="btn btn-dark rounded-pill px-5 fw-bold" onclick="modificaTavolo()">Salva
+                    Modifiche</button>
             </div>
         </div>
     </div>
@@ -102,41 +104,44 @@
                         </div>
                         <div class="col-md-4">
                             <label class="small text-muted">Prezzo (€)</label>
-                            <input type="number" step="0.01" name="prezzo" id="mod_prezzo" class="form-control" required>
+                            <input type="number" step="0.01" name="prezzo" id="mod_prezzo" class="form-control"
+                                required>
                         </div>
                         <div class="col-12">
                             <label class="small text-muted">Sposta in Categoria</label>
                             <select name="id_categoria" id="mod_cat" class="form-select" required>
                                 <?php
-$res_mod = $conn->query("SELECT * FROM categorie");
-while ($cat = $res_mod->fetch_assoc()) {
-    echo "<option value='" . $cat['id_categoria'] . "'>" . $cat['nome_categoria'] . "</option>";
-}
-?>
+                                $res_mod = $conn->query("SELECT * FROM categorie");
+                                while ($cat = $res_mod->fetch_assoc()) {
+                                    echo "<option value='" . $cat['id_categoria'] . "'>" . $cat['nome_categoria'] . "</option>";
+                                }
+                                ?>
                             </select>
                         </div>
                         <div class="col-12">
                             <label class="small text-muted">Descrizione</label>
-                            <textarea name="descrizione" id="mod_desc" class="form-control" rows="3" style="resize: none;"></textarea>
+                            <textarea name="descrizione" id="mod_desc" class="form-control" rows="3"
+                                style="resize: none;"></textarea>
                         </div>
 
                         <div class="col-12">
                             <label class="small text-muted fw-bold mb-2">MODIFICA ALLERGENI</label>
                             <div class="d-flex flex-wrap gap-2 p-3 rounded bg-light-custom">
                                 <?php
-foreach ($allergeni as $a) {
-    echo "<div class='form-check form-check-inline m-0 me-3'>
+                                foreach ($allergeni as $a) {
+                                    echo "<div class='form-check form-check-inline m-0 me-3'>
                                             <input class='form-check-input mod-allergeni' type='checkbox' name='allergeni[]' value='$a' id='mod_al_$a'>
                                             <label class='form-check-label small' for='mod_al_$a'>$a</label>
                                         </div>";
-}
-?>
+                                }
+                                ?>
                             </div>
                         </div>
 
                         <div class="col-12">
                             <div class="d-flex align-items-center gap-3">
-                                <img id="preview_img" src="" style="width: 80px; height: 80px; object-fit: cover; border-radius: 12px; border: 1px solid #ddd;">
+                                <img id="preview_img" src=""
+                                    style="width: 80px; height: 80px; object-fit: cover; border-radius: 12px; border: 1px solid #ddd;">
                                 <div class="w-100">
                                     <label class="small text-muted">Sostituisci Immagine</label>
                                     <input type="file" name="immagine" class="form-control" accept="image/*">

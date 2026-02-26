@@ -7,7 +7,7 @@ include "include/conn.php";
 
 // Esegui la validazione di login solo se l'utente ha premuto Invia sul form
 if (isset($_POST['username'])) {
-    
+
     // Leggi e salva il nome utente e la password inseriti
     $user = $_POST['username'];
     $pass = $_POST['password'];
@@ -15,7 +15,7 @@ if (isset($_POST['username'])) {
     // Cerca una corrispondenza esatta nella tabella dei Manager
     $sql = "SELECT * FROM manager WHERE username='$user' AND password='$pass'";
     if ($conn->query($sql)->num_rows > 0) {
-        
+
         // Assegna il ruolo e teletrasporta al pannello di amministrazione
         $_SESSION['ruolo'] = 'manager';
         $_SESSION['username'] = $user;
@@ -26,7 +26,7 @@ if (isset($_POST['username'])) {
     // Cerca una corrispondenza esatta nella tabella Cocina/Cuochi
     $sql = "SELECT * FROM cuochi WHERE username='$user' AND password='$pass'";
     if ($conn->query($sql)->num_rows > 0) {
-        
+
         // Assegna il profilo cuoco e sposta alla dashboard delle ordinazioni
         $_SESSION['ruolo'] = 'cuoco';
         $_SESSION['username'] = $user;
@@ -38,25 +38,42 @@ if (isset($_POST['username'])) {
     $sql = "SELECT * FROM tavoli WHERE nome_tavolo='$user' AND password='$pass'";
     $res = $conn->query($sql);
     if ($res->num_rows > 0) {
-        
+
         // Estrai l'ID vero e proprio del tavolo per gli ordini futuri
         $row = $res->fetch_assoc();
-        
-        // Attiva la sessione ospite e portalo al frontend cliente (tavolo.php)
-        $_SESSION['ruolo'] = 'tavolo';
-        $_SESSION['id_tavolo'] = $row['id_tavolo'];
-        $_SESSION['username'] = $user;
-        
-        // Registra il momento esatto in cui il cliente si è seduto/loggato
-        // Questo serve per non mostrargli gli ordini dei clienti precedenti a questo tavolo
-        $_SESSION['login_time'] = date('Y-m-d H:i:s');
-        
-        header("Location: dashboards/tavolo.php?id=" . $row['id_tavolo']);
-        exit;
-    }
 
-    // Salva l'errore per mostrarlo nell'HTML sottostante se nessuno dei 3 match funziona
-    $error = "Nome utente o password errati. Riprova.";
+        // Controlla se un altro dispositivo è già connesso tramite token
+        $tokenCookie = $_COOKIE['device_token_' . $row['id_tavolo']] ?? '';
+        $tokenDB = $row['device_token'] ?? '';
+
+        if ($row['stato'] === 'occupato' && !empty($tokenDB) && $tokenCookie !== $tokenDB) {
+            // Un altro dispositivo è loggato — blocca l'accesso
+            $error = "Questo tavolo è già in uso da un altro dispositivo.";
+        } else {
+            // Genera un token unico per questo dispositivo
+            $nuovoToken = bin2hex(random_bytes(16));
+
+            // Attiva la sessione ospite e portalo al frontend cliente (tavolo.php)
+            $_SESSION['ruolo'] = 'tavolo';
+            $_SESSION['id_tavolo'] = $row['id_tavolo'];
+            $_SESSION['username'] = $user;
+
+            // Registra il momento esatto in cui il cliente si è seduto/loggato
+            $_SESSION['login_time'] = date('Y-m-d H:i:s');
+
+            // Salva il token nel DB e nel cookie del browser (dura 24 ore)
+            $stmt = $conn->prepare("UPDATE tavoli SET stato='occupato', device_token=? WHERE id_tavolo=?");
+            $stmt->bind_param("si", $nuovoToken, $row['id_tavolo']);
+            $stmt->execute();
+            setcookie('device_token_' . $row['id_tavolo'], $nuovoToken, time() + 86400, '/');
+
+            header("Location: dashboards/tavolo.php?id=" . $row['id_tavolo']);
+            exit;
+        }
+    } else {
+        // Salva l'errore per mostrarlo nell'HTML sottostante se nessuno dei 3 match funziona
+        $error = "Nome utente o password errati. Riprova.";
+    }
 }
 
 // Stampa lo scheletro HTML di testa (font, css)
@@ -207,14 +224,14 @@ include "include/header.php";
         <p class="subtitle">Inserisci le tue credenziali per accedere</p>
 
         <?php
-// Mostra il messaggio di errore se le credenziali sono sbagliate
-if (isset($error)) {
-    echo '<div class="alert alert-custom mb-4" role="alert">
+        // Mostra il messaggio di errore se le credenziali sono sbagliate
+        if (isset($error)) {
+            echo '<div class="alert alert-custom mb-4" role="alert">
                     <i class="fas fa-exclamation-circle"></i>
                     <span>' . $error . '</span>
                   </div>';
-}
-?>
+        }
+        ?>
 
         <form method="post">
             <div class="form-group">

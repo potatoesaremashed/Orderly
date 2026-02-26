@@ -399,7 +399,8 @@ body {
     background-color: var(--input-bg);
 }
 
-.dropzone-card:hover, .dropzone-card.dragover {
+.dropzone-card:hover,
+.dropzone-card.dragover {
     background-color: rgba(255, 71, 87, 0.05);
     border-color: var(--primary);
     transform: translateY(-2px);
@@ -487,7 +488,7 @@ body {
 }
 
 /* =========================================
-   RESPONSIVE 
+   RESPONSIVE — Tablet (< 992px)
    ========================================= */
 @media (max-width: 991.98px) {
     .tavoli-grid {
@@ -497,12 +498,28 @@ body {
     }
 }
 
+/* =========================================
+   RESPONSIVE — Mobile (< 768px)
+   ========================================= */
 @media (max-width: 767.98px) {
     .page-header {
         padding: 1rem;
         flex-direction: column;
-        gap: 1rem;
-        align-items: flex-start;
+        gap: 0.75rem;
+        align-items: stretch;
+        text-align: center;
+    }
+
+    .page-header .d-flex {
+        justify-content: center;
+    }
+
+    .page-header h2 {
+        font-size: 1.3rem;
+    }
+
+    .page-header p {
+        font-size: 0.8rem;
     }
 
     .tavoli-grid {
@@ -512,21 +529,64 @@ body {
     }
 
     .tavolo-card-header {
-        padding: 16px 12px 12px;
+        padding: 14px 10px 10px;
+        gap: 8px;
     }
 
     .tavolo-icon {
-        width: 44px;
-        height: 44px;
-        font-size: 1.1rem;
+        width: 40px;
+        height: 40px;
+        font-size: 1rem;
+        border-radius: 12px;
     }
 
     .tavolo-name {
-        font-size: 0.9rem;
+        font-size: 0.85rem;
+    }
+
+    .tavolo-seats {
+        font-size: 0.7rem;
+    }
+
+    .tavolo-card-footer {
+        padding: 8px 10px;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .tavolo-status-badge {
+        font-size: 0.65rem;
+        padding: 3px 10px;
+    }
+
+    .tavolo-actions {
+        gap: 6px;
+    }
+
+    .tavolo-actions .btn-act {
+        width: 28px;
+        height: 28px;
+        font-size: 0.7rem;
     }
 
     .filter-tabs {
-        padding: 0.75rem 1rem;
+        padding: 0.5rem 0.75rem;
+        gap: 6px;
+    }
+
+    .filter-tab {
+        padding: 6px 14px;
+        font-size: 0.8rem;
+    }
+
+    .filter-count {
+        font-size: 0.7rem;
+        padding: 1px 6px;
+    }
+
+    /* Mobile nav: ensure icons visible */
+    .mobile-nav-bar {
+        justify-content: center;
     }
 
     .card-custom {
@@ -547,5 +607,48 @@ body {
     .btn-main {
         padding: 10px;
         font-size: 0.9rem;
+    }
+
+    /* Dropzones stack better */
+    .dropzone-card {
+        padding: 20px 15px;
+    }
+
+    .dropzone-card h6 {
+        font-size: 0.9rem;
+    }
+
+    .dropzone-card p {
+        font-size: 0.75rem !important;
+    }
+}
+
+/* =========================================
+   RESPONSIVE — Small phones (< 400px)
+   ========================================= */
+@media (max-width: 399.98px) {
+    .tavoli-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+        padding: 0.5rem;
+    }
+
+    .tavolo-card-header {
+        padding: 12px 8px 8px;
+    }
+
+    .tavolo-icon {
+        width: 36px;
+        height: 36px;
+        font-size: 0.9rem;
+    }
+
+    .tavolo-name {
+        font-size: 0.8rem;
+    }
+
+    .page-header .btn {
+        font-size: 0.8rem;
+        padding: 8px 14px !important;
     }
 }

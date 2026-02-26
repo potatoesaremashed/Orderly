@@ -30,6 +30,8 @@ CREATE TABLE tavoli (
     password VARCHAR(50),
     stato ENUM('libero','occupato','riservato') DEFAULT 'libero',
     posti INT DEFAULT 4,
+    sessione_inizio DATETIME DEFAULT CURRENT_TIMESTAMP,
+    device_token VARCHAR(64) DEFAULT NULL,
     id_menu INT,
     FOREIGN KEY (id_menu) REFERENCES menu(id_menu)
 );
